@@ -1,0 +1,34 @@
+<div class="login-container">
+  <div class="card">
+    <div class="icon">👥</div>
+    <h1>Tickefy</h1>
+    <p class="subtitle">Create your account</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label>First Name</label>
+      <div class="input"><input formControlName="firstName" type="text" placeholder="John" /></div>
+      <div class="error" *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">First name is required</div>
+
+      <label>Last Name</label>
+      <div class="input"><input formControlName="lastName" type="text" placeholder="Doe" /></div>
+      <div class="error" *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">Last name is required</div>
+
+      <label>Login (email or username)</label>
+      <div class="input"><input formControlName="login" type="text" placeholder="you@company.com" /></div>
+      <div class="error" *ngIf="form.get('login')?.touched && form.get('login')?.invalid">Login is required</div>
+
+      <label>Password</label>
+      <div class="input"><input formControlName="password" type="password" placeholder="Create a password" /></div>
+      <div class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">Password is required (min 6)</div>
+
+      <label>Confirm Password</label>
+      <div class="input"><input formControlName="confirmPassword" type="password" placeholder="Confirm your password" /></div>
+      <div class="error" *ngIf="form.hasError('passwordMismatch') && (form.get('confirmPassword')?.touched || form.touched)">Passwords must match</div>
+
+      <button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Creating…' : 'Create account' }}</button>
+      <div class="error" *ngIf="error">{{ error }}</div>
+    </form>
+
+    <p class="foot">Already have an account? <a class="link" routerLink="/auth/login">Sign in</a></p>
+  </div>
+</div>
