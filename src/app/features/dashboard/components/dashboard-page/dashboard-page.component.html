@@ -1,1 +1,28 @@
-<p>dashboard-page works!</p>
+<section class="dashboard">
+	<header class="actions">
+		<button (click)="loginDemo()" [disabled]="loggingIn">
+			{{ loggingIn ? 'Logging in…' : 'Login demo' }}
+		</button>
+		<span *ngIf="error" style="color:crimson; margin-left:8px">{{ error }}</span>
+	</header>
+
+	<h2>My Tickets</h2>
+	<div *ngIf="tickets$ | async as tickets; else loading">
+		<div *ngIf="tickets && tickets.length > 0; else empty">
+			<ul>
+				<li *ngFor="let t of tickets">
+					<strong>{{ t.title || t.id }}</strong>
+					<span *ngIf="t.description"> — {{ t.description }}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<ng-template #loading>
+		<p>Loading tickets…</p>
+	</ng-template>
+
+	<ng-template #empty>
+		<p>No tickets found.</p>
+	</ng-template>
+</section>

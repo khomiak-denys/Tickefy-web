@@ -1,0 +1,34 @@
+<div class="login-container">
+  <div class="card">
+    <div class="icon">🔒</div>
+    <h1>Tickefy</h1>
+    <p class="subtitle">Sign in to your account</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label>Email Address</label>
+      <div class="input">
+        <input formControlName="login" type="text" placeholder="you@company.com" />
+      </div>
+      <div class="error" *ngIf="form.get('login')?.touched && form.get('login')?.invalid">Email/login is required</div>
+
+      <label>Password</label>
+      <div class="input">
+        <input formControlName="password" type="password" placeholder="Enter your password" />
+      </div>
+      <div class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">Password is required</div>
+
+      <div class="row">
+        <label class="remember">
+          <input type="checkbox" formControlName="remember" />
+          <span>Remember me</span>
+        </label>
+        <a class="link" routerLink="/auth/forgot">Forgot password?</a>
+      </div>
+
+      <button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign In' }}</button>
+      <div class="error" *ngIf="error">{{ error }}</div>
+    </form>
+
+    <p class="foot">Don't have an account? <a class="link" routerLink="/auth/register">Sign up</a></p>
+  </div>
+</div>
