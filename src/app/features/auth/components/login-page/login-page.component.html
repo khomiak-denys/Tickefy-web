@@ -6,13 +6,13 @@
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <label>Login</label>
-      <div class="input">
+      <div class="input" [class.invalid]="submitted && form.get('login')?.invalid">
         <input formControlName="login" type="text" placeholder="Your login" />
       </div>
       <div class="error" *ngIf="submitted && form.get('login')?.invalid">Login is required</div>
 
       <label>Password</label>
-      <div class="input">
+      <div class="input" [class.invalid]="submitted && form.get('password')?.invalid">
         <input formControlName="password" type="password" placeholder="Enter your password" />
       </div>
       <div class="error" *ngIf="submitted && form.get('password')?.invalid">Password is required</div>
