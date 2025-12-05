@@ -3,6 +3,8 @@ import { AsyncPipe, NgFor, NgIf, NgClass, CommonModule } from '@angular/common';
 import { TicketsService } from '../../../../shared/services/tickets.service';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { UsersService } from '../../../../shared/services/users.service';
+import { TeamsService } from '../../../../shared/services/teams.service';
+import { ActivityLogService } from '../../../../shared/services/activity-log.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
@@ -18,12 +20,21 @@ import { map } from 'rxjs/operators';
 export class DashboardPageComponent {
   tickets$!: Observable<any[]>;
   filteredTickets$!: Observable<any[]>;
+  allTickets$!: Observable<any[]>;
+  users$!: Observable<any[]>;
+  teams$!: Observable<any[]>;
+  logs$!: Observable<any[]>;
   stats$!: Observable<{open:number; inProgress:number; completed:number; cancelled:number; burning:number}>;
   loggingIn = false;
   error?: string;
   role: string | null = null;
   firstName: string | null = null;
   lastName: string | null = null;
+  // Ticket details modal
+  detailsOpen = false;
+  detailsLoading = false;
+  ticketDetails$?: Observable<any | null>;
+  teamDetails$?: Observable<any | null>;
   // Filters
   private statusFilter$ = new BehaviorSubject<string>('all');
   private priorityFilter$ = new BehaviorSubject<string>('all');
@@ -33,7 +44,14 @@ export class DashboardPageComponent {
   priorityOptions = ['all','low','medium','high'];
   typeOptions = ['all','bug','design','translation','task'];
 
-  constructor(private tickets: TicketsService, private auth: AuthService, private users: UsersService, private router: Router) {}
+  constructor(
+    private tickets: TicketsService,
+    private auth: AuthService,
+    private users: UsersService,
+    private teams: TeamsService,
+    private logs: ActivityLogService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     const token = localStorage.getItem('access_token') || '';
@@ -107,11 +125,18 @@ export class DashboardPageComponent {
         return list.filter((t: any) => {
           const sOk = sF === 'all' || norm(t?.status).includes(sF);
           const pOk = pF === 'all' || norm(t?.priority) === pF;
-          const tOk = tF === 'all' || norm(t?.type).includes(tF);
+          const tOk = tF === 'all' || norm(t?.type).includes(tF) || norm(t?.category).includes(tF);
           return sOk && pOk && tOk;
         });
       })
     );
+
+    // Collections for tabs
+    const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
+    this.allTickets$ = this.tickets.getAll().pipe(map(arr));
+    this.users$ = this.users.getAll().pipe(map(arr));
+    this.teams$ = this.teams.getAll().pipe(map(arr));
+    this.logs$ = this.logs.getLogs(1, 10).pipe(map(arr));
   }
 
   loginDemo() {
@@ -144,6 +169,32 @@ export class DashboardPageComponent {
     localStorage.removeItem('user_firstName');
     localStorage.removeItem('user_lastName');
     this.router.navigate(['/auth/login']);
+  }
+
+  openTicket(t: any) {
+    const id = t?.id || t?._id || t?.ticketId;
+    if (!id) return;
+    this.detailsOpen = true;
+    this.detailsLoading = true;
+    this.ticketDetails$ = this.tickets.getById(String(id)).pipe(
+      map((res: any) => res || null)
+    );
+    // mark loading false when first value arrives
+    this.ticketDetails$.subscribe({ complete: () => (this.detailsLoading = false), error: () => (this.detailsLoading = false) });
+  }
+
+  closeDetails() {
+    this.detailsOpen = false;
+    this.ticketDetails$ = undefined;
+  }
+
+  // Tabs
+  activeTab: 'my' | 'all' | 'users' | 'teams' | 'logs' = 'my';
+  setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') { this.activeTab = tab; }
+  openTeam(t: any) {
+    const id = t?.id || t?.teamId;
+    if (!id) return;
+    this.teamDetails$ = this.teams.getById(String(id)).pipe(map((res:any)=>res||null));
   }
 
   onStatusChange(value: string) { this.statusFilter$.next(value); }

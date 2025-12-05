@@ -1,12 +1,13 @@
+// Matches Tickefy.Domain.Common.Category
 export enum Category {
-  Category0 = 0,
-  Category1 = 1,
-  Category2 = 2,
-  Category3 = 3,
-  Category4 = 4,
-  Category5 = 5,
-  Category6 = 6,
-  Category7 = 7,
+  Finance = 0,
+  IT = 1,
+  Design = 2,
+  Marketing = 3,
+  HumanResources = 4,
+  Legal = 5,
+  AccessAndSecurity = 6,
+  Other = 7,
 }
 
 export interface RegisterUserRequest {

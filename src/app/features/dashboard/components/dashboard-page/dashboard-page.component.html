@@ -3,11 +3,11 @@
 	<aside class="sidebar">
 		<div class="brand">Tickefy</div>
 		<nav>
-			<a class="active"><span>🎫</span> My Tickets</a>
-			<a><span>📃</span> All Tickets</a>
-			<a><span>👥</span> Teams</a>
-			<a><span>👤</span> Users</a>
-			<a><span>📈</span> Activity Logs</a>
+			<a [class.active]="activeTab==='my'" (click)="setTab('my')"><span>🎫</span> My Tickets</a>
+			<a [class.active]="activeTab==='all'" (click)="setTab('all')"><span>📃</span> All Tickets</a>
+			<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><span>👥</span> Teams</a>
+			<a [class.active]="activeTab==='users'" (click)="setTab('users')"><span>👤</span> Users</a>
+			<a [class.active]="activeTab==='logs'" (click)="setTab('logs')"><span>📈</span> Activity Logs</a>
 		</nav>
 		<div class="profile">
 			<div class="avatar">J</div>
@@ -24,10 +24,18 @@
 	<main class="content">
 		<header class="top">
 			<div>
-				<h1>My Tickets</h1>
-				<p>View and manage your submitted requests</p>
+				<h1 *ngIf="activeTab==='my'">My Tickets</h1>
+				<h1 *ngIf="activeTab==='all'">All Tickets</h1>
+				<h1 *ngIf="activeTab==='teams'">Teams</h1>
+				<h1 *ngIf="activeTab==='users'">Users</h1>
+				<h1 *ngIf="activeTab==='logs'">Activity Logs</h1>
+				<p *ngIf="activeTab==='my'">View and manage your submitted requests</p>
+				<p *ngIf="activeTab==='all'">Browse all tickets in the system</p>
+				<p *ngIf="activeTab==='teams'">Explore teams and their details</p>
+				<p *ngIf="activeTab==='users'">Manage and view users</p>
+				<p *ngIf="activeTab==='logs'">Recent activity logs</p>
 			</div>
-			<button class="create">Create New Ticket</button>
+			<button class="create" *ngIf="activeTab==='my'">Create New Ticket</button>
 		</header>
 
 		<!-- Admin Greeting & Statistics (Top Cards) -->
@@ -59,7 +67,7 @@
 		</div>
 
 		<!-- Filters -->
-		<div class="filters">
+		<div class="filters" *ngIf="activeTab==='my'">
 			<div class="filter-icon">🔎</div>
 			<select (change)="onStatusChange($any($event.target).value)">
 				<option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>
@@ -72,11 +80,11 @@
 			</select>
 		</div>
 
-		<!-- Ticket list -->
-		<section class="tickets">
+		<!-- My Ticket list -->
+		<section class="tickets" *ngIf="activeTab==='my'">
 			<ng-container *ngIf="filteredTickets$ | async as list; else loading">
 				<ng-container *ngIf="list.length; else empty">
-					<article class="ticket" *ngFor="let t of list">
+					<article class="ticket" *ngFor="let t of list" (click)="openTicket(t)">
 						<div class="title-line">
 							<h3>{{ t.title || ('Ticket #' + (t.id || '')) }}</h3>
 							<span [ngClass]="statusClass(t?.status)">{{ (t?.status || 'open') | titlecase }}</span>
@@ -87,7 +95,7 @@
 							<span class="dot">•</span>
 							<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
 							<span class="dot">•</span>
-							<span>🏷️ {{ t.type || 'design' }}</span>
+							<span>🏷️ {{ t.category || t.type || 'design' }}</span>
 							<span class="dot">•</span>
 							<span>📅 Due: {{ (t.dueDate || t.deadline || '') | date:'MM/dd/yyyy' }}</span>
 						</div>
@@ -95,7 +103,134 @@
 				</ng-container>
 			</ng-container>
 		</section>
+				<!-- All Tickets -->
+				<section class="tickets" *ngIf="activeTab==='all'">
+					<ng-container *ngIf="allTickets$ | async as all; else loading">
+						<ng-container *ngIf="all.length; else empty">
+							<article class="ticket" *ngFor="let t of all" (click)="openTicket(t)">
+								<div class="title-line">
+									<h3>{{ t.title || ('Ticket #' + (t.id || '')) }}</h3>
+									<span [ngClass]="statusClass(t?.status)">{{ (t?.status || 'open') | titlecase }}</span>
+								</div>
+								<p class="desc">{{ t.description || 'No description provided.' }}</p>
+								<div class="meta">
+									<span>👤 {{ t.requester?.name || t.user?.name || 'John Doe' }}</span>
+									<span class="dot">•</span>
+									<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
+									<span class="dot">•</span>
+									<span>🏷️ {{ t.category || t.type || 'design' }}</span>
+									<span class="dot">•</span>
+									<span>📅 Due: {{ (t.dueDate || t.deadline || '') | date:'MM/dd/yyyy' }}</span>
+								</div>
+							</article>
+						</ng-container>
+					</ng-container>
+				</section>
+
+				<!-- Teams -->
+				<section class="tickets" *ngIf="activeTab==='teams'">
+					<ng-container *ngIf="teams$ | async as teams; else loading">
+						<ng-container *ngIf="teams.length; else empty">
+							<article class="ticket" *ngFor="let tm of teams" (click)="openTeam(tm)">
+								<div class="title-line">
+									<h3>{{ tm.name || ('Team #' + (tm.id || '')) }}</h3>
+									<span class="badge">Members: {{ tm.membersCount || tm.members?.length || 0 }}</span>
+								</div>
+								<p class="desc">{{ tm.description || 'No description.' }}</p>
+							</article>
+						</ng-container>
+					</ng-container>
+					<!-- Team details (inline) -->
+					<section class="team-details" *ngIf="teamDetails$ | async as td">
+						<h3>Team Details</h3>
+						<p><strong>Name:</strong> {{ td?.name }}</p>
+						<p><strong>Description:</strong> {{ td?.description }}</p>
+						<h4>Members</h4>
+						<ul>
+							<li *ngFor="let m of (td?.members || [])">{{ m?.name || m?.email || m?.id }}</li>
+						</ul>
+					</section>
+				</section>
+
+				<!-- Users -->
+				<section class="tickets" *ngIf="activeTab==='users'">
+					<ng-container *ngIf="users$ | async as users; else loading">
+						<ng-container *ngIf="users.length; else empty">
+							<article class="ticket" *ngFor="let u of users">
+								<div class="title-line">
+									<h3>{{ (u.firstName || '') + ' ' + (u.lastName || '') }}</h3>
+									<span class="badge">{{ (u.role || 'user') | titlecase }}</span>
+								</div>
+								<div class="meta">
+									<span>📧 {{ u.email || 'unknown@example.com' }}</span>
+									<span class="dot">•</span>
+									<span>🆔 {{ u.id }}</span>
+								</div>
+							</article>
+						</ng-container>
+					</ng-container>
+				</section>
+
+				<!-- Activity Logs -->
+				<section class="tickets" *ngIf="activeTab==='logs'">
+					<ng-container *ngIf="logs$ | async as logs; else loading">
+						<ng-container *ngIf="logs.length; else empty">
+							<article class="ticket" *ngFor="let l of logs">
+								<div class="title-line">
+									<h3>{{ l.action || l.event || 'Event' }}</h3>
+									<span class="badge">{{ l.createdAt | date:'short' }}</span>
+								</div>
+								<p class="desc">{{ l.description || l.details || 'No details.' }}</p>
+								<div class="meta">
+									<span>👤 {{ l.actorName || l.user?.name || l.actorId }}</span>
+									<span class="dot">•</span>
+									<span>🆔 {{ l.id }}</span>
+								</div>
+							</article>
+						</ng-container>
+					</ng-container>
+				</section>
 		<ng-template #loading><p>Loading tickets…</p></ng-template>
 		<ng-template #empty><p>No tickets found.</p></ng-template>
 	</main>
+  
+	<!-- Details modal -->
+	<div class="modal-backdrop" *ngIf="detailsOpen" (click)="closeDetails()"></div>
+	<div class="modal" *ngIf="detailsOpen">
+		<header class="modal-head">
+			<h3>Ticket details</h3>
+			<button class="close" (click)="closeDetails()">×</button>
+		</header>
+		<section class="modal-body" *ngIf="ticketDetails$ | async as d; else detailsLoadingTpl">
+			<div class="modal-title">{{ d.title }}</div>
+			<div class="modal-meta">
+				<span [ngClass]="statusClass(d?.status)">{{ d.status }}</span>
+				<span class="dot">•</span>
+				<span [ngClass]="priorityClass(d?.priority)">Priority: {{ d.priority }}</span>
+				<span class="dot">•</span>
+				<span>Deadline: {{ d.deadline | date:'medium' }}</span>
+			</div>
+			<p class="modal-desc">{{ d.description }}</p>
+
+			<h4>Comments</h4>
+			<ul class="comments">
+				<li *ngFor="let c of (d.comments || [])">
+					<div class="c-meta">{{ c.authorName || c.authorId }} • {{ c.createdAt | date:'short' }}</div>
+					<div class="c-text">{{ c.content }}</div>
+				</li>
+				<li *ngIf="!(d.comments?.length)">No comments.</li>
+			</ul>
+
+			<h4>Attachments</h4>
+			<ul class="attachments">
+				<li *ngFor="let a of (d.attachments || [])">
+					<a [href]="a.url || a.link" target="_blank" rel="noopener">{{ a.fileName || a.name }}</a>
+				</li>
+				<li *ngIf="!(d.attachments?.length)">No attachments.</li>
+			</ul>
+		</section>
+		<ng-template #detailsLoadingTpl>
+			<div class="modal-loading">Loading details…</div>
+		</ng-template>
+	</div>
 </section>
