@@ -134,7 +134,39 @@ label {
 
 .error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
 /* Error block sits directly under the field and fills the reserved gap */
-.input + .error { margin-top: 0; margin-bottom: 16px; }
+.input + .field-error { margin-top: 0; margin-bottom: 16px; }
+.input.invalid + .error { margin-top: 2px; }
+.input.invalid + .field-error { margin-top: 0; }
+
+/* Glassmorphism red error box under submit button */
+.error-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  backdrop-filter: saturate(180%) blur(10px);
+  background: linear-gradient(180deg, rgba(255, 0, 0, 0.18), rgba(255, 0, 0, 0.12));
+  border: 1px solid rgba(255, 0, 0, 0.35);
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.error-box__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
+.error-box__text { color: #7f1d1d; font-size: 0.9rem; }
 
 /* When invalid, tighten spacing between field and error text */
 .input.invalid + .error { margin-top: 2px; }

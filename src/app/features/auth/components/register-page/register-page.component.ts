@@ -50,7 +50,30 @@ export class RegisterPageComponent {
         this.router.navigate(['/auth/login']);
       },
       error: (e) => {
-        this.error = e?.error?.message || e?.message || 'Registration failed';
+        // Handle ProblemDetails-like responses and various HTTP errors
+        const body = e?.error;
+        const status = e?.status;
+        const title = body?.title || body?.error || undefined;
+        const detail = body?.detail || body?.message || undefined;
+        const errorsObj = body?.errors;
+
+        let fieldErrors: string | undefined;
+        if (errorsObj && typeof errorsObj === 'object') {
+          const parts: string[] = [];
+          Object.keys(errorsObj).forEach((key) => {
+            const arr = errorsObj[key];
+            if (Array.isArray(arr)) {
+              parts.push(...arr);
+            } else if (arr) {
+              parts.push(String(arr));
+            }
+          });
+          if (parts.length) fieldErrors = parts.join('\n');
+        }
+
+        const base = title || (status ? `HTTP ${status}` : 'Request failed');
+        const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
+        this.error = msg || 'Registration failed';
         this.loading = false;
       }
     });

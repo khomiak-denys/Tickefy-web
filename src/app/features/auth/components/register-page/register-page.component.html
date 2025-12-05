@@ -7,26 +7,29 @@
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <label>First Name</label>
       <div class="input" [class.invalid]="submitted && form.get('firstName')?.invalid"><input formControlName="firstName" type="text" placeholder="John" /></div>
-      <div class="error" *ngIf="submitted && form.get('firstName')?.invalid">First name is required</div>
+      <div class="field-error" *ngIf="submitted && form.get('firstName')?.invalid">First name is required</div>
 
       <label>Last Name</label>
       <div class="input" [class.invalid]="submitted && form.get('lastName')?.invalid"><input formControlName="lastName" type="text" placeholder="Doe" /></div>
-      <div class="error" *ngIf="submitted && form.get('lastName')?.invalid">Last name is required</div>
+      <div class="field-error" *ngIf="submitted && form.get('lastName')?.invalid">Last name is required</div>
 
       <label>Login</label>
       <div class="input" [class.invalid]="submitted && form.get('login')?.invalid"><input formControlName="login" type="text" placeholder="Your login" /></div>
-      <div class="error" *ngIf="submitted && form.get('login')?.invalid">Login is required</div>
+      <div class="field-error" *ngIf="submitted && form.get('login')?.invalid">Login is required</div>
 
       <label>Password</label>
       <div class="input" [class.invalid]="submitted && form.get('password')?.invalid"><input formControlName="password" type="password" placeholder="Create a password" /></div>
-      <div class="error" *ngIf="submitted && form.get('password')?.invalid">Password is required (min 6)</div>
+      <div class="field-error" *ngIf="submitted && form.get('password')?.invalid">Password is required (min 6)</div>
 
       <label>Confirm Password</label>
       <div class="input" [class.invalid]="submitted && form.hasError('passwordMismatch')"><input formControlName="confirmPassword" type="password" placeholder="Confirm your password" /></div>
-      <div class="error" *ngIf="submitted && form.hasError('passwordMismatch')">Passwords must match</div>
+      <div class="field-error" *ngIf="submitted && form.hasError('passwordMismatch')">Passwords must match</div>
 
       <button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Creating…' : 'Create account' }}</button>
-      <div class="error" *ngIf="error">{{ error }}</div>
+      <div class="error-box" *ngIf="error">
+        <div class="error-box__icon">!</div>
+        <div class="error-box__text">{{ error }}</div>
+      </div>
     </form>
 
     <p class="foot">Already have an account? <a class="link" routerLink="/auth/login">Sign in</a></p>

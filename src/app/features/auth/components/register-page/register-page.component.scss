@@ -84,10 +84,40 @@ label { font-size: 0.9rem; color: #374151; margin-bottom: 4px; margin-top: 0; }
 .primary { background: linear-gradient(180deg, #6d64ff, #554cff); color: #fff; border: none; height: 46px; border-radius: 14px; cursor: pointer; box-shadow: 0 12px 24px rgba(85,76,255,0.35); }
 .primary[disabled] { opacity: 0.7; cursor: default; }
 
-.error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
-/* Error block sits directly under the field and fills the reserved gap */
-.input + .error { margin-top: 0; margin-bottom: 16px; }
+.field-error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
+/* Field error sits directly under the input and fills reserved gap */
+.input + .field-error { margin-top: 0; margin-bottom: 16px; }
 /* Constant spacing: input has 16px bottom margin when no error.
 	When error exists, error adds 4px top + 12px bottom = 16px. */
 .foot { text-align: center; color: #6b7280; margin-top: 14px; }
 .link { color: #554cff; text-decoration: none; }
+
+/* Glassmorphism red error box under submit button */
+.error-box {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 12px;
+	border-radius: 16px;
+	padding: 10px 12px;
+	backdrop-filter: saturate(180%) blur(10px);
+	background: linear-gradient(180deg, rgba(255, 0, 0, 0.18), rgba(255, 0, 0, 0.12));
+	border: 1px solid rgba(255, 0, 0, 0.35);
+	box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.error-box__icon {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 12px;
+	color: #fff;
+	background: #ef4444;
+	box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
+.error-box__text { color: #7f1d1d; font-size: 0.9rem; }
