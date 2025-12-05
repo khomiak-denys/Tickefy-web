@@ -35,7 +35,7 @@
 				<p *ngIf="activeTab==='users'">Manage and view users</p>
 				<p *ngIf="activeTab==='logs'">Recent activity logs</p>
 			</div>
-			<button class="create" *ngIf="activeTab==='my'">Create New Ticket</button>
+			<button class="create" *ngIf="activeTab==='my'" (click)="openCreate()">Create New Ticket</button>
 		</header>
 
 		<!-- Admin Greeting & Statistics (Top Cards) -->
@@ -234,3 +234,32 @@
 		</ng-template>
 	</div>
 </section>
+
+<!-- Create Ticket Modal -->
+<div class="modal-backdrop" *ngIf="createOpen" (click)="closeCreate()"></div>
+<div class="modal" *ngIf="createOpen">
+	<header class="modal-head">
+		<h3>Create new ticket</h3>
+		<button class="close" (click)="closeCreate()">×</button>
+	</header>
+	<section class="modal-body">
+		<label>
+			<span>Title</span>
+			<input type="text" [(ngModel)]="newTitle" placeholder="Brief description of your request" />
+		</label>
+		<label>
+			<span>Description</span>
+			<textarea [(ngModel)]="newDescription" rows="6" placeholder="Detailed description of what you need..."></textarea>
+		</label>
+		<label>
+			<span>Deadline</span>
+			<input type="date" [(ngModel)]="newDeadline" placeholder="mm/dd/yyyy" />
+		</label>
+	</section>
+	<footer class="modal-foot">
+		<button class="primary" [disabled]="createSubmitting" (click)="submitCreate()">{{ createSubmitting ? 'Creating…' : 'Create' }}</button>
+		<button class="secondary" [disabled]="createSubmitting" (click)="closeCreate()">Cancel</button>
+	</footer>
+	<div class="error" *ngIf="error">{{ error }}</div>
+  
+</div>

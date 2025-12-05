@@ -64,9 +64,39 @@
 
 /* Modal */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.35); backdrop-filter: blur(2px); }
-.modal { position: fixed; right: 40px; left: 40px; top: 60px; bottom: 60px; background: #fff; border: 1px solid #eceff5; border-radius: 16px; padding: 0; box-shadow: 0 20px 48px rgba(17,24,39,0.25); display: flex; flex-direction: column; }
+.modal {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 720px;
+	max-width: 92vw;
+	max-height: 86vh;
+	background: #fff;
+	border: 1px solid #eceff5;
+	border-radius: 16px;
+	padding: 0;
+	box-shadow: 0 20px 48px rgba(17,24,39,0.25);
+	display: flex;
+	flex-direction: column;
+}
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eceff5; }
-.modal-body { padding: 18px; overflow: auto; }
+.modal-body { padding: 24px; overflow: auto; }
+.modal-foot { border-top: 1px solid #eceff5; display:flex; gap:12px; padding:16px 18px; }
+.modal-foot .primary { background:#4f46e5; color:#fff; border:none; border-radius:10px; padding:10px 16px; font-weight:600; cursor:pointer; }
+.modal-foot .secondary { background:#f1f5f9; color:#0f172a; border:none; border-radius:10px; padding:10px 16px; font-weight:600; cursor:pointer; }
+.modal-body label { display:block; margin-bottom:16px; }
+.modal-body label > span { display:block; font-size:13px; color:#475569; margin-bottom:8px; }
+.modal-body input[type="text"],
+.modal-body input[type="date"],
+.modal-body textarea,
+.modal-body select { width:100%; border:1px solid #e5e7eb; border-radius:12px; padding:12px 14px; font-size:14px; outline:none; background:#fff; }
+.modal-body textarea { resize: vertical; }
+.modal-body input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.15); }
+.modal-body .row { display:flex; gap:16px; }
+.modal-body .row .half { flex:1; }
 .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
 .modal-meta { display: flex; align-items: center; gap: 10px; color: #6b7280; margin-bottom: 12px; }
 .modal-desc { color: #374151; margin-bottom: 16px; }
@@ -76,7 +106,7 @@
 .close { border: none; background: transparent; font-size: 20px; cursor: pointer; }
 
 @media (max-width: 980px) {
-	.modal { right: 16px; left: 16px; top: 40px; bottom: 40px; }
+	.modal { width: 94vw; max-height: 88vh; }
 }
 
 @media (max-width: 980px) {

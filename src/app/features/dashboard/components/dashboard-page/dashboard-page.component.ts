@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AsyncPipe, NgFor, NgIf, NgClass, CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../shared/services/tickets.service';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { UsersService } from '../../../../shared/services/users.service';
@@ -13,7 +14,7 @@ import { map } from 'rxjs/operators';
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, AsyncPipe, NgFor, NgIf, NgClass],
+  imports: [CommonModule, FormsModule, AsyncPipe, NgFor, NgIf, NgClass],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -34,6 +35,12 @@ export class DashboardPageComponent {
   detailsOpen = false;
   detailsLoading = false;
   ticketDetails$?: Observable<any | null>;
+  // Create ticket modal
+  createOpen = false;
+  createSubmitting = false;
+  newTitle = '';
+  newDescription = '';
+  newDeadline = '';
   teamDetails$?: Observable<any | null>;
   // Filters
   private statusFilter$ = new BehaviorSubject<string>('all');
@@ -169,6 +176,25 @@ export class DashboardPageComponent {
     localStorage.removeItem('user_firstName');
     localStorage.removeItem('user_lastName');
     this.router.navigate(['/auth/login']);
+  }
+
+  openCreate() {
+    this.createOpen = true;
+    this.createSubmitting = false;
+    this.newTitle = '';
+    this.newDescription = '';
+    this.newDeadline = '';
+  }
+  closeCreate() { this.createOpen = false; }
+  submitCreate() {
+    if (!this.newTitle || !this.newDeadline) { this.error = 'Title and deadline are required'; return; }
+    this.createSubmitting = true;
+    const isoDeadline = (() => { try { return new Date(this.newDeadline).toISOString(); } catch { return this.newDeadline; } })();
+    const body = { title: this.newTitle, description: this.newDescription, deadline: isoDeadline } as any;
+    this.tickets.create(body).subscribe({
+      next: () => { this.createSubmitting = false; this.createOpen = false; this.refreshTickets(); },
+      error: (e) => { this.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
+    });
   }
 
   openTicket(t: any) {
