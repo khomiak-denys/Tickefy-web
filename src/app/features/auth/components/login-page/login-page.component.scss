@@ -132,7 +132,9 @@ label {
 
 .primary[disabled] { opacity: 0.7; cursor: default; }
 
-.error { color: #b91c1c; font-size: 0.85rem; margin-top: 4px; margin-bottom: 12px; line-height: 1.2; }
+.error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
+/* Error block sits directly under the field and fills the reserved gap */
+.input + .error { margin-top: 0; margin-bottom: 16px; }
 
 /* When invalid, tighten spacing between field and error text */
 .input.invalid + .error { margin-top: 2px; }

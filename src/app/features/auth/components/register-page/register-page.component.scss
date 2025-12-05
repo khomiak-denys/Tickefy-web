@@ -84,8 +84,9 @@ label { font-size: 0.9rem; color: #374151; margin-bottom: 4px; margin-top: 0; }
 .primary { background: linear-gradient(180deg, #6d64ff, #554cff); color: #fff; border: none; height: 46px; border-radius: 14px; cursor: pointer; box-shadow: 0 12px 24px rgba(85,76,255,0.35); }
 .primary[disabled] { opacity: 0.7; cursor: default; }
 
-.error { color: #b91c1c; font-size: 0.85rem; margin-top: 4px; margin-bottom: 12px; line-height: 1.2; }
-.input.invalid + .error { margin-top: 4px; }
+.error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
+/* Error block sits directly under the field and fills the reserved gap */
+.input + .error { margin-top: 0; margin-bottom: 16px; }
 /* Constant spacing: input has 16px bottom margin when no error.
 	When error exists, error adds 4px top + 12px bottom = 16px. */
 .foot { text-align: center; color: #6b7280; margin-top: 14px; }
