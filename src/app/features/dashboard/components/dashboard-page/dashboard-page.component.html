@@ -1,28 +1,101 @@
-<section class="dashboard">
-	<header class="actions">
-		<button (click)="loginDemo()" [disabled]="loggingIn">
-			{{ loggingIn ? 'Logging in…' : 'Login demo' }}
-		</button>
-		<span *ngIf="error" style="color:crimson; margin-left:8px">{{ error }}</span>
-	</header>
-
-	<h2>My Tickets</h2>
-	<div *ngIf="tickets$ | async as tickets; else loading">
-		<div *ngIf="tickets && tickets.length > 0; else empty">
-			<ul>
-				<li *ngFor="let t of tickets">
-					<strong>{{ t.title || t.id }}</strong>
-					<span *ngIf="t.description"> — {{ t.description }}</span>
-				</li>
-			</ul>
+<section class="layout">
+	<!-- Sidebar -->
+	<aside class="sidebar">
+		<div class="brand">Tickefy</div>
+		<nav>
+			<a class="active"><span>🎫</span> My Tickets</a>
+			<a><span>📃</span> All Tickets</a>
+			<a><span>👥</span> Teams</a>
+			<a><span>👤</span> Users</a>
+			<a><span>📈</span> Activity Logs</a>
+		</nav>
+		<div class="profile">
+			<div class="avatar">J</div>
+			<div class="who">
+				<div class="name">{{ (firstName || 'User') + ' ' + (lastName || '') }}</div>
+				<div class="role">{{ role || 'user' }}</div>
+			</div>
+			<button class="logout" (click)="logout()">Log Out</button>
+			<div class="error" *ngIf="error">{{ error }}</div>
 		</div>
-	</div>
+	</aside>
 
-	<ng-template #loading>
-		<p>Loading tickets…</p>
-	</ng-template>
+	<!-- Main content -->
+	<main class="content">
+		<header class="top">
+			<div>
+				<h1>My Tickets</h1>
+				<p>View and manage your submitted requests</p>
+			</div>
+			<button class="create">Create New Ticket</button>
+		</header>
 
-	<ng-template #empty>
-		<p>No tickets found.</p>
-	</ng-template>
+		<!-- Admin Greeting & Statistics (Top Cards) -->
+		<div class="stats" *ngIf="role === 'admin' && (stats$ | async) as s">
+			<div class="card">
+				<div class="label">🔥 Burning Deadlines</div>
+				<div class="value" style="color:#ef4444">{{ s.burning }}</div>
+			</div>
+			<div class="card">
+				<div class="label">📌 Active Tasks</div>
+				<div class="value" style="color:#4f46e5">{{ s.open + s.inProgress }}</div>
+			</div>
+			<div class="card">
+				<div class="label">✅ Completed</div>
+				<div class="value" style="color:#059669">{{ s.completed }}</div>
+			</div>
+			<div class="card">
+				<div class="label">Cancelled</div>
+				<div class="value">{{ s.open }}</div>
+			</div>
+			<div class="card">
+				<div class="label">In Progress</div>
+				<div class="value">{{ s.inProgress }}</div>
+			</div>
+			<div class="card">
+				<div class="label">Open</div>
+				<div class="value">{{ s.open }}</div>
+			</div>
+		</div>
+
+		<!-- Filters -->
+		<div class="filters">
+			<div class="filter-icon">🔎</div>
+			<select (change)="onStatusChange($any($event.target).value)">
+				<option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>
+			</select>
+			<select (change)="onPriorityChange($any($event.target).value)">
+				<option *ngFor="let p of priorityOptions" [value]="p">{{ p | titlecase }}</option>
+			</select>
+			<select (change)="onTypeChange($any($event.target).value)">
+				<option *ngFor="let t of typeOptions" [value]="t">{{ t | titlecase }}</option>
+			</select>
+		</div>
+
+		<!-- Ticket list -->
+		<section class="tickets">
+			<ng-container *ngIf="filteredTickets$ | async as list; else loading">
+				<ng-container *ngIf="list.length; else empty">
+					<article class="ticket" *ngFor="let t of list">
+						<div class="title-line">
+							<h3>{{ t.title || ('Ticket #' + (t.id || '')) }}</h3>
+							<span [ngClass]="statusClass(t?.status)">{{ (t?.status || 'open') | titlecase }}</span>
+						</div>
+						<p class="desc">{{ t.description || 'No description provided.' }}</p>
+						<div class="meta">
+							<span>👤 {{ t.requester?.name || t.user?.name || 'John Doe' }}</span>
+							<span class="dot">•</span>
+							<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
+							<span class="dot">•</span>
+							<span>🏷️ {{ t.type || 'design' }}</span>
+							<span class="dot">•</span>
+							<span>📅 Due: {{ (t.dueDate || t.deadline || '') | date:'MM/dd/yyyy' }}</span>
+						</div>
+					</article>
+				</ng-container>
+			</ng-container>
+		</section>
+		<ng-template #loading><p>Loading tickets…</p></ng-template>
+		<ng-template #empty><p>No tickets found.</p></ng-template>
+	</main>
 </section>
