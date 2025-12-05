@@ -13,8 +13,8 @@
       <div class="input"><input formControlName="lastName" type="text" placeholder="Doe" /></div>
       <div class="error" *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">Last name is required</div>
 
-      <label>Login (email or username)</label>
-      <div class="input"><input formControlName="login" type="text" placeholder="you@company.com" /></div>
+      <label>Login</label>
+      <div class="input"><input formControlName="login" type="text" placeholder="Your login" /></div>
       <div class="error" *ngIf="form.get('login')?.touched && form.get('login')?.invalid">Login is required</div>
 
       <label>Password</label>

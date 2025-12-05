@@ -5,9 +5,9 @@
     <p class="subtitle">Sign in to your account</p>
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label>Email Address</label>
+      <label>Login</label>
       <div class="input">
-        <input formControlName="login" type="text" placeholder="you@company.com" />
+        <input formControlName="login" type="text" placeholder="Your login" />
       </div>
       <div class="error" *ngIf="form.get('login')?.touched && form.get('login')?.invalid">Email/login is required</div>
 
@@ -16,14 +16,6 @@
         <input formControlName="password" type="password" placeholder="Enter your password" />
       </div>
       <div class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">Password is required</div>
-
-      <div class="row">
-        <label class="remember">
-          <input type="checkbox" formControlName="remember" />
-          <span>Remember me</span>
-        </label>
-        <a class="link" routerLink="/auth/forgot">Forgot password?</a>
-      </div>
 
       <button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign In' }}</button>
       <div class="error" *ngIf="error">{{ error }}</div>
