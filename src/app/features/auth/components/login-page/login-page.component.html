@@ -9,13 +9,13 @@
       <div class="input">
         <input formControlName="login" type="text" placeholder="Your login" />
       </div>
-      <div class="error" *ngIf="form.get('login')?.touched && form.get('login')?.invalid">Email/login is required</div>
+      <div class="error" *ngIf="submitted && form.get('login')?.invalid">Login is required</div>
 
       <label>Password</label>
       <div class="input">
         <input formControlName="password" type="password" placeholder="Enter your password" />
       </div>
-      <div class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">Password is required</div>
+      <div class="error" *ngIf="submitted && form.get('password')?.invalid">Password is required</div>
 
       <button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign In' }}</button>
       <div class="error" *ngIf="error">{{ error }}</div>

@@ -15,6 +15,7 @@ import { AuthService } from '../../../../shared/services/auth.service';
 export class LoginPageComponent {
   loading = false;
   error?: string;
+  submitted = false;
 
   form!: FormGroup;
 
@@ -27,6 +28,7 @@ export class LoginPageComponent {
   }
 
   submit() {
+    this.submitted = true;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

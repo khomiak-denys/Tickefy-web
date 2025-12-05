@@ -22,6 +22,7 @@ export class RegisterPageComponent {
   loading = false;
   error?: string;
   form!: FormGroup;
+  submitted = false;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.form = this.fb.group({
@@ -34,6 +35,7 @@ export class RegisterPageComponent {
   }
 
   submit() {
+    this.submitted = true;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
