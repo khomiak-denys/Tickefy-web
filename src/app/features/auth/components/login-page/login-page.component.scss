@@ -132,10 +132,9 @@ label {
 
 .primary[disabled] { opacity: 0.7; cursor: default; }
 
-.error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
-/* Error block sits directly under the field and fills the reserved gap */
+.field-error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
+/* Field error sits directly under the input and fills reserved gap */
 .input + .field-error { margin-top: 0; margin-bottom: 16px; }
-.input.invalid + .error { margin-top: 2px; }
 .input.invalid + .field-error { margin-top: 0; }
 
 /* Glassmorphism red error box under submit button */
