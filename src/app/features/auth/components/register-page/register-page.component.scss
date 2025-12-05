@@ -1,0 +1,123 @@
+/* Reuse login page glass styles by duplicating key selectors to avoid Sass build issues with @use in component scope */
+
+.login-container {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: radial-gradient(1200px 600px at 10% 10%, #e6f0ff 0%, transparent 60%),
+							radial-gradient(1000px 500px at 90% 20%, #ffe6f7 0%, transparent 60%),
+							linear-gradient(135deg, #f7f9ff, #eef3ff);
+}
+
+.card {
+	width: 420px;
+	border-radius: 24px;
+	padding: 28px;
+	backdrop-filter: saturate(180%) blur(16px);
+	background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.35));
+	border: 1px solid rgba(255,255,255,0.45);
+	box-shadow: 0 20px 40px rgba(31, 38, 135, 0.15);
+	position: relative;
+}
+
+.icon {
+	width: 64px;
+	height: 64px;
+	border-radius: 16px;
+	background: radial-gradient(60% 60% at 30% 30%, #7c6aff 0%, #5b51ff 60%, #4a43e6 100%);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 30px;
+	margin: 0 auto 16px;
+	box-shadow: 0 12px 24px rgba(91, 81, 255, 0.35);
+}
+
+h1 { text-align: center; margin: 0; background: linear-gradient(90deg, #1f2937, #4b5563); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { text-align: center; color: #6b7280; margin: 8px 0 20px; }
+
+form { display: flex; flex-direction: column; }
+label { font-size: 0.9rem; color: #374151; margin-bottom: 4px; margin-top: 0; }
+
+.input {
+	display: flex;
+	align-items: center;
+	border-radius: 14px;
+	padding: 0 14px;
+	height: 44px;
+	margin-bottom: 16px; /* reserve vertical space under fields when no errors */
+	background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.55));
+	border: 1px solid rgba(255,255,255,0.65);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(255,255,255,0.4);
+	position: relative;
+}
+
+.input.invalid {
+	border-color: #ef4444;
+	box-shadow: inset 0 0 0 1px rgba(239,68,68,0.4), inset 0 -1px 0 rgba(239,68,68,0.3);
+}
+
+/* Inline error indicator inside the field (right side) */
+.input.invalid::after {
+	content: '!';
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	font-weight: 600;
+	font-size: 12px;
+	color: #fff;
+	background: #ef4444;
+	box-shadow: 0 0 0 2px rgba(255,255,255,0.6);
+}
+
+.input input { border: none; outline: none; background: transparent; width: 100%; color: #111827; }
+
+.primary { background: linear-gradient(180deg, #6d64ff, #554cff); color: #fff; border: none; height: 46px; border-radius: 14px; cursor: pointer; box-shadow: 0 12px 24px rgba(85,76,255,0.35); }
+.primary[disabled] { opacity: 0.7; cursor: default; }
+
+.field-error { color: #b91c1c; font-size: 0.85rem; line-height: 1.2; }
+/* Field error sits directly under the input and fills reserved gap */
+.input + .field-error { margin-top: 0; margin-bottom: 16px; }
+/* Constant spacing: input has 16px bottom margin when no error.
+	When error exists, error adds 4px top + 12px bottom = 16px. */
+.foot { text-align: center; color: #6b7280; margin-top: 14px; }
+.link { color: #554cff; text-decoration: none; }
+
+/* Glassmorphism red error box under submit button */
+.error-box {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 12px;
+	border-radius: 16px;
+	padding: 10px 12px;
+	backdrop-filter: saturate(180%) blur(10px);
+	background: linear-gradient(180deg, rgba(255, 0, 0, 0.18), rgba(255, 0, 0, 0.12));
+	border: 1px solid rgba(255, 0, 0, 0.35);
+	box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.error-box__icon {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 12px;
+	color: #fff;
+	background: #ef4444;
+	box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
+.error-box__text { color: #7f1d1d; font-size: 0.9rem; }
