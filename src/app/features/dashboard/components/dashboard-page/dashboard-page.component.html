@@ -172,19 +172,24 @@
 				</section>
 
 				<!-- Activity Logs -->
-				<section class="tickets" *ngIf="activeTab==='logs'">
+				<section class="tickets logs" *ngIf="activeTab==='logs'">
 					<ng-container *ngIf="logs$ | async as logs; else loading">
 						<ng-container *ngIf="logs.length; else empty">
-							<article class="ticket" *ngFor="let l of logs">
-								<div class="title-line">
-									<h3>{{ l.action || l.event || 'Event' }}</h3>
-									<span class="badge">{{ l.createdAt | date:'short' }}</span>
+							<article class="log-item" *ngFor="let l of logs">
+								<div class="log-left">
+									<div class="log-icon">{{ logIcon(l?.event || l?.action) }}</div>
 								</div>
-								<p class="desc">{{ l.description || l.details || 'No details.' }}</p>
-								<div class="meta">
-									<span>👤 {{ l.actorName || l.user?.name || l.actorId }}</span>
-									<span class="dot">•</span>
-									<span>🆔 {{ l.id }}</span>
+								<div class="log-content">
+									<div class="log-top">
+										<div class="log-title">{{ l.title || l.action || l.event || 'Event' }}</div>
+										<span class="log-badge" [ngClass]="logBadge(l?.event || l?.action)">{{ humanizeEvent(l?.event || l?.action) }}</span>
+									</div>
+									<div class="log-meta">
+										<span>👤 {{ l.actorName || l.user?.name || 'John Doe' }}</span>
+										<span class="dot">•</span>
+										<span>🕒 {{ l.createdAt | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
+									</div>
+									<div class="log-ticket">Ticket: {{ l.ticketTitle || l.ticket?.title || l.ticketId }}</div>
 								</div>
 							</article>
 						</ng-container>
@@ -202,32 +207,55 @@
 			<button class="close" (click)="closeDetails()">×</button>
 		</header>
 		<section class="modal-body" *ngIf="ticketDetails$ | async as d; else detailsLoadingTpl">
-			<div class="modal-title">{{ d.title }}</div>
-			<div class="modal-meta">
-				<span [ngClass]="statusClass(d?.status)">{{ d.status }}</span>
-				<span class="dot">•</span>
-				<span [ngClass]="priorityClass(d?.priority)">Priority: {{ d.priority }}</span>
-				<span class="dot">•</span>
-				<span>Deadline: {{ d.deadline | date:'medium' }}</span>
+			<div class="ticket-head">
+				<h2 class="ticket-title">{{ d.title || ('Ticket #' + (d.id || '')) }}</h2>
+				<div class="ticket-tags">
+					<span class="chip chip-status" [ngClass]="statusClass(d?.status)">{{ (d.status || 'in progress') }}</span>
+					<span class="chip chip-priority">{{ (d.priority ? (d.priority + ' priority') : 'medium priority') }}</span>
+					<span class="chip chip-type">{{ d.category || d.type || 'design' }}</span>
+				</div>
+				<div class="ticket-actions">
+					<button class="act complete">✓ Complete</button>
+					<button class="act revise">↻ Revise</button>
+					<button class="act cancel">✕ Cancel</button>
+				</div>
 			</div>
+
+			<div class="ticket-meta-grid">
+				<div class="meta-block">
+					<div class="meta-label">Created by</div>
+					<div class="meta-value">{{ d.requester?.name || d.user?.name || 'John Doe' }}</div>
+				</div>
+				<div class="meta-block">
+					<div class="meta-label">Deadline</div>
+					<div class="meta-value">{{ d.deadline | date:'MM/dd/yyyy' }}</div>
+				</div>
+				<div class="meta-block">
+					<div class="meta-label">Created</div>
+					<div class="meta-value">{{ d.createdAt | date:'MM/dd/yyyy' }}</div>
+				</div>
+			</div>
+
+			<h3 class="section-title">Description</h3>
 			<p class="modal-desc">{{ d.description }}</p>
 
-			<h4>Comments</h4>
+
+			<h3 class="section-title">Comments ({{ (d.comments?.length || 0) }})</h3>
 			<ul class="comments">
-				<li *ngFor="let c of (d.comments || [])">
-					<div class="c-meta">{{ c.authorName || c.authorId }} • {{ c.createdAt | date:'short' }}</div>
+				<li *ngFor="let c of (d.comments || [])" class="comment-item">
+					<div class="comment-head">
+						<div class="avatar small">{{ (c.authorName || 'U').slice(0,1) }}</div>
+						<div class="who-time">
+							<div class="who">{{ c.authorName || c.authorId }}</div>
+							<div class="time">{{ c.createdAt | date:'MM/dd/yyyy, h:mm:ss a' }}</div>
+						</div>
+					</div>
 					<div class="c-text">{{ c.content }}</div>
 				</li>
 				<li *ngIf="!(d.comments?.length)">No comments.</li>
 			</ul>
 
-			<h4>Attachments</h4>
-			<ul class="attachments">
-				<li *ngFor="let a of (d.attachments || [])">
-					<a [href]="a.url || a.link" target="_blank" rel="noopener">{{ a.fileName || a.name }}</a>
-				</li>
-				<li *ngIf="!(d.attachments?.length)">No attachments.</li>
-			</ul>
+      
 		</section>
 		<ng-template #detailsLoadingTpl>
 			<div class="modal-loading">Loading details…</div>
@@ -257,8 +285,8 @@
 		</label>
 	</section>
 	<footer class="modal-foot">
-		<button class="primary" [disabled]="createSubmitting" (click)="submitCreate()">{{ createSubmitting ? 'Creating…' : 'Create' }}</button>
 		<button class="secondary" [disabled]="createSubmitting" (click)="closeCreate()">Cancel</button>
+		<button class="primary" [disabled]="createSubmitting" (click)="submitCreate()">{{ createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
 	</footer>
 	<div class="error" *ngIf="error">{{ error }}</div>
   

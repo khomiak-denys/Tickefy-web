@@ -242,4 +242,39 @@ export class DashboardPageComponent {
     const v = String(p || '').toLowerCase();
     return { pr: true, low: v==='low', medium: v==='medium', high: v==='high' };
   }
+
+  // Activity log helpers
+  logBadge(eventType: any) {
+    const t = String(eventType || '').toLowerCase();
+    return {
+      badge: true,
+      created: t.includes('requestcreated'),
+      commented: t.includes('commentadded'),
+      completed: t.includes('completed'),
+      status: t.includes('statuschanged'),
+      priority: t.includes('prioritychanged'),
+      deadline: t.includes('deadlinechanged'),
+      team: t.includes('teamassigned'),
+      user: t.includes('userassigned'),
+    };
+  }
+  logIcon(eventType: any) {
+    const t = String(eventType || '').toLowerCase();
+    if (t.includes('requestcreated')) return '📄';
+    if (t.includes('commentadded')) return '💬';
+    if (t.includes('completed')) return '✅';
+    if (t.includes('statuschanged')) return '🔄';
+    if (t.includes('prioritychanged')) return '⚠️';
+    if (t.includes('deadlinechanged')) return '⏰';
+    if (t.includes('teamassigned')) return '👥';
+    if (t.includes('userassigned')) return '👤';
+    return '📝';
+  }
+
+  humanizeEvent(eventType: any) {
+    const raw = String(eventType || '').trim();
+    if (!raw) return '';
+    const withSpaces = raw.replace(/([A-Z])/g, ' $1').trim();
+    return withSpaces.toLowerCase();
+  }
 }
