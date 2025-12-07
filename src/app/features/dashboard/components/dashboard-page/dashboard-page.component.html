@@ -35,42 +35,13 @@
 				<p *ngIf="activeTab==='users'">Manage and view users</p>
 				<p *ngIf="activeTab==='logs'">Recent activity logs</p>
 			</div>
-			<button class="create" *ngIf="activeTab==='my'" (click)="openCreate()">
-				<lucide-icon name="plus" size="18"></lucide-icon>
-				Create New Ticket
-			</button>
+			<button class="create" *ngIf="activeTab==='my'" (click)="openCreate()">Create New Ticket</button>
 		</header>
 
-		<!-- Admin Greeting & Statistics (Top Cards) -->
-		<div class="stats" *ngIf="role === 'admin' && (stats$ | async) as s">
-			<div class="card">
-				<div class="label">🔥 Burning Deadlines</div>
-				<div class="value" style="color:#ef4444">{{ s.burning }}</div>
-			</div>
-			<div class="card">
-				<div class="label">📌 Active Tasks</div>
-				<div class="value" style="color:#4f46e5">{{ s.open + s.inProgress }}</div>
-			</div>
-			<div class="card">
-				<div class="label">✅ Completed</div>
-				<div class="value" style="color:#059669">{{ s.completed }}</div>
-			</div>
-			<div class="card">
-				<div class="label">Cancelled</div>
-				<div class="value">{{ s.open }}</div>
-			</div>
-			<div class="card">
-				<div class="label">In Progress</div>
-				<div class="value">{{ s.inProgress }}</div>
-			</div>
-			<div class="card">
-				<div class="label">Open</div>
-				<div class="value">{{ s.open }}</div>
-			</div>
-		</div>
+		<!-- Admin statistics removed per request -->
 
-		<!-- Filters -->
-		<div class="filters" *ngIf="activeTab==='my'">
+		<!-- Filters (moved to All Tickets) -->
+		<div class="filters" *ngIf="activeTab==='all'">
 			<div class="filter-icon"><lucide-icon name="filter" size="18"></lucide-icon></div>
 			<select (change)="onStatusChange($any($event.target).value)">
 				<option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>
@@ -90,17 +61,17 @@
 					<article class="ticket-card" *ngFor="let t of tickets" (click)="openTicket(t)">
 						<div class="card-top">
 							<h3>{{ t.title }}</h3>
-							<span class="chip" [ngClass]="statusClass(t.status)">{{ (t.status || 'open') | lowercase }}</span>
+							<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+								<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
+								<span class="pill" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
+							</div>
 						</div>
 						<p class="desc">{{ t.description }}</p>
 						<div class="card-meta">
-							<span><lucide-icon name="user" size="16"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
-							<span class="dot">•</span>
-							<span class="chip priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="16"></lucide-icon> {{ (t.priority || 'medium priority') }}</span>
-							<span class="dot">•</span>
-							<span class="chip type">{{ t.category || t.assignedTeam?.category }}</span>
-							<span class="dot">•</span>
-							<span><lucide-icon name="calendar" size="16"></lucide-icon> Due: {{ t.deadline | date:'dd/MM/yyyy' }}</span>
+							<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+							<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
+							<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
+							<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
 						</div>
 					</article>
 				</ng-container>
@@ -110,24 +81,22 @@
 				<section class="tickets" *ngIf="activeTab==='all'">
 					<ng-container *ngIf="allTickets$ | async as all; else loading">
 						<ng-container *ngIf="all.length; else empty">
-							<article class="ticket" *ngFor="let t of all" (click)="openTicket(t)">
-								<div class="title-line">
+							<article class="ticket-card" *ngFor="let t of all" (click)="openTicket(t)">
+								<div class="card-top">
 									<h3>{{ t.title || ('Ticket #' + (t.id || '')) }}</h3>
-									<span [ngClass]="statusClass(t?.status)">{{ (t?.status || 'open') | titlecase }}</span>
+									<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+										<span class="pill status" [ngClass]="statusClass(t?.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t?.status || 'open') | lowercase }}</span>
+										<span class="pill" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
+									</div>
 								</div>
 								<p class="desc">{{ t.description || 'No description provided.' }}</p>
-								<div class="meta">
-									<span>👤 {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
-									<span class="dot">•</span>
-									<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
-									<span class="dot">•</span>
-									<span>🏷️ {{ t.category || t.assignedTeam?.category || 'design' }}</span>
-									<span class="dot">•</span>
-									<span>📅 Due: {{ (t.deadline || '') | date:'MM/dd/yyyy' }}</span>
-									<span class="dot" *ngIf="t.assignedTeam?.name">•</span>
-									<span *ngIf="t.assignedTeam?.name">👥 {{ t.assignedTeam?.name }}</span>
-									<span class="dot" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">•</span>
-									<span *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">👤 {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
+								<div class="card-meta">
+									<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+									<span class="pill" *ngIf="t.assignedTeam?.name"><lucide-icon name="users" size="14"></lucide-icon> {{ t.assignedTeam?.name }}</span>
+									<span class="pill" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
+									<span class="pill priority" [ngClass]="priorityClass(t?.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t?.priority || 'medium') }}</span>
+									<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category || 'design' }}</span>
+									<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ (t.deadline || '') | date:'MM/dd/yyyy' }}</span>
 								</div>
 							</article>
 						</ng-container>
@@ -144,7 +113,7 @@
 									<span class="badge">{{ tm.category || 'uncategorized' }}</span>
 								</div>
 								<div class="meta">
-									<span>👤 Manager: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
+									<span><lucide-icon name="user" size="16"></lucide-icon> Manager: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
 								</div>
 							</article>
 						</ng-container>
@@ -189,7 +158,7 @@
 						<ng-container *ngIf="logs.length; else empty">
 							<article class="log-item" *ngFor="let l of logs">
 								<div class="log-left">
-									<div class="log-icon">{{ logIcon(l?.eventType) }}</div>
+									<div class="log-icon"><lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon></div>
 								</div>
 								<div class="log-content">
 									<div class="log-top">
@@ -197,11 +166,11 @@
 										<span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{ humanizeEvent(l?.eventType) }}</span>
 									</div>
 									<div class="log-meta">
-										<span>👤 {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
+										<span><lucide-icon name="user" size="14"></lucide-icon> {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
 										<span class="dot">•</span>
-										<span>🕒 {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
+										<span><lucide-icon name="clock" size="14"></lucide-icon> {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
 									</div>
-									<div class="log-ticket">Ticket ID: {{ l.ticketId }}</div>
+									<div class="log-ticket"><lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}</div>
 								</div>
 							</article>
 							<div class="logs-pagination">
@@ -283,8 +252,10 @@
 <div class="modal-backdrop" *ngIf="createOpen" (click)="closeCreate()"></div>
 <div class="modal" *ngIf="createOpen">
 	<header class="modal-head">
-		<h3>Create new ticket</h3>
-		<button class="close" (click)="closeCreate()">×</button>
+		<h3>Create New Ticket</h3>
+		<button class="close" (click)="closeCreate()" aria-label="Close">
+			<lucide-icon name="x" size="18"></lucide-icon>
+		</button>
 	</header>
 	<section class="modal-body">
 		<label>

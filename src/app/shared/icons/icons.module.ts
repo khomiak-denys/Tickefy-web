@@ -30,6 +30,8 @@ import {
   UserPlus,
   FileText,
   MessageSquare,
+  Flame,
+  Pin,
 } from 'lucide-angular';
 
 const icons = {
@@ -62,6 +64,8 @@ const icons = {
   UserPlus,
   FileText,
   MessageSquare,
+  Flame,
+  Pin,
 };
 
 @NgModule({

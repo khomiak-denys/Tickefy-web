@@ -243,8 +243,11 @@ export class DashboardPageComponent {
       badge: true,
       open: s.startsWith('open') || (!s || s === ''),
       progress: s.includes('progress'),
-      completed: s.startsWith('comp'),
-      cancelled: s.startsWith('canc')
+      completed: s.startsWith('comp') || s.includes('completed'),
+      failed: s.includes('fail'),
+      cancelled: s.startsWith('canc') || s.includes('cancel'),
+      assigned: s.includes('assign'),
+      created: s.includes('created')
     };
   }
   priorityClass(p: any) {
@@ -269,15 +272,15 @@ export class DashboardPageComponent {
   }
   logIcon(eventType: any) {
     const t = String(eventType || '').toLowerCase();
-    if (t.includes('requestcreated')) return '📄';
-    if (t.includes('commentadded')) return '💬';
-    if (t.includes('completed')) return '✅';
-    if (t.includes('statuschanged')) return '🔄';
-    if (t.includes('prioritychanged')) return '⚠️';
-    if (t.includes('deadlinechanged')) return '⏰';
-    if (t.includes('teamassigned')) return '👥';
-    if (t.includes('userassigned')) return '👤';
-    return '📝';
+    if (t.includes('requestcreated')) return 'file-text';
+    if (t.includes('commentadded')) return 'message-square';
+    if (t.includes('completed')) return 'check-circle';
+    if (t.includes('statuschanged')) return 'rotate-ccw';
+    if (t.includes('prioritychanged')) return 'alert-circle';
+    if (t.includes('deadlinechanged')) return 'calendar';
+    if (t.includes('teamassigned')) return 'users';
+    if (t.includes('userassigned')) return 'user';
+    return 'file-text';
   }
 
   humanizeEvent(eventType: any) {
