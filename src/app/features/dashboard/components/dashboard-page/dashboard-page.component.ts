@@ -8,7 +8,9 @@ import { TeamsService } from '../../../../shared/services/teams.service';
 import { ActivityLogService } from '../../../../shared/services/activity-log.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
+import { TicketDetailsDto } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -25,6 +27,8 @@ export class DashboardPageComponent {
   users$!: Observable<any[]>;
   teams$!: Observable<any[]>;
   logs$!: Observable<any[]>;
+  logsPage$ = new BehaviorSubject<number>(1);
+  logsPageSize = 10;
   stats$!: Observable<{open:number; inProgress:number; completed:number; cancelled:number; burning:number}>;
   loggingIn = false;
   error?: string;
@@ -34,22 +38,21 @@ export class DashboardPageComponent {
   // Ticket details modal
   detailsOpen = false;
   detailsLoading = false;
-  ticketDetails$?: Observable<any | null>;
-  // Create ticket modal
+  detailsError: string | null = null;
+  selectedTicket: TicketDetailsDto | null = null;
+  ticketDetails$?: Observable<TicketDetailsDto | null>;
+  teamDetails$?: Observable<any>;
+  // Create ticket modal state
   createOpen = false;
   createSubmitting = false;
   newTitle = '';
   newDescription = '';
   newDeadline = '';
-  teamDetails$?: Observable<any | null>;
-  // Filters
-  private statusFilter$ = new BehaviorSubject<string>('all');
-  private priorityFilter$ = new BehaviorSubject<string>('all');
-  private typeFilter$ = new BehaviorSubject<string>('all');
-
-  statusOptions = ['all','open','in progress','completed','cancelled'];
-  priorityOptions = ['all','low','medium','high'];
   typeOptions = ['all','bug','design','translation','task'];
+  // Filters
+  statusFilter$ = new BehaviorSubject<string>('all');
+  priorityFilter$ = new BehaviorSubject<string>('all');
+  typeFilter$ = new BehaviorSubject<string>('all');
 
   constructor(
     private tickets: TicketsService,
@@ -120,7 +123,7 @@ export class DashboardPageComponent {
       })
     );
 
-    // Filtered tickets stream
+    // Filtered tickets stream (align with /tickets/my schema)
     this.filteredTickets$ = combineLatest([
       this.tickets$,
       this.statusFilter$,
@@ -132,7 +135,7 @@ export class DashboardPageComponent {
         return list.filter((t: any) => {
           const sOk = sF === 'all' || norm(t?.status).includes(sF);
           const pOk = pF === 'all' || norm(t?.priority) === pF;
-          const tOk = tF === 'all' || norm(t?.type).includes(tF) || norm(t?.category).includes(tF);
+          const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
           return sOk && pOk && tOk;
         });
       })
@@ -143,7 +146,10 @@ export class DashboardPageComponent {
     this.allTickets$ = this.tickets.getAll().pipe(map(arr));
     this.users$ = this.users.getAll().pipe(map(arr));
     this.teams$ = this.teams.getAll().pipe(map(arr));
-    this.logs$ = this.logs.getLogs(1, 10).pipe(map(arr));
+    this.logs$ = this.logsPage$.pipe(
+      switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
+      map(arr)
+    );
   }
 
   loginDemo() {
@@ -277,4 +283,8 @@ export class DashboardPageComponent {
     const withSpaces = raw.replace(/([A-Z])/g, ' $1').trim();
     return withSpaces.toLowerCase();
   }
+
+  // Logs pagination controls
+  nextLogsPage() { this.logsPage$.next(this.logsPage$.value + 1); }
+  prevLogsPage() { const p = this.logsPage$.value - 1; this.logsPage$.next(p > 0 ? p : 1); }
 }

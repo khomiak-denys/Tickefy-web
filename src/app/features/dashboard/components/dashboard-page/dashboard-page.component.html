@@ -91,13 +91,17 @@
 						</div>
 						<p class="desc">{{ t.description || 'No description provided.' }}</p>
 						<div class="meta">
-							<span>👤 {{ t.requester?.name || t.user?.name || 'John Doe' }}</span>
+							<span>👤 {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
 							<span class="dot">•</span>
 							<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
 							<span class="dot">•</span>
-							<span>🏷️ {{ t.category || t.type || 'design' }}</span>
+							<span>🏷️ {{ t.category || t.assignedTeam?.category || 'design' }}</span>
 							<span class="dot">•</span>
 							<span>📅 Due: {{ (t.dueDate || t.deadline || '') | date:'MM/dd/yyyy' }}</span>
+							<span class="dot" *ngIf="t.assignedTeam?.name">•</span>
+							<span *ngIf="t.assignedTeam?.name">👥 {{ t.assignedTeam?.name }}</span>
+							<span class="dot" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">•</span>
+							<span *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">👤 {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
 						</div>
 					</article>
 				</ng-container>
@@ -114,13 +118,17 @@
 								</div>
 								<p class="desc">{{ t.description || 'No description provided.' }}</p>
 								<div class="meta">
-									<span>👤 {{ t.requester?.name || t.user?.name || 'John Doe' }}</span>
+									<span>👤 {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
 									<span class="dot">•</span>
 									<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
 									<span class="dot">•</span>
-									<span>🏷️ {{ t.category || t.type || 'design' }}</span>
+									<span>🏷️ {{ t.category || t.assignedTeam?.category || 'design' }}</span>
 									<span class="dot">•</span>
-									<span>📅 Due: {{ (t.dueDate || t.deadline || '') | date:'MM/dd/yyyy' }}</span>
+									<span>📅 Due: {{ (t.deadline || '') | date:'MM/dd/yyyy' }}</span>
+									<span class="dot" *ngIf="t.assignedTeam?.name">•</span>
+									<span *ngIf="t.assignedTeam?.name">👥 {{ t.assignedTeam?.name }}</span>
+									<span class="dot" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">•</span>
+									<span *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">👤 {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
 								</div>
 							</article>
 						</ng-container>
@@ -134,9 +142,11 @@
 							<article class="ticket" *ngFor="let tm of teams" (click)="openTeam(tm)">
 								<div class="title-line">
 									<h3>{{ tm.name || ('Team #' + (tm.id || '')) }}</h3>
-									<span class="badge">Members: {{ tm.membersCount || tm.members?.length || 0 }}</span>
+									<span class="badge">{{ tm.category || 'uncategorized' }}</span>
 								</div>
-								<p class="desc">{{ tm.description || 'No description.' }}</p>
+								<div class="meta">
+									<span>👤 Manager: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
+								</div>
 							</article>
 						</ng-container>
 					</ng-container>
@@ -144,11 +154,8 @@
 					<section class="team-details" *ngIf="teamDetails$ | async as td">
 						<h3>Team Details</h3>
 						<p><strong>Name:</strong> {{ td?.name }}</p>
-						<p><strong>Description:</strong> {{ td?.description }}</p>
-						<h4>Members</h4>
-						<ul>
-							<li *ngFor="let m of (td?.members || [])">{{ m?.name || m?.email || m?.id }}</li>
-						</ul>
+						<p><strong>Category:</strong> {{ td?.category }}</p>
+						<p><strong>Manager:</strong> {{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}</p>
 					</section>
 				</section>
 
@@ -162,9 +169,15 @@
 									<span class="badge">{{ (u.role || 'user') | titlecase }}</span>
 								</div>
 								<div class="meta">
-									<span>📧 {{ u.email || 'unknown@example.com' }}</span>
+									<span>👤 Login: {{ u.login }}</span>
 									<span class="dot">•</span>
 									<span>🆔 {{ u.id }}</span>
+									<span class="dot" *ngIf="u.team?.name">•</span>
+									<span *ngIf="u.team?.name">👥 Team: {{ u.team?.name }} ({{ u.team?.category }})</span>
+									<span class="dot" *ngIf="u.team?.manager">•</span>
+									<span *ngIf="u.team?.manager">👤 Manager: {{ (u.team?.manager?.firstName || '') + ' ' + (u.team?.manager?.lastName || '') }}</span>
+									<span class="dot" *ngIf="u.created">•</span>
+									<span *ngIf="u.created">📅 Created: {{ u.created | date:'MM/dd/yyyy' }}</span>
 								</div>
 							</article>
 						</ng-container>
@@ -177,21 +190,25 @@
 						<ng-container *ngIf="logs.length; else empty">
 							<article class="log-item" *ngFor="let l of logs">
 								<div class="log-left">
-									<div class="log-icon">{{ logIcon(l?.event || l?.action) }}</div>
+									<div class="log-icon">{{ logIcon(l?.eventType) }}</div>
 								</div>
 								<div class="log-content">
 									<div class="log-top">
-										<div class="log-title">{{ l.title || l.action || l.event || 'Event' }}</div>
-										<span class="log-badge" [ngClass]="logBadge(l?.event || l?.action)">{{ humanizeEvent(l?.event || l?.action) }}</span>
+										<div class="log-title">{{ l.description || 'Event' }}</div>
+										<span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{ humanizeEvent(l?.eventType) }}</span>
 									</div>
 									<div class="log-meta">
-										<span>👤 {{ l.actorName || l.user?.name || 'John Doe' }}</span>
+										<span>👤 {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
 										<span class="dot">•</span>
-										<span>🕒 {{ l.createdAt | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
+										<span>🕒 {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
 									</div>
-									<div class="log-ticket">Ticket: {{ l.ticketTitle || l.ticket?.title || l.ticketId }}</div>
+									<div class="log-ticket">Ticket ID: {{ l.ticketId }}</div>
 								</div>
 							</article>
+							<div class="logs-pagination">
+								<button class="secondary" (click)="prevLogsPage()">Prev</button>
+								<button class="primary" (click)="nextLogsPage()">Next</button>
+							</div>
 						</ng-container>
 					</ng-container>
 				</section>
