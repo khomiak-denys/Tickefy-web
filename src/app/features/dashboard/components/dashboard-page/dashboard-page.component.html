@@ -3,11 +3,11 @@
 	<aside class="sidebar">
 		<div class="brand">Tickefy</div>
 		<nav>
-			<a [class.active]="activeTab==='my'" (click)="setTab('my')"><span>🎫</span> My Tickets</a>
-			<a [class.active]="activeTab==='all'" (click)="setTab('all')"><span>📃</span> All Tickets</a>
-			<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><span>👥</span> Teams</a>
-			<a [class.active]="activeTab==='users'" (click)="setTab('users')"><span>👤</span> Users</a>
-			<a [class.active]="activeTab==='logs'" (click)="setTab('logs')"><span>📈</span> Activity Logs</a>
+			<a [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
+			<a [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
+			<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><lucide-icon name="users" size="18"></lucide-icon> Teams</a>
+			<a [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
+			<a [class.active]="activeTab==='logs'" (click)="setTab('logs')"><lucide-icon name="activity" size="18"></lucide-icon> Activity Logs</a>
 		</nav>
 		<div class="profile">
 			<div class="avatar">J</div>
@@ -35,7 +35,10 @@
 				<p *ngIf="activeTab==='users'">Manage and view users</p>
 				<p *ngIf="activeTab==='logs'">Recent activity logs</p>
 			</div>
-			<button class="create" *ngIf="activeTab==='my'" (click)="openCreate()">Create New Ticket</button>
+			<button class="create" *ngIf="activeTab==='my'" (click)="openCreate()">
+				<lucide-icon name="plus" size="18"></lucide-icon>
+				Create New Ticket
+			</button>
 		</header>
 
 		<!-- Admin Greeting & Statistics (Top Cards) -->
@@ -68,7 +71,7 @@
 
 		<!-- Filters -->
 		<div class="filters" *ngIf="activeTab==='my'">
-			<div class="filter-icon">🔎</div>
+			<div class="filter-icon"><lucide-icon name="filter" size="18"></lucide-icon></div>
 			<select (change)="onStatusChange($any($event.target).value)">
 				<option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>
 			</select>
@@ -91,13 +94,13 @@
 						</div>
 						<p class="desc">{{ t.description }}</p>
 						<div class="card-meta">
-							<span>👤 {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+							<span><lucide-icon name="user" size="16"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
 							<span class="dot">•</span>
-							<span class="chip priority" [ngClass]="priorityClass(t.priority)">{{ (t.priority || 'medium priority') }}</span>
+							<span class="chip priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="16"></lucide-icon> {{ (t.priority || 'medium priority') }}</span>
 							<span class="dot">•</span>
 							<span class="chip type">{{ t.category || t.assignedTeam?.category }}</span>
 							<span class="dot">•</span>
-							<span>📅 Due: {{ t.deadline | date:'dd/MM/yyyy' }}</span>
+							<span><lucide-icon name="calendar" size="16"></lucide-icon> Due: {{ t.deadline | date:'dd/MM/yyyy' }}</span>
 						</div>
 					</article>
 				</ng-container>
@@ -223,14 +226,14 @@
 			<div class="ticket-head">
 				<h2 class="ticket-title">{{ d.title || ('Ticket #' + (d.id || '')) }}</h2>
 				<div class="ticket-tags">
-					<span class="chip chip-status" [ngClass]="statusClass(d?.status)">{{ (d.status || 'in progress') }}</span>
-					<span class="chip chip-priority">{{ (d.priority ? (d.priority + ' priority') : 'medium priority') }}</span>
+					<span class="chip chip-status" [ngClass]="statusClass(d?.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (d.status || 'in progress') }}</span>
+					<span class="chip chip-priority"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (d.priority ? (d.priority + ' priority') : 'medium priority') }}</span>
 					<span class="chip chip-type">{{ d.category || d.assignedTeam?.category || 'design' }}</span>
 				</div>
 				<div class="ticket-actions">
-					<button class="act complete">✓ Complete</button>
-					<button class="act revise">↻ Revise</button>
-					<button class="act cancel">✕ Cancel</button>
+					<button class="act complete"><lucide-icon name="check-circle" size="16"></lucide-icon> Complete</button>
+					<button class="act revise"><lucide-icon name="rotate-ccw" size="16"></lucide-icon> Revise</button>
+					<button class="act cancel"><lucide-icon name="x-circle" size="16"></lucide-icon> Cancel</button>
 				</div>
 			</div>
 

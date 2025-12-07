@@ -12,11 +12,12 @@ import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
 import { TicketDetailsDto } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
+import { IconsModule } from '../../../../shared/icons/icons.module';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, AsyncPipe, NgFor, NgIf, NgClass],
+  imports: [CommonModule, FormsModule, AsyncPipe, NgFor, NgIf, NgClass, IconsModule],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
