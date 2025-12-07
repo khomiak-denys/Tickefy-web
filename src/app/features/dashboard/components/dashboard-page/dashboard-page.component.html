@@ -82,26 +82,22 @@
 
 		<!-- My Ticket list -->
 		<section class="tickets" *ngIf="activeTab==='my'">
-			<ng-container *ngIf="filteredTickets$ | async as list; else loading">
-				<ng-container *ngIf="list.length; else empty">
-					<article class="ticket" *ngFor="let t of list" (click)="openTicket(t)">
-						<div class="title-line">
-							<h3>{{ t.title || ('Ticket #' + (t.id || '')) }}</h3>
-							<span [ngClass]="statusClass(t?.status)">{{ (t?.status || 'open') | titlecase }}</span>
+			<ng-container *ngIf="filteredTickets$ | async as tickets; else loading">
+				<ng-container *ngIf="tickets.length; else empty">
+					<article class="ticket-card" *ngFor="let t of tickets" (click)="openTicket(t)">
+						<div class="card-top">
+							<h3>{{ t.title }}</h3>
+							<span class="chip" [ngClass]="statusClass(t.status)">{{ (t.status || 'open') | lowercase }}</span>
 						</div>
-						<p class="desc">{{ t.description || 'No description provided.' }}</p>
-						<div class="meta">
+						<p class="desc">{{ t.description }}</p>
+						<div class="card-meta">
 							<span>👤 {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
 							<span class="dot">•</span>
-							<span [ngClass]="priorityClass(t?.priority)">⚠ {{ (t?.priority || 'medium') }}</span>
+							<span class="chip priority" [ngClass]="priorityClass(t.priority)">{{ (t.priority || 'medium priority') }}</span>
 							<span class="dot">•</span>
-							<span>🏷️ {{ t.category || t.assignedTeam?.category || 'design' }}</span>
+							<span class="chip type">{{ t.category || t.assignedTeam?.category }}</span>
 							<span class="dot">•</span>
-							<span>📅 Due: {{ (t.dueDate || t.deadline || '') | date:'MM/dd/yyyy' }}</span>
-							<span class="dot" *ngIf="t.assignedTeam?.name">•</span>
-							<span *ngIf="t.assignedTeam?.name">👥 {{ t.assignedTeam?.name }}</span>
-							<span class="dot" *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">•</span>
-							<span *ngIf="t.assignedAgent?.firstName || t.assignedAgent?.lastName">👤 {{ (t.assignedAgent?.firstName || '') + ' ' + (t.assignedAgent?.lastName || '') }}</span>
+							<span>📅 Due: {{ t.deadline | date:'dd/MM/yyyy' }}</span>
 						</div>
 					</article>
 				</ng-container>
@@ -229,7 +225,7 @@
 				<div class="ticket-tags">
 					<span class="chip chip-status" [ngClass]="statusClass(d?.status)">{{ (d.status || 'in progress') }}</span>
 					<span class="chip chip-priority">{{ (d.priority ? (d.priority + ' priority') : 'medium priority') }}</span>
-					<span class="chip chip-type">{{ d.category || d.type || 'design' }}</span>
+					<span class="chip chip-type">{{ d.category || d.assignedTeam?.category || 'design' }}</span>
 				</div>
 				<div class="ticket-actions">
 					<button class="act complete">✓ Complete</button>
@@ -241,15 +237,15 @@
 			<div class="ticket-meta-grid">
 				<div class="meta-block">
 					<div class="meta-label">Created by</div>
-					<div class="meta-value">{{ d.requester?.name || d.user?.name || 'John Doe' }}</div>
+					<div class="meta-value">{{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}</div>
 				</div>
 				<div class="meta-block">
 					<div class="meta-label">Deadline</div>
 					<div class="meta-value">{{ d.deadline | date:'MM/dd/yyyy' }}</div>
 				</div>
 				<div class="meta-block">
-					<div class="meta-label">Created</div>
-					<div class="meta-value">{{ d.createdAt | date:'MM/dd/yyyy' }}</div>
+					<div class="meta-label">Assigned Agent</div>
+					<div class="meta-value">{{ (d.assignedAgent?.firstName || '') + ' ' + (d.assignedAgent?.lastName || '') }}</div>
 				</div>
 			</div>
 
@@ -261,10 +257,10 @@
 			<ul class="comments">
 				<li *ngFor="let c of (d.comments || [])" class="comment-item">
 					<div class="comment-head">
-						<div class="avatar small">{{ (c.authorName || 'U').slice(0,1) }}</div>
+						<div class="avatar small">{{ ((c.user?.firstName || '') + (c.user?.lastName ? ' ' + c.user.lastName : '') || 'U').slice(0,1) }}</div>
 						<div class="who-time">
-							<div class="who">{{ c.authorName || c.authorId }}</div>
-							<div class="time">{{ c.createdAt | date:'MM/dd/yyyy, h:mm:ss a' }}</div>
+							<div class="who">{{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}</div>
+							<div class="time">{{ c.created | date:'MM/dd/yyyy, h:mm:ss a' }}</div>
 						</div>
 					</div>
 					<div class="c-text">{{ c.content }}</div>

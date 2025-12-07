@@ -49,6 +49,8 @@ export class DashboardPageComponent {
   newDescription = '';
   newDeadline = '';
   typeOptions = ['all','bug','design','translation','task'];
+  statusOptions = ['all','open','progress','completed','cancelled'];
+  priorityOptions = ['all','low','medium','high'];
   // Filters
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
