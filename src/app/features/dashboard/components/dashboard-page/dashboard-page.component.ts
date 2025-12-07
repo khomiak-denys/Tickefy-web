@@ -26,6 +26,7 @@ export class DashboardPageComponent {
   filteredTickets$!: Observable<any[]>;
   allTickets$!: Observable<any[]>;
   users$!: Observable<any[]>;
+  filteredUsers$!: Observable<any[]>;
   teams$!: Observable<any[]>;
   logs$!: Observable<any[]>;
   logsPage$ = new BehaviorSubject<number>(1);
@@ -43,6 +44,8 @@ export class DashboardPageComponent {
   selectedTicket: TicketDetailsDto | null = null;
   ticketDetails$?: Observable<TicketDetailsDto | null>;
   teamDetails$?: Observable<any>;
+  // New comment input state
+  newCommentText = '';
   // Create ticket modal state
   createOpen = false;
   createSubmitting = false;
@@ -56,6 +59,9 @@ export class DashboardPageComponent {
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
   typeFilter$ = new BehaviorSubject<string>('all');
+  // Users filters (optional, same pattern)
+  userRoleFilter$ = new BehaviorSubject<string>('all');
+  userTeamFilter$ = new BehaviorSubject<string>('all');
 
   constructor(
     private tickets: TicketsService,
@@ -148,6 +154,21 @@ export class DashboardPageComponent {
     const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
     this.allTickets$ = this.tickets.getAll().pipe(map(arr));
     this.users$ = this.users.getAll().pipe(map(arr));
+        // Filtered users stream (align structure to tickets)
+        this.filteredUsers$ = combineLatest([
+          this.users$,
+          this.userRoleFilter$,
+          this.userTeamFilter$,
+        ]).pipe(
+          map(([list, rF, tF]) => {
+            const norm = (v: any) => String(v || '').toLowerCase();
+            return list.filter((u: any) => {
+              const rOk = rF === 'all' || norm(u?.role) === norm(rF);
+              const tOk = tF === 'all' || norm(u?.team?.name) === norm(tF);
+              return rOk && tOk;
+            });
+          })
+        );
     this.teams$ = this.teams.getAll().pipe(map(arr));
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
@@ -223,6 +244,26 @@ export class DashboardPageComponent {
     this.ticketDetails$ = undefined;
   }
 
+  addComment(ticketId: string | undefined, text: string | undefined) {
+    const content = (text || '').trim();
+    if (!ticketId || !content) return;
+    // Optimistically clear input for UX
+    this.newCommentText = '';
+    // Post comment then refresh details stream
+    this.tickets
+      .postComment(String(ticketId), { content })
+      .subscribe({
+        next: () => {
+          // Re-fetch details to include the new comment
+          this.ticketDetails$ = this.tickets.getById(String(ticketId)).pipe(map((res:any)=>res||null));
+        },
+        error: () => {
+          // If failed, restore text so user can retry
+          this.newCommentText = content;
+        }
+      });
+  }
+
   // Tabs
   activeTab: 'my' | 'all' | 'users' | 'teams' | 'logs' = 'my';
   setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') { this.activeTab = tab; }
@@ -253,6 +294,16 @@ export class DashboardPageComponent {
   priorityClass(p: any) {
     const v = String(p || '').toLowerCase();
     return { pr: true, low: v==='low', medium: v==='medium', high: v==='high' };
+  }
+
+  roleClass(role: any) {
+    const r = String(role || 'user').toLowerCase();
+    return {
+      admin: r === 'admin',
+      requester: r === 'requester',
+      manager: r === 'manager',
+      agent: r === 'agent'
+    };
   }
 
   // Activity log helpers
@@ -293,4 +344,9 @@ export class DashboardPageComponent {
   // Logs pagination controls
   nextLogsPage() { this.logsPage$.next(this.logsPage$.value + 1); }
   prevLogsPage() { const p = this.logsPage$.value - 1; this.logsPage$.next(p > 0 ? p : 1); }
+
+  // TrackBy for stable list rendering
+  trackById(index: number, item: any) {
+    return item?.id || item?._id || index;
+  }
 }
