@@ -8,6 +8,7 @@ import { TeamsService } from '../../../../shared/services/teams.service';
 import { ActivityLogService } from '../../../../shared/services/activity-log.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
 import { TicketDetailsDto } from '../../../../core/api/dtos';
@@ -31,6 +32,8 @@ export class DashboardPageComponent {
   logs$!: Observable<any[]>;
   logsPage$ = new BehaviorSubject<number>(1);
   logsPageSize = 10;
+  hasPrevLogsPage = false;
+  hasNextLogsPage = true;
   stats$!: Observable<{open:number; inProgress:number; completed:number; cancelled:number; burning:number}>;
   loggingIn = false;
   error?: string;
@@ -172,7 +175,13 @@ export class DashboardPageComponent {
     this.teams$ = this.teams.getAll().pipe(map(arr));
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
-      map(arr)
+      map(arr),
+      tap((items: any[]) => {
+        const page = this.logsPage$.value;
+        this.hasPrevLogsPage = page > 1;
+        // If current page returns 0 items, prevent advancing further
+        this.hasNextLogsPage = items.length >= this.logsPageSize;
+      })
     );
   }
 
@@ -342,8 +351,15 @@ export class DashboardPageComponent {
   }
 
   // Logs pagination controls
-  nextLogsPage() { this.logsPage$.next(this.logsPage$.value + 1); }
-  prevLogsPage() { const p = this.logsPage$.value - 1; this.logsPage$.next(p > 0 ? p : 1); }
+  nextLogsPage() {
+    if (!this.hasNextLogsPage) return;
+    this.logsPage$.next(this.logsPage$.value + 1);
+  }
+  prevLogsPage() {
+    if (!this.hasPrevLogsPage) return;
+    const p = this.logsPage$.value - 1;
+    this.logsPage$.next(p > 0 ? p : 1);
+  }
 
   // TrackBy for stable list rendering
   trackById(index: number, item: any) {

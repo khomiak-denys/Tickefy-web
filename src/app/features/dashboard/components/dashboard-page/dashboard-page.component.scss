@@ -77,6 +77,10 @@
 .modal-foot .primary { background:#5b53ff; color:#fff; border:none; border-radius:16px; padding:14px 22px; font-weight:600; cursor:pointer; box-shadow: 0 10px 22px rgba(91,83,255,0.25); }
 .top h1 { margin: 0 0 4px; font-size: 28px; }
 .modal-foot .secondary { background: rgba(255,255,255,0.7); color:#0f172a; border:1px solid rgba(229,231,235,0.9); border-radius:16px; padding:14px 22px; font-weight:600; cursor:pointer; }
+.logs-pagination { display:flex; justify-content:center; gap:12px; padding:12px 0 4px; }
+.page-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #e5e7eb; border-radius:16px; padding:10px 16px; background:#fff; color:#0f172a; font-weight:600; cursor:pointer; box-shadow: 0 2px 6px rgba(15,23,42,0.06); }
+.page-btn.primary { background:#5b53ff; color:#fff; border-color:transparent; box-shadow: 0 10px 22px rgba(91,83,255,0.25); }
+.page-btn:disabled { opacity:.6; cursor:not-allowed; }
 .top p { color: #6b7280; margin: 0; }
 .create { background: #5b53ff; color: #fff; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; box-shadow: 0 8px 18px rgba(91,83,255,0.25); }
 
@@ -238,5 +242,18 @@
 	.sidebar { position: fixed; width: 210px; padding: 14px; }
 	.content { margin-left: 210px; padding: 20px; }
 	.stats { grid-template-columns: repeat(2,1fr); }
+}
+
+/* Empty state styling for logs page */
+.empty-state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 14px;
+	border: 1px solid #eceff5;
+	border-radius: 12px;
+	background: #fff;
+	color: #6b7280;
 }
 

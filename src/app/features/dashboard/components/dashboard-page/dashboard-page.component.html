@@ -161,7 +161,8 @@
 				<!-- Activity Logs -->
 				<section class="tickets logs" *ngIf="activeTab==='logs'">
 					<ng-container *ngIf="logs$ | async as logs; else loading">
-						<ng-container *ngIf="logs.length; else empty">
+						<!-- List or Empty State -->
+						<ng-container *ngIf="logs.length; else logsEmptyState">
 							<article class="log-item" *ngFor="let l of logs">
 								<div class="log-left">
 									<div class="log-icon"><lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon></div>
@@ -179,12 +180,20 @@
 									<div class="log-ticket"><lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}</div>
 								</div>
 							</article>
-							<div class="logs-pagination">
-								<button class="secondary" (click)="prevLogsPage()">Prev</button>
-								<button class="primary" (click)="nextLogsPage()">Next</button>
-							</div>
 						</ng-container>
+
+						<!-- Pagination always visible -->
+						<div class="logs-pagination">
+							<button class="page-btn" (click)="prevLogsPage()" [disabled]="!hasPrevLogsPage"><lucide-icon name="arrow-left" size="16"></lucide-icon> Prev</button>
+							<button class="page-btn primary" (click)="nextLogsPage()" [disabled]="!hasNextLogsPage">Next <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg);"></lucide-icon></button>
+						</div>
 					</ng-container>
+					<ng-template #logsEmptyState>
+						<div class="empty-state">
+							<lucide-icon name="activity" size="18"></lucide-icon>
+							<span>No activity on this page.</span>
+						</div>
+					</ng-template>
 				</section>
 		<ng-template #loading><p>Loading tickets…</p></ng-template>
 		<ng-template #empty><p>No tickets found.</p></ng-template>
