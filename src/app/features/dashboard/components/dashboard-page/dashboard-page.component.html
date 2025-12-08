@@ -1,28 +1,349 @@
-<section class="dashboard">
-	<header class="actions">
-		<button (click)="loginDemo()" [disabled]="loggingIn">
-			{{ loggingIn ? 'Logging in…' : 'Login demo' }}
-		</button>
-		<span *ngIf="error" style="color:crimson; margin-left:8px">{{ error }}</span>
-	</header>
-
-	<h2>My Tickets</h2>
-	<div *ngIf="tickets$ | async as tickets; else loading">
-		<div *ngIf="tickets && tickets.length > 0; else empty">
-			<ul>
-				<li *ngFor="let t of tickets">
-					<strong>{{ t.title || t.id }}</strong>
-					<span *ngIf="t.description"> — {{ t.description }}</span>
-				</li>
-			</ul>
+<section class="layout">
+	<!-- Sidebar -->
+	<aside class="sidebar">
+		<div class="brand">Tickefy</div>
+		<nav>
+			<a [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
+			<a [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
+			<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><lucide-icon name="users" size="18"></lucide-icon> Teams</a>
+			<a [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
+			<a [class.active]="activeTab==='logs'" (click)="setTab('logs')"><lucide-icon name="activity" size="18"></lucide-icon> Activity Logs</a>
+		</nav>
+		<div class="profile">
+			<div class="avatar">J</div>
+			<div class="who">
+				<div class="name" (click)="navigateToProfile()" style="cursor:pointer">{{ (firstName || 'User') + ' ' + (lastName || '') }}</div>
+				<div class="role">{{ role || 'user' }}</div>
+			</div>
+			<button class="logout" (click)="logout()">Log Out</button>
+			<div class="error" *ngIf="error">{{ error }}</div>
 		</div>
+	</aside>
+
+	<!-- Main content -->
+	<main class="content">
+		<header class="top">
+			<div>
+				<h1 *ngIf="activeTab==='my'">My Tickets</h1>
+				<h1 *ngIf="activeTab==='all'">All Tickets</h1>
+				<h1 *ngIf="activeTab==='teams'">Teams</h1>
+				<h1 *ngIf="activeTab==='users'">Users</h1>
+				<h1 *ngIf="activeTab==='logs'">Activity Logs</h1>
+				<p *ngIf="activeTab==='my'">View and manage your submitted requests</p>
+				<p *ngIf="activeTab==='all'">Browse all tickets in the system</p>
+				<p *ngIf="activeTab==='teams'">Explore teams and their details</p>
+				<p *ngIf="activeTab==='users'">Manage and view users</p>
+				<p *ngIf="activeTab==='logs'">Recent activity logs</p>
+			</div>
+			<button class="create" *ngIf="activeTab==='my'" (click)="openCreate()">Create New Ticket</button>
+		</header>
+
+		<!-- Admin statistics removed per request -->
+
+		<!-- My Tickets -->
+		<section class="tickets" *ngIf="activeTab==='my'">
+			<ng-container *ngIf="filteredTickets$ | async as tickets; else loading">
+				<ng-container *ngIf="tickets.length; else empty">
+					<article class="ticket-card" *ngFor="let t of tickets" (click)="openTicket(t)">
+						<div class="card-top">
+							<h3>{{ t.title }}</h3>
+							<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+								<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
+							</div>
+						</div>
+						<p class="desc">{{ t.description }}</p>
+						<div class="card-meta">
+							<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+							<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
+							<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
+							<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
+						</div>
+					</article>
+				</ng-container>
+			</ng-container>
+		</section>
+
+		<!-- All Tickets -->
+		<section class="tickets" *ngIf="activeTab==='all'">
+			<ng-container *ngIf="allTickets$ | async as all; else loading">
+				<ng-container *ngIf="all.length; else empty">
+					<article class="ticket-card" *ngFor="let t of all" (click)="openTicket(t)">
+						<div class="card-top">
+							<h3>{{ t.title }}</h3>
+							<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+								<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
+							</div>
+						</div>
+						<div class="card-meta">
+							<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+							<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
+							<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
+							<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
+						</div>
+					</article>
+				</ng-container>
+			</ng-container>
+		</section>
+
+				<!-- Teams -->
+				<section class="tickets" *ngIf="activeTab==='teams'"> 
+					<ng-container *ngIf="teams$ | async as teams; else loading"> 
+						<ng-container *ngIf="teams.length; else empty"> 
+							<article class="ticket-card" *ngFor="let tm of teams" (click)="openTeam(tm)"> 
+								<div class="card-top"> 
+									<h3>{{ tm.name }}</h3> 
+									<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+										<span class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ tm.category || 'uncategorized' }}</span>
+									</div>
+								</div> 
+								<div class="card-meta"> 
+									<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> Team Leader: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
+								</div>
+							</article> 
+						</ng-container> 
+					</ng-container> 
+				</section> 
+
+				<!-- Users -->
+				<section class="users" *ngIf="activeTab==='users'">
+					<ng-container *ngIf="filteredUsers$ | async as users; else loading">
+						<div class="users-table" *ngIf="users.length; else empty">
+							<div class="users-header">
+								<div>User</div>
+								<div>Login</div>
+								<div>Role</div>
+								<div>Team</div>
+								<div>Joined</div>
+								<div>Actions</div>
+							</div>
+							<div class="user-row" *ngFor="let u of users">
+								<div class="user-cell">
+									<div class="avatar small">{{ ((u.firstName || u.lastName || u.login || u.username || 'U') + '').slice(0,1) }}</div>
+									<div class="user-name">{{ (u.firstName || '') + ' ' + (u.lastName || '') }}</div>
+								</div>
+								<div class="login-cell">{{ '@' + (u.login || u.username || '') }}</div>
+													<div class="role-cell">
+											<span class="pill role" [ngClass]="roleClass(u.role)">{{ (u.role || 'user') | lowercase }}</span>
+													</div>
+								<div class="team-cell">{{ u.team?.name || '-' }}</div>
+								<div class="joined-cell">{{ (u.joined || u.created || u.createdAt) | date:'dd/MM/yyyy' }}</div>
+								<div class="actions-cell">
+									<button class="icon" (click)="viewUser(u)" title="View details"><lucide-icon name="eye" size="16"></lucide-icon></button>
+									<button class="icon danger" (click)="deleteUser(u)" title="Delete user"><lucide-icon name="trash-2" size="16"></lucide-icon></button>
+								</div>
+							</div>
+						</div>
+					</ng-container>
+				</section>
+
+				<!-- Activity Logs -->
+				<section class="tickets logs" *ngIf="activeTab==='logs'">
+					<ng-container *ngIf="logs$ | async as logs; else loading">
+						<!-- List or Empty State -->
+						<ng-container *ngIf="logs.length; else logsEmptyState">
+							<article class="log-item" *ngFor="let l of logs">
+								<div class="log-left">
+									<div class="log-icon"><lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon></div>
+								</div>
+								<div class="log-content">
+									<div class="log-top">
+										<div class="log-title">{{ l.description || 'Event' }}</div>
+										<span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{ humanizeEvent(l?.eventType) }}</span>
+									</div>
+									<div class="log-meta">
+										<span><lucide-icon name="user" size="14"></lucide-icon> {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
+										<span class="dot">•</span>
+										<span><lucide-icon name="clock" size="14"></lucide-icon> {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
+									</div>
+									<div class="log-ticket"><lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}</div>
+								</div>
+							</article>
+						</ng-container>
+
+						<!-- Pagination always visible -->
+						<div class="logs-pagination">
+							<button class="page-btn" (click)="prevLogsPage()" [disabled]="!hasPrevLogsPage"><lucide-icon name="arrow-left" size="16"></lucide-icon> Prev</button>
+							<button class="page-btn primary" (click)="nextLogsPage()" [disabled]="!hasNextLogsPage">Next <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg);"></lucide-icon></button>
+						</div>
+					</ng-container>
+					<ng-template #logsEmptyState>
+						<div class="empty-state">
+							<lucide-icon name="activity" size="18"></lucide-icon>
+							<span>No activity on this page.</span>
+						</div>
+					</ng-template>
+				</section>
+		<ng-template #loading><p>Loading tickets…</p></ng-template>
+		<ng-template #empty><p>No tickets found.</p></ng-template>
+	</main>
+
+		<!-- Team Details modal -->
+		<div class="modal-backdrop" *ngIf="teamDetailsOpen" (click)="closeTeamDetails()"></div>
+		<div class="modal" *ngIf="teamDetailsOpen">
+			<header class="modal-head">
+				<h3>Team Details</h3>
+				<button class="close" (click)="closeTeamDetails()">×</button>
+			</header>
+			<section class="modal-body team-modal" *ngIf="teamDetails$ | async as td; else teamDetailsLoadingTpl">
+				<div class="team-header">
+					<h2>{{ td?.name || 'Team' }}</h2>
+					<p class="team-desc">{{ td?.description || 'Team description not provided' }}</p>
+					<div class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ td?.category || 'uncategorized' }}</div>
+				</div>
+
+				<div class="team-section">
+					<div class="section-title">Team Leader</div>
+					<div class="person-card">
+						<div class="person-avatar">{{ ((td?.manager?.firstName || td?.manager?.lastName || 'U') + '').slice(0,1) }}</div>
+						<div class="person-meta">
+							<div class="person-name">{{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}</div>
+							<div class="person-role">Team Leader</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="team-section members">
+					<div class="members-head">
+						<div class="section-title">Members ({{ teamMembers?.length || 0 }})</div>
+						<div class="add-member">
+							<input type="text" placeholder="Member login" [(ngModel)]="newTeamMemberLogin" [disabled]="teamDetailsLoading" />
+							<button class="ghost" type="button" (click)="addTeamMember()" [disabled]="teamDetailsLoading || !newTeamMemberLogin?.trim()">
+								<lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
+							</button>
+						</div>
+					</div>
+					<div class="team-error" *ngIf="teamError">{{ teamError }}</div>
+					<div class="members-list" *ngIf="teamMembers?.length; else noMembers">
+						<div class="person-card muted" *ngFor="let m of teamMembers; trackBy: trackByUser">
+							<div class="person-avatar light">{{ ((m?.firstName || m?.lastName || m?.login || 'U') + '').slice(0,1) }}</div>
+							<div class="person-meta">
+								<div class="person-name">{{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}</div>
+								<div class="person-role">{{ m?.role || 'member' }}</div>
+							</div>
+							<button class="icon danger" type="button" aria-label="Remove member" (click)="removeTeamMember(m)" [disabled]="teamDetailsLoading"><lucide-icon name="user-minus" size="16"></lucide-icon></button>
+						</div>
+					</div>
+					<ng-template #noMembers>
+						<div class="empty-state">No members yet.</div>
+					</ng-template>
+				</div>
+			</section>
+			<ng-template #teamDetailsLoadingTpl>
+				<div class="modal-loading">Loading team details…</div>
+			</ng-template>
+		</div>
+  
+	<!-- Details modal -->
+	<div class="modal-backdrop" *ngIf="detailsOpen" (click)="closeDetails()"></div>
+	<div class="modal" *ngIf="detailsOpen">
+		<header class="modal-head">
+			<h3>Ticket details</h3>
+			<button class="close" (click)="closeDetails()">×</button>
+		</header>
+		<section class="modal-body" *ngIf="ticketDetails$ | async as d; else detailsLoadingTpl">
+			<div class="ticket-head">
+				<h2 class="ticket-title">{{ d.title || ('Ticket #' + (d.id || '')) }}</h2>
+				<div class="ticket-actions">
+					<button class="act complete" (click)="completeTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="check-circle" size="16"></lucide-icon> Complete</button>
+					<button class="act cancel" (click)="cancelTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="x-circle" size="16"></lucide-icon> Cancel</button>
+				</div>
+				<div class="ticket-tags">
+					<span class="pill status" [ngClass]="statusClass(d?.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (d.status || 'in progress') }}</span>
+					<span class="pill priority"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (d.priority ? (d.priority) : 'medium') }}</span>
+					<span class="pill type">{{ d.category || d.assignedTeam?.category || 'design' }}</span>
+				</div>
+			</div>
+
+			<div class="ticket-meta-row">
+				<div class="meta-block">
+					<lucide-icon name="user" size="16"></lucide-icon>
+					<div class="meta-label">Created by</div>
+					<div class="meta-value">{{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}</div>
+				</div>
+				<div class="meta-block">
+					<lucide-icon name="clock" size="16"></lucide-icon>
+					<div class="meta-label">Created</div>
+					<div class="meta-value">{{ d.created | date:'dd/MM/yyyy' }}</div>
+				</div>
+				<div class="meta-block">
+					<lucide-icon name="calendar" size="16"></lucide-icon>
+					<div class="meta-label">Deadline</div>
+					<div class="meta-value">{{ d.deadline | date:'dd/MM/yyyy' }}</div>
+				</div>
+			</div>
+
+			<h3 class="section-title">Description</h3>
+			<p class="modal-desc">{{ d.description }}</p>
+
+			<h3 class="section-title">Comments ({{ (d.comments?.length || 0) }})</h3>
+			<ul class="comments">
+				<li *ngFor="let c of (d.comments || [])" class="comment-item">
+					<div class="comment-head">
+						<div class="avatar small">{{ ((c.user?.firstName || '') + (c.user?.lastName ? ' ' + c.user.lastName : '') || 'U').slice(0,1) }}</div>
+						<div class="who-time">
+							<div class="who">{{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}</div>
+							<div class="time"><lucide-icon name="clock" size="14"></lucide-icon> {{ c.created | date:'MM/dd/yyyy, hh:mm:ss a' }}</div>
+						</div>
+					</div>
+					<div class="c-text">{{ c.content }}</div>
+				</li>
+				<li *ngIf="!(d.comments?.length)" class="no-comments">No comments.</li>
+			</ul>
+
+			<div class="comment-input">
+				<input type="text" placeholder="Add a comment..." [(ngModel)]="newCommentText" />
+				<button class="send" (click)="addComment(d.id, newCommentText)" [disabled]="!newCommentText?.trim()" aria-label="Send comment">
+					<lucide-icon name="send" size="18"></lucide-icon>
+				</button>
+			</div>
+
+      
+		</section>
+		<ng-template #detailsLoadingTpl>
+			<div class="modal-loading">Loading details…</div>
+		</ng-template>
 	</div>
-
-	<ng-template #loading>
-		<p>Loading tickets…</p>
-	</ng-template>
-
-	<ng-template #empty>
-		<p>No tickets found.</p>
-	</ng-template>
 </section>
+
+<!-- Ticket action error popup -->
+<div class="modal-backdrop" *ngIf="ticketActionError" (click)="closeTicketError()"></div>
+<div class="modal small" *ngIf="ticketActionError">
+	<header class="modal-head">
+		<h3>Error</h3>
+		<button class="close" (click)="closeTicketError()">×</button>
+	</header>
+	<section class="modal-body">
+		<p>{{ ticketActionError }}</p>
+	</section>
+</div>
+
+<!-- Create Ticket Modal -->
+<div class="modal-backdrop" *ngIf="createOpen" (click)="closeCreate()"></div>
+<div class="modal" *ngIf="createOpen">
+	<header class="modal-head">
+		<h3>Create New Ticket</h3>
+		<button class="close" (click)="closeCreate()" aria-label="Close">
+			<lucide-icon name="x" size="18"></lucide-icon>
+		</button>
+	</header>
+	<section class="modal-body">
+		<label>
+			<span>Title</span>
+			<input type="text" [(ngModel)]="newTitle" placeholder="Brief description of your request" />
+		</label>
+		<label>
+			<span>Description</span>
+			<textarea [(ngModel)]="newDescription" rows="6" placeholder="Detailed description of what you need..."></textarea>
+		</label>
+		<label>
+			<span>Deadline</span>
+			<input type="date" [(ngModel)]="newDeadline" placeholder="mm/dd/yyyy" />
+		</label>
+	</section>
+	<footer class="modal-foot">
+		<button class="secondary" [disabled]="createSubmitting" (click)="closeCreate()">Cancel</button>
+		<button class="primary" [disabled]="createSubmitting" (click)="submitCreate()">{{ createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
+	</footer>
+	<div class="error" *ngIf="error">{{ error }}</div>
+  
+</div>

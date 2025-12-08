@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../../core/api/api.config';
-import { CreateTicketRequest, PostCommentRequest } from '../../core/api/dtos';
+import { CreateTicketRequest, PostCommentRequest, TicketDetailsDto } from '../../core/api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class TicketsService {
@@ -20,7 +20,7 @@ export class TicketsService {
   }
 
   getById(ticketId: string) {
-    return this.http.get(`${API_BASE_URL}/api/v1/tickets/${ticketId}`);
+    return this.http.get<TicketDetailsDto>(`${API_BASE_URL}/api/v1/tickets/${ticketId}`);
   }
 
   postComment(ticketId: string, body: PostCommentRequest) {

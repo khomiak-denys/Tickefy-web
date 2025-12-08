@@ -1,0 +1,52 @@
+<section class="content profile">
+  <header class="head">
+    <h1 (click)="goToMyTickets()" style="cursor:pointer">Tickefy</h1>
+    <p>Manage your personal information and settings</p>
+  </header>
+
+  <div class="grid">
+    <div class="card left" *ngIf="me$ | async as me">
+      <div class="avatar big">{{ ((me.firstName || me.lastName || 'U') + '').slice(0,1) }}</div>
+      <div class="name">{{ (me.firstName || '') + ' ' + (me.lastName || '') }}</div>
+      <div class="login">{{ '@' + (me.login || '') }}</div>
+      <span class="pill role">{{ (me.role || 'user') }}</span>
+      <div class="since">
+        <span>Member since</span>
+        <span class="date">{{ (me.created || me.createdAt) | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+
+    <div class="card right" *ngIf="user$ | async as user">
+      <div class="top">
+        <h3>Personal Information</h3>
+        <button class="edit" (click)="startEdit()" [disabled]="!canEdit">Edit Profile</button>
+      </div>
+      <label>
+        <span>Login</span>
+        <input type="text" [value]="user.login" disabled />
+        <small>Login cannot be changed</small>
+      </label>
+      <label>
+        <span>Role</span>
+        <div class="role-row">
+          <select (change)="changeRole($any($event.target).value)" [disabled]="!editing || !canEdit || (isOwner && isAdmin)">
+            <option *ngFor="let r of userRoleOptions" [value]="r" [selected]="(user.role || '')?.toLowerCase() === r.toLowerCase()">{{ r }}</option>
+          </select>
+        </div>
+        <small>Role can be changed only here (admin only)</small>
+      </label>
+      <label>
+        <span>First Name</span>
+          <input type="text" [(ngModel)]="firstName" [disabled]="!editing || !isOwner" placeholder="First Name" />
+      </label>
+      <label>
+        <span>Last Name</span>
+        <input type="text" [(ngModel)]="lastName" [disabled]="!editing || !isOwner" placeholder="Last Name" />
+      </label>
+      <div class="actions" *ngIf="editing">
+        <button class="secondary" (click)="cancelEdit()">Cancel</button>
+        <button class="primary" (click)="save()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</section>

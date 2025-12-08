@@ -1,12 +1,13 @@
+// Matches Tickefy.Domain.Common.Category
 export enum Category {
-  Category0 = 0,
-  Category1 = 1,
-  Category2 = 2,
-  Category3 = 3,
-  Category4 = 4,
-  Category5 = 5,
-  Category6 = 6,
-  Category7 = 7,
+  Finance = 0,
+  IT = 1,
+  Design = 2,
+  Marketing = 3,
+  HumanResources = 4,
+  Legal = 5,
+  AccessAndSecurity = 6,
+  Other = 7,
 }
 
 export interface RegisterUserRequest {
@@ -14,6 +15,58 @@ export interface RegisterUserRequest {
   lastName?: string | null;
   login?: string | null;
   password?: string | null;
+}
+
+export interface TicketCommentDto {
+  id: string;
+  user: {
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  };
+  content?: string | null;
+  created: string; // ISO date
+}
+
+export interface TicketSummaryDto {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  requester?: {
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  };
+  assignedTeam?: {
+    id: string;
+    name?: string | null;
+    category?: string | null;
+    manager?: {
+      id: string;
+      firstName?: string | null;
+      lastName?: string | null;
+    };
+  };
+  assignedAgent?: {
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  };
+  category?: string | null;
+  priority?: string | null;
+  status?: string | null;
+  created?: string; // ISO date
+  deadline: string; // ISO date
+}
+
+export interface TicketDetailsDto extends TicketSummaryDto {
+  comments?: TicketCommentDto[] | null;
+  attachments?: Array<{
+    filePath?: string | null;
+    fileName?: string | null;
+    contentType?: string | null;
+    sizeBytes: number;
+  }> | null;
 }
 
 export interface LoginUserRequest {
@@ -50,3 +103,4 @@ export interface UpdateProfileRequest {
   firstName?: string | null;
   lastName?: string | null;
 }
+

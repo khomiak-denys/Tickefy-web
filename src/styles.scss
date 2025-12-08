@@ -1,4 +1,23 @@
+/* Global font: Prefer San Francisco where available */
+html, body {
+	font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
 @import './assets/styles/variables';
 @import './assets/styles/mixins';
 @import './assets/styles/animations';
 @import './assets/styles/tables';
+
+/* Hide caret globally except for text entry surfaces */
+:where(*) { caret-color: transparent; }
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+textarea,
+[contenteditable="true"],
+[contenteditable]:not([contenteditable="false"]) {
+	caret-color: auto;
+}
