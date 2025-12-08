@@ -188,7 +188,13 @@ export class DashboardPageComponent {
     );
 
     // Collections for tabs
-    const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
+    const arr = (res: any) => {
+      if (Array.isArray(res)) return res;
+      if (Array.isArray(res?.items)) return res.items;
+      if (Array.isArray(res?.data)) return res.data;
+      if (res && typeof res === 'object') return [res];
+      return [];
+    };
     this.allTickets$ = this.tickets.getAll().pipe(map(arr));
     this.users$ = this.usersSource$.asObservable();
     this.fetchUsers();
@@ -377,20 +383,25 @@ export class DashboardPageComponent {
     const login = (this.newTeamMemberLogin || '').trim().toLowerCase();
     if (!this.selectedTeamId || !login) return;
     this.teamError = null;
-    const users = this.usersSource$.value || [];
-    const member = users.find((u: any) => String(u?.login || u?.username || '').toLowerCase() === login);
-    if (!member) { this.teamError = 'User with this login not found'; return; }
-    const role = String(member?.role || '').toLowerCase();
-    if (role !== 'requester') { this.teamError = 'Only requester users can be added to a team'; return; }
-    const memberId = member?.id || member?._id || member?.userId;
-    if (!memberId) { this.teamError = 'User id missing for this login'; return; }
     this.teamDetailsLoading = true;
-    this.teams.addMember(this.selectedTeamId, String(memberId)).subscribe({
-      next: () => {
-        this.newTeamMemberLogin = '';
-        this.fetchTeamDetails();
+    this.users.getByLogin(login).subscribe({
+      next: (member: any) => {
+        const role = String(member?.role || '').toLowerCase();
+        if (role !== 'requester') { this.teamDetailsLoading = false; this.teamError = 'Only requester users can be added to a team'; return; }
+        const memberId = member?.id || member?._id || member?.userId;
+        if (!memberId) { this.teamDetailsLoading = false; this.teamError = 'User id missing for this login'; return; }
+        this.teams.addMember(this.selectedTeamId!, String(memberId)).subscribe({
+          next: () => {
+            this.newTeamMemberLogin = '';
+            this.fetchTeamDetails();
+          },
+          error: () => { this.teamDetailsLoading = false; this.teamError = 'Failed to add member'; }
+        });
       },
-      error: () => { this.teamDetailsLoading = false; this.teamError = 'Failed to add member'; }
+      error: (e) => {
+        this.teamDetailsLoading = false;
+        this.teamError = e?.status === 404 ? 'User with this login not found' : 'Failed to fetch user by login';
+      }
     });
   }
 

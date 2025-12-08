@@ -30,4 +30,8 @@ export class UsersService {
   updateProfile(body: UpdateProfileRequest) {
     return this.http.patch(`${API_BASE_URL}/api/v1/users/update-profile`, body);
   }
+
+  getByLogin(login: string) {
+    return this.http.get(`${API_BASE_URL}/api/v1/users/login/${encodeURIComponent(login)}`);
+  }
 }
