@@ -27,16 +27,17 @@
         <small>Login cannot be changed</small>
       </label>
       <label>
-        <span>Full Name</span>
-        <div class="name-row">
-          <input type="text" [(ngModel)]="firstName" [disabled]="!editing" placeholder="First Name" />
-          <input type="text" [(ngModel)]="lastName" [disabled]="!editing" placeholder="Last Name" />
-        </div>
-      </label>
-      <label>
         <span>Role</span>
         <input type="text" [value]="(user.role || 'user')" disabled />
         <small>Contact an administrator to change your role</small>
+      </label>
+      <label>
+        <span>First Name</span>
+        <input type="text" [(ngModel)]="firstName" [disabled]="!editing" placeholder="First Name" />
+      </label>
+      <label>
+        <span>Last Name</span>
+        <input type="text" [(ngModel)]="lastName" [disabled]="!editing" placeholder="Last Name" />
       </label>
       <div class="actions" *ngIf="editing">
         <button class="secondary" (click)="cancelEdit()">Cancel</button>

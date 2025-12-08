@@ -9,3 +9,15 @@ html, body {
 @import './assets/styles/mixins';
 @import './assets/styles/animations';
 @import './assets/styles/tables';
+
+/* Hide caret globally except for text entry surfaces */
+:where(*) { caret-color: transparent; }
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+textarea,
+[contenteditable="true"],
+[contenteditable]:not([contenteditable="false"]) {
+	caret-color: auto;
+}
