@@ -56,6 +56,13 @@ export class DashboardPageComponent {
   newTeamMemberLogin = '';
   teamError: string | null = null;
   teamMembers: any[] = [];
+  // Create team modal state
+  createTeamOpen = false;
+  createTeamSubmitting = false;
+  createTeamError: string | null = null;
+  newTeamName = '';
+  newTeamDescription = '';
+  newTeamCategory: number | '' = '';
   // New comment input state
   newCommentText = '';
   // Create ticket modal state
@@ -190,7 +197,8 @@ export class DashboardPageComponent {
         });
       })
     );
-    this.teams$ = this.teams.getAll().pipe(map(arr));
+    const teamsSource$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
+    this.teams$ = teamsSource$.pipe(map(arr));
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
       map(arr),
@@ -387,6 +395,41 @@ export class DashboardPageComponent {
     });
   }
 
+  openCreateTeam() {
+    this.createTeamOpen = true;
+    this.createTeamSubmitting = false;
+    this.createTeamError = null;
+    this.newTeamName = '';
+    this.newTeamDescription = '';
+    this.newTeamCategory = '';
+  }
+
+  closeCreateTeam() {
+    this.createTeamOpen = false;
+  }
+
+  submitCreateTeam() {
+    const name = (this.newTeamName || '').trim();
+    if (!name) { this.createTeamError = 'Team name is required'; return; }
+    this.createTeamSubmitting = true;
+    this.createTeamError = null;
+    const payload: any = { name, description: this.newTeamDescription };
+    if (this.newTeamCategory !== '' && this.newTeamCategory !== null && this.newTeamCategory !== undefined) {
+      payload.category = Number(this.newTeamCategory);
+    }
+    this.teams.create(payload).subscribe({
+      next: () => {
+        this.createTeamSubmitting = false;
+        this.createTeamOpen = false;
+        this.refreshTickets();
+      },
+      error: (e) => {
+        this.createTeamSubmitting = false;
+        this.createTeamError = e?.error?.detail || 'Failed to create team';
+      }
+    });
+  }
+
   private fetchTeamDetails() {
     if (!this.selectedTeamId) return;
     this.teamError = null;
@@ -532,6 +575,7 @@ export class DashboardPageComponent {
 
   get isAdmin() { return (this.role || '').toLowerCase() === 'admin'; }
   get isAgent() { return (this.role || '').toLowerCase() === 'agent'; }
+  get isRequester() { return (this.role || '').toLowerCase() === 'requester'; }
 
   private allowedTabs(): Array<'my' | 'all' | 'users' | 'teams' | 'logs'> {
     return this.isAdmin ? ['all', 'teams', 'users', 'logs'] : ['my', 'teams'];
