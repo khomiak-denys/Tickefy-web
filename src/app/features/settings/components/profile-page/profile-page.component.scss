@@ -1,4 +1,7 @@
 .profile { padding: 24px; }
+.profile :not(input):not(textarea) { -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; }
+.profile button { cursor:pointer; }
+.profile .head h1, .left .name, .left .login, .right label > span, .right small { cursor: default; }
 .head h1 { margin: 0 0 6px; }
 .head p { color:#6b7280; margin:0 0 16px; }
 .grid { display:grid; grid-template-columns: 320px 1fr; gap:16px; }
