@@ -217,6 +217,10 @@ export class DashboardPageComponent {
     this.router.navigate(['/auth/login']);
   }
 
+  navigateToProfile() {
+    this.router.navigate(['/settings/profile']);
+  }
+
   openCreate() {
     this.createOpen = true;
     this.createSubmitting = false;

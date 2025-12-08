@@ -12,7 +12,7 @@
 		<div class="profile">
 			<div class="avatar">J</div>
 			<div class="who">
-				<div class="name">{{ (firstName || 'User') + ' ' + (lastName || '') }}</div>
+				<div class="name" (click)="navigateToProfile()" style="cursor:pointer">{{ (firstName || 'User') + ' ' + (lastName || '') }}</div>
 				<div class="role">{{ role || 'user' }}</div>
 			</div>
 			<button class="logout" (click)="logout()">Log Out</button>
