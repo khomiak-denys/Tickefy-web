@@ -204,6 +204,28 @@
 .modal-body .row .half { flex:1; }
 .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
 .modal-meta { display: flex; align-items: center; gap: 10px; color: #6b7280; margin-bottom: 12px; }
+
+/* Team modal styling */
+.team-modal { padding:24px; display:flex; flex-direction:column; gap:18px; }
+.team-header h2 { margin:0 0 4px; font-size:22px; font-weight:700; color:#0f172a; }
+.team-header .team-desc { margin:0 0 10px; color:#4b5563; }
+.team-header .pill.type { display:inline-flex; }
+.team-section { display:flex; flex-direction:column; gap:12px; }
+.members-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.ghost { border:1px solid #5b53ff; color:#5b53ff; background:rgba(91,83,255,0.06); padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+.ghost:hover { background:rgba(91,83,255,0.12); }
+.person-card { display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#fff; border:1px solid #eef2ff; box-shadow:0 6px 16px rgba(17,24,39,0.06); }
+.person-card.muted { background:#f9fafb; border-color:#eceff5; box-shadow:none; }
+.person-avatar { width:42px; height:42px; border-radius:12px; display:grid; place-items:center; font-weight:700; color:#5b53ff; background:linear-gradient(135deg,#eef0ff,#e5e7ff); }
+.person-avatar.light { background:#eef2ff; color:#374151; }
+.person-meta { display:flex; flex-direction:column; gap:2px; }
+.person-name { font-weight:600; color:#0f172a; }
+.person-role { color:#6b7280; font-size:13px; }
+.members-list { display:flex; flex-direction:column; gap:10px; }
+.add-member { display:flex; align-items:center; gap:10px; }
+.add-member input { width:220px; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; font-size:14px; outline:none; }
+.add-member input:focus { border-color:#5b53ff; box-shadow:0 0 0 3px rgba(91,83,255,0.18); }
+.team-error { color:#b91c1c; font-weight:600; font-size:13px; margin-top:8px; }
 .modal-desc { color: #374151; margin-bottom: 16px; }
 .ticket-head { display:grid; grid-template-columns: 1fr auto; grid-template-rows:auto auto; gap:12px; margin-bottom: 12px; }
 .ticket-title { grid-column: 1 / 2; margin:0; font-size: 20px; font-weight: 700; color:#0f172a; }

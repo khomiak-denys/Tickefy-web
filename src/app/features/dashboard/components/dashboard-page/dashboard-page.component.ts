@@ -48,6 +48,11 @@ export class DashboardPageComponent {
   selectedTicket: TicketDetailsDto | null = null;
   ticketDetails$?: Observable<TicketDetailsDto | null>;
   teamDetails$?: Observable<any>;
+  teamDetailsOpen = false;
+  teamDetailsLoading = false;
+  selectedTeamId: string | null = null;
+  newTeamMemberLogin = '';
+  teamError: string | null = null;
   // New comment input state
   newCommentText = '';
   // Create ticket modal state
@@ -286,7 +291,54 @@ export class DashboardPageComponent {
   openTeam(t: any) {
     const id = t?.id || t?.teamId;
     if (!id) return;
-    this.teamDetails$ = this.teams.getById(String(id)).pipe(map((res:any)=>res||null));
+    this.selectedTeamId = String(id);
+    this.teamDetailsOpen = true;
+    this.teamDetailsLoading = true;
+    this.fetchTeamDetails();
+  }
+
+  closeTeamDetails() {
+    this.teamDetailsOpen = false;
+    this.teamDetails$ = undefined;
+  }
+
+  addTeamMember() {
+    const login = (this.newTeamMemberLogin || '').trim().toLowerCase();
+    if (!this.selectedTeamId || !login) return;
+    this.teamError = null;
+    const users = this.usersSource$.value || [];
+    const member = users.find((u: any) => String(u?.login || u?.username || '').toLowerCase() === login);
+    if (!member) { this.teamError = 'User with this login not found'; return; }
+    const role = String(member?.role || '').toLowerCase();
+    if (role !== 'requester') { this.teamError = 'Only requester users can be added to a team'; return; }
+    const memberId = member?.id || member?._id || member?.userId;
+    if (!memberId) { this.teamError = 'User id missing for this login'; return; }
+    this.teamDetailsLoading = true;
+    this.teams.addMember(this.selectedTeamId, String(memberId)).subscribe({
+      next: () => {
+        this.newTeamMemberLogin = '';
+        this.fetchTeamDetails();
+      },
+      error: () => { this.teamDetailsLoading = false; this.teamError = 'Failed to add member'; }
+    });
+  }
+
+  removeTeamMember(member: any) {
+    if (!this.selectedTeamId) return;
+    const memberId = member?.id || member?._id || member?.userId;
+    if (!memberId) return;
+    this.teamDetailsLoading = true;
+    this.teams.removeMember(this.selectedTeamId, String(memberId)).subscribe({
+      next: () => this.fetchTeamDetails(),
+      error: () => { this.teamDetailsLoading = false; }
+    });
+  }
+
+  private fetchTeamDetails() {
+    if (!this.selectedTeamId) return;
+    this.teamError = null;
+    this.teamDetails$ = this.teams.getById(this.selectedTeamId).pipe(map((res:any)=>res||null));
+    this.teamDetails$.subscribe({ complete: () => (this.teamDetailsLoading = false), error: () => (this.teamDetailsLoading = false) });
   }
 
   viewUser(u: any) {

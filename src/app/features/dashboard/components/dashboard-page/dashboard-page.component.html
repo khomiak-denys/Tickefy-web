@@ -116,13 +116,6 @@
 							</article> 
 						</ng-container> 
 					</ng-container> 
-					<!-- Team details (inline) -->
-					<section class="team-details" *ngIf="teamDetails$ | async as td">
-						<h3>Team Details</h3>
-						<p><strong>Name:</strong> {{ td?.name }}</p>
-						<p><strong>Category:</strong> {{ td?.category }}</p>
-						<p><strong>Manager:</strong> {{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}</p>
-					</section>
 				</section> 
 
 				<!-- Users -->
@@ -197,6 +190,62 @@
 		<ng-template #loading><p>Loading tickets…</p></ng-template>
 		<ng-template #empty><p>No tickets found.</p></ng-template>
 	</main>
+
+		<!-- Team Details modal -->
+		<div class="modal-backdrop" *ngIf="teamDetailsOpen" (click)="closeTeamDetails()"></div>
+		<div class="modal" *ngIf="teamDetailsOpen">
+			<header class="modal-head">
+				<h3>Team Details</h3>
+				<button class="close" (click)="closeTeamDetails()">×</button>
+			</header>
+			<section class="modal-body team-modal" *ngIf="teamDetails$ | async as td; else teamDetailsLoadingTpl">
+				<div class="team-header">
+					<h2>{{ td?.name || 'Team' }}</h2>
+					<p class="team-desc">{{ td?.description || 'Team description not provided' }}</p>
+					<div class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ td?.category || 'uncategorized' }}</div>
+				</div>
+
+				<div class="team-section">
+					<div class="section-title">Team Leader</div>
+					<div class="person-card">
+						<div class="person-avatar">{{ ((td?.manager?.firstName || td?.manager?.lastName || 'U') + '').slice(0,1) }}</div>
+						<div class="person-meta">
+							<div class="person-name">{{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}</div>
+							<div class="person-role">Team Leader</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="team-section members">
+					<div class="members-head">
+						<div class="section-title">Members ({{ td?.members?.length || 0 }})</div>
+						<div class="add-member">
+							<input type="text" placeholder="Member login" [(ngModel)]="newTeamMemberLogin" [disabled]="teamDetailsLoading" />
+							<button class="ghost" type="button" (click)="addTeamMember()" [disabled]="teamDetailsLoading || !newTeamMemberLogin?.trim()">
+								<lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
+							</button>
+						</div>
+					</div>
+					<div class="team-error" *ngIf="teamError">{{ teamError }}</div>
+					<div class="members-list" *ngIf="td?.members?.length; else noMembers">
+						<div class="person-card muted" *ngFor="let m of td?.members">
+							<div class="person-avatar light">{{ ((m?.firstName || m?.lastName || m?.login || 'U') + '').slice(0,1) }}</div>
+							<div class="person-meta">
+								<div class="person-name">{{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}</div>
+								<div class="person-role">{{ m?.role || 'member' }}</div>
+							</div>
+							<button class="icon danger" type="button" aria-label="Remove member" (click)="removeTeamMember(m)" [disabled]="teamDetailsLoading"><lucide-icon name="user-minus" size="16"></lucide-icon></button>
+						</div>
+					</div>
+					<ng-template #noMembers>
+						<div class="empty-state">No members yet.</div>
+					</ng-template>
+				</div>
+			</section>
+			<ng-template #teamDetailsLoadingTpl>
+				<div class="modal-loading">Loading team details…</div>
+			</ng-template>
+		</div>
   
 	<!-- Details modal -->
 	<div class="modal-backdrop" *ngIf="detailsOpen" (click)="closeDetails()"></div>
