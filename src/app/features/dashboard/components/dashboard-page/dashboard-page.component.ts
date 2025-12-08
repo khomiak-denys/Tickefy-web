@@ -11,7 +11,7 @@ import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
-import { TicketDetailsDto } from '../../../../core/api/dtos';
+import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 
@@ -75,6 +75,16 @@ export class DashboardPageComponent {
   statusOptions = ['all','open','progress','completed','cancelled'];
   priorityOptions = ['all','low','medium','high'];
   userRoleOptions = ['Admin','Manager','Agent','Requester'];
+  categoryOptions = [
+    { value: Category.Finance, label: 'Finance' },
+    { value: Category.IT, label: 'IT' },
+    { value: Category.Design, label: 'Design' },
+    { value: Category.Marketing, label: 'Marketing' },
+    { value: Category.HumanResources, label: 'Human Resources' },
+    { value: Category.Legal, label: 'Legal' },
+    { value: Category.AccessAndSecurity, label: 'Access & Security' },
+    { value: Category.Other, label: 'Other' },
+  ];
   // Filters
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');

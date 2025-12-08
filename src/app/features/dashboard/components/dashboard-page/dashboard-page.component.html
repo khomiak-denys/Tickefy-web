@@ -141,7 +141,7 @@
 							<span>Category</span>
 							<select [(ngModel)]="newTeamCategory">
 								<option value="">Select category</option>
-								<option *ngFor="let c of [0,1,2,3,4,5,6,7]" [value]="c">{{ c }}</option>
+								<option *ngFor="let c of categoryOptions" [value]="c.value">{{ c.label }}</option>
 							</select>
 						</label>
 					</section>

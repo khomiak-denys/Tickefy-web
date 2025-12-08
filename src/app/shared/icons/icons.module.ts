@@ -32,6 +32,7 @@ import {
   MessageSquare,
   Flame,
   Pin,
+  X,
 } from 'lucide-angular';
 
 const icons = {
@@ -66,6 +67,7 @@ const icons = {
   MessageSquare,
   Flame,
   Pin,
+  X,
 };
 
 @NgModule({
