@@ -3,7 +3,7 @@
 	<aside class="sidebar">
 		<div class="brand">Tickefy</div>
 		<nav>
-			<a *ngIf="!isAdmin" [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
+			<a *ngIf="!isAdmin" [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> {{ isAgent ? 'Queue' : 'My Tickets' }}</a>
 			<a *ngIf="isAdmin" [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
 			<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><lucide-icon name="users" size="18"></lucide-icon> Teams</a>
 			<a *ngIf="isAdmin" [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
@@ -24,12 +24,12 @@
 	<main class="content">
 		<header class="top">
 			<div>
-				<h1 *ngIf="activeTab==='my'">My Tickets</h1>
+				<h1 *ngIf="activeTab==='my'">{{ isAgent ? 'Queue' : 'My Tickets' }}</h1>
 				<h1 *ngIf="activeTab==='all'">All Tickets</h1>
 				<h1 *ngIf="activeTab==='teams'">Teams</h1>
 				<h1 *ngIf="activeTab==='users'">Users</h1>
 				<h1 *ngIf="activeTab==='logs'">Activity Logs</h1>
-				<p *ngIf="activeTab==='my'">View and manage your submitted requests</p>
+				<p *ngIf="activeTab==='my'">{{ isAgent ? 'Tickets assigned to you' : 'View and manage your submitted requests' }}</p>
 				<p *ngIf="activeTab==='all'">Browse all tickets in the system</p>
 				<p *ngIf="activeTab==='teams'">Explore teams and their details</p>
 				<p *ngIf="activeTab==='users'">Manage and view users</p>

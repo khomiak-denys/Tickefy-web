@@ -19,6 +19,10 @@ export class TicketsService {
     return this.http.get(`${API_BASE_URL}/api/v1/tickets/my`);
   }
 
+  getQueue() {
+    return this.http.get(`${API_BASE_URL}/api/v1/tickets/queue`);
+  }
+
   getById(ticketId: string) {
     return this.http.get<TicketDetailsDto>(`${API_BASE_URL}/api/v1/tickets/${ticketId}`);
   }

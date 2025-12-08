@@ -106,6 +106,7 @@ export class DashboardPageComponent {
             this.role = r;
             localStorage.setItem('user_role', r);
             this.ensureActiveTabValid();
+            this.refreshTickets();
           }
         },
         error: () => {}
@@ -116,7 +117,8 @@ export class DashboardPageComponent {
 
   private refreshTickets() {
     // Map possible API wrappers to a plain array
-    this.tickets$ = this.tickets.getMy().pipe(
+    const source$ = this.isAgent ? this.tickets.getQueue() : this.tickets.getMy();
+    this.tickets$ = source$.pipe(
       map((res: any) => {
         if (Array.isArray(res)) return res;
         if (Array.isArray(res?.items)) return res.items;
@@ -529,6 +531,7 @@ export class DashboardPageComponent {
   }
 
   get isAdmin() { return (this.role || '').toLowerCase() === 'admin'; }
+  get isAgent() { return (this.role || '').toLowerCase() === 'agent'; }
 
   private allowedTabs(): Array<'my' | 'all' | 'users' | 'teams' | 'logs'> {
     return this.isAdmin ? ['all', 'teams', 'users', 'logs'] : ['my', 'teams'];
