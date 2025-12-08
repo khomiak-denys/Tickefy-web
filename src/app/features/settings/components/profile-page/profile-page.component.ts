@@ -44,7 +44,14 @@ export class ProfilePageComponent {
     if (!this.isOwner) return;
     const body = { firstName: this.firstName, lastName: this.lastName };
     this.users.updateProfile(body).subscribe({
-      next: () => { this.editing = false; },
+      next: () => {
+        if (this.firstName) { localStorage.setItem('user_firstName', this.firstName); }
+        if (this.lastName) { localStorage.setItem('user_lastName', this.lastName); }
+        // refresh user streams so the view reflects latest data
+        this.me$ = this.users.me();
+        this.user$ = this.users.me().pipe(map(u => u));
+        this.editing = false;
+      },
       error: () => { /* handle error */ }
     });
   }
