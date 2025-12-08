@@ -93,6 +93,7 @@ export class DashboardPageComponent {
     this.role = roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null;
     this.firstName = nameFromToken.firstName || localStorage.getItem('user_firstName');
     this.lastName = nameFromToken.lastName || localStorage.getItem('user_lastName');
+    this.ensureActiveTabValid();
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
         next: (u: any) => {
@@ -101,7 +102,11 @@ export class DashboardPageComponent {
           if (this.firstName) localStorage.setItem('user_firstName', this.firstName);
           if (this.lastName) localStorage.setItem('user_lastName', this.lastName);
           const r = (u?.role || u?.userRole || u?.user?.role || '').toLowerCase();
-          if (r) { this.role = r; localStorage.setItem('user_role', r); }
+          if (r) {
+            this.role = r;
+            localStorage.setItem('user_role', r);
+            this.ensureActiveTabValid();
+          }
         },
         error: () => {}
       });
@@ -325,7 +330,14 @@ export class DashboardPageComponent {
 
   // Tabs
   activeTab: 'my' | 'all' | 'users' | 'teams' | 'logs' = 'my';
-  setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') { this.activeTab = tab; }
+  setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') {
+    const allowed = this.allowedTabs();
+    if (!allowed.includes(tab)) {
+      this.activeTab = allowed[0];
+      return;
+    }
+    this.activeTab = tab;
+  }
   openTeam(t: any) {
     const id = t?.id || t?.teamId;
     if (!id) return;
@@ -514,5 +526,18 @@ export class DashboardPageComponent {
   private fetchUsers() {
     const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
     this.users.getAll().pipe(map(arr)).subscribe((list:any[]) => this.usersSource$.next(list));
+  }
+
+  get isAdmin() { return (this.role || '').toLowerCase() === 'admin'; }
+
+  private allowedTabs(): Array<'my' | 'all' | 'users' | 'teams' | 'logs'> {
+    return this.isAdmin ? ['all', 'teams', 'users', 'logs'] : ['my', 'teams'];
+  }
+
+  private ensureActiveTabValid() {
+    const allowed = this.allowedTabs();
+    if (!allowed.includes(this.activeTab)) {
+      this.activeTab = allowed[0];
+    }
   }
 }

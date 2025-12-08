@@ -3,11 +3,11 @@
 	<aside class="sidebar">
 		<div class="brand">Tickefy</div>
 		<nav>
-			<a [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
-			<a [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
+			<a *ngIf="!isAdmin" [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
+			<a *ngIf="isAdmin" [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
 			<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><lucide-icon name="users" size="18"></lucide-icon> Teams</a>
-			<a [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
-			<a [class.active]="activeTab==='logs'" (click)="setTab('logs')"><lucide-icon name="activity" size="18"></lucide-icon> Activity Logs</a>
+			<a *ngIf="isAdmin" [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
+			<a *ngIf="isAdmin" [class.active]="activeTab==='logs'" (click)="setTab('logs')"><lucide-icon name="activity" size="18"></lucide-icon> Activity Logs</a>
 		</nav>
 		<div class="profile">
 			<div class="avatar">J</div>
