@@ -55,6 +55,7 @@ export interface TicketSummaryDto {
   category?: string | null;
   priority?: string | null;
   status?: string | null;
+  created?: string; // ISO date
   deadline: string; // ISO date
 }
 

@@ -228,14 +228,14 @@
 					<div class="meta-value">{{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}</div>
 				</div>
 				<div class="meta-block">
+					<lucide-icon name="clock" size="16"></lucide-icon>
+					<div class="meta-label">Created</div>
+					<div class="meta-value">{{ d.created | date:'dd/MM/yyyy' }}</div>
+				</div>
+				<div class="meta-block">
 					<lucide-icon name="calendar" size="16"></lucide-icon>
 					<div class="meta-label">Deadline</div>
 					<div class="meta-value">{{ d.deadline | date:'dd/MM/yyyy' }}</div>
-				</div>
-				<div class="meta-block">
-					<lucide-icon name="clock" size="16"></lucide-icon>
-					<div class="meta-label">Created</div>
-					<div class="meta-value">{{ (d.id ? '' : '') }}{{ d.deadline ? '' : '' }}</div>
 				</div>
 			</div>
 
