@@ -66,7 +66,7 @@
 		<!-- All Tickets -->
 		<section class="tickets" *ngIf="activeTab==='all'">
 			<ng-container *ngIf="allTickets$ | async as all; else loading">
-				<ng-container *ngIf="all.length; else empty">
+				<ng-container *ngIf="all.length; else allEmpty">
 					<article class="ticket-card" *ngFor="let t of all" (click)="openTicket(t)">
 						<div class="card-top">
 							<h3>{{ t.title }}</h3>
@@ -85,10 +85,18 @@
 			</ng-container>
 		</section>
 
+		<ng-template #allEmpty>
+			<div class="empty-panel">
+				<div class="empty-icon"><lucide-icon name="layout-dashboard" size="28"></lucide-icon></div>
+				<div class="empty-title">No tickets available</div>
+				<p class="empty-text">All tickets will show up here once created.</p>
+			</div>
+		</ng-template>
+
 				<!-- Teams -->
 				<section class="tickets" *ngIf="activeTab==='teams'"> 
 					<ng-container *ngIf="teams$ | async as teams; else loading"> 
-						<ng-container *ngIf="teams.length; else empty"> 
+						<ng-container *ngIf="teams.length; else teamsEmpty"> 
 							<article class="ticket-card" *ngFor="let tm of teams" (click)="openTeam(tm)"> 
 								<div class="card-top"> 
 									<h3>{{ tm.name }}</h3> 
@@ -103,6 +111,14 @@
 						</ng-container> 
 					</ng-container> 
 				</section> 
+
+				<ng-template #teamsEmpty>
+					<div class="empty-panel">
+						<div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
+						<div class="empty-title">No teams yet</div>
+						<p class="empty-text">Create or assign teams to see them listed here.</p>
+					</div>
+				</ng-template>
 
 				<!-- Users -->
 				<section class="users" *ngIf="activeTab==='users'">
@@ -167,9 +183,10 @@
 						</div>
 					</ng-container>
 					<ng-template #logsEmptyState>
-						<div class="empty-state">
-							<lucide-icon name="activity" size="18"></lucide-icon>
-							<span>No activity on this page.</span>
+						<div class="empty-panel">
+							<div class="empty-icon"><lucide-icon name="activity" size="28"></lucide-icon></div>
+							<div class="empty-title">No activity yet</div>
+							<p class="empty-text">Activity logs will appear here once events are recorded.</p>
 						</div>
 					</ng-template>
 				</section>
