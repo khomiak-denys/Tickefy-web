@@ -143,15 +143,14 @@
 									<div class="user-name">{{ (u.firstName || '') + ' ' + (u.lastName || '') }}</div>
 								</div>
 								<div class="login-cell">{{ '@' + (u.login || u.username || '') }}</div>
-																<div class="role-cell">
-																		<span class="pill role" [ngClass]="roleClass(u.role)">{{ (u.role || 'user') | lowercase }}</span>
-																</div>
+													<div class="role-cell">
+											<span class="pill role" [ngClass]="roleClass(u.role)">{{ (u.role || 'user') | lowercase }}</span>
+													</div>
 								<div class="team-cell">{{ u.team?.name || '-' }}</div>
 								<div class="joined-cell">{{ (u.joined || u.created || u.createdAt) | date:'dd/MM/yyyy' }}</div>
 								<div class="actions-cell">
-									<button class="icon"><lucide-icon name="eye" size="16"></lucide-icon></button>
-									<button class="icon"><lucide-icon name="edit" size="16"></lucide-icon></button>
-									<button class="icon danger"><lucide-icon name="trash-2" size="16"></lucide-icon></button>
+									<button class="icon" (click)="viewUser(u)" title="View details"><lucide-icon name="eye" size="16"></lucide-icon></button>
+									<button class="icon danger" (click)="deleteUser(u)" title="Delete user"><lucide-icon name="trash-2" size="16"></lucide-icon></button>
 								</div>
 							</div>
 						</div>

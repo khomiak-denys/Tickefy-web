@@ -26,6 +26,7 @@ export class DashboardPageComponent {
   tickets$!: Observable<any[]>;
   filteredTickets$!: Observable<any[]>;
   allTickets$!: Observable<any[]>;
+  usersSource$ = new BehaviorSubject<any[]>([]);
   users$!: Observable<any[]>;
   filteredUsers$!: Observable<any[]>;
   teams$!: Observable<any[]>;
@@ -58,6 +59,7 @@ export class DashboardPageComponent {
   typeOptions = ['all','bug','design','translation','task'];
   statusOptions = ['all','open','progress','completed','cancelled'];
   priorityOptions = ['all','low','medium','high'];
+  userRoleOptions = ['Admin','Manager','Agent','Requester'];
   // Filters
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
@@ -156,22 +158,23 @@ export class DashboardPageComponent {
     // Collections for tabs
     const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
     this.allTickets$ = this.tickets.getAll().pipe(map(arr));
-    this.users$ = this.users.getAll().pipe(map(arr));
-        // Filtered users stream (align structure to tickets)
-        this.filteredUsers$ = combineLatest([
-          this.users$,
-          this.userRoleFilter$,
-          this.userTeamFilter$,
-        ]).pipe(
-          map(([list, rF, tF]) => {
-            const norm = (v: any) => String(v || '').toLowerCase();
-            return list.filter((u: any) => {
-              const rOk = rF === 'all' || norm(u?.role) === norm(rF);
-              const tOk = tF === 'all' || norm(u?.team?.name) === norm(tF);
-              return rOk && tOk;
-            });
-          })
-        );
+    this.users$ = this.usersSource$.asObservable();
+    this.fetchUsers();
+    // Filtered users stream (align structure to tickets)
+    this.filteredUsers$ = combineLatest([
+      this.users$,
+      this.userRoleFilter$,
+      this.userTeamFilter$,
+    ]).pipe(
+      map(([list, rF, tF]) => {
+        const norm = (v: any) => String(v || '').toLowerCase();
+        return list.filter((u: any) => {
+          const rOk = rF === 'all' || norm(u?.role) === norm(rF);
+          const tOk = tF === 'all' || norm(u?.team?.name) === norm(tF);
+          return rOk && tOk;
+        });
+      })
+    );
     this.teams$ = this.teams.getAll().pipe(map(arr));
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
@@ -286,6 +289,24 @@ export class DashboardPageComponent {
     this.teamDetails$ = this.teams.getById(String(id)).pipe(map((res:any)=>res||null));
   }
 
+  viewUser(u: any) {
+    const id = u?.id || u?._id || u?.userId;
+    if (!id) return;
+    this.router.navigate(['/settings/profile', String(id)]);
+  }
+
+  deleteUser(u: any) {
+    const id = u?.id || u?._id || u?.userId;
+    if (!id) return;
+    this.users.delete(String(id)).subscribe({
+      next: () => {
+        this.fetchUsers();
+      },
+      error: () => {}
+    });
+  }
+
+
   onStatusChange(value: string) { this.statusFilter$.next(value); }
   onPriorityChange(value: string) { this.priorityFilter$.next(value); }
   onTypeChange(value: string) { this.typeFilter$.next(value); }
@@ -368,5 +389,10 @@ export class DashboardPageComponent {
   // TrackBy for stable list rendering
   trackById(index: number, item: any) {
     return item?.id || item?._id || index;
+  }
+
+  private fetchUsers() {
+    const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
+    this.users.getAll().pipe(map(arr)).subscribe((list:any[]) => this.usersSource$.next(list));
   }
 }

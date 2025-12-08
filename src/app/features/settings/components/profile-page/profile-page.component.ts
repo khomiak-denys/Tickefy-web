@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { UsersService } from '../../../../shared/services/users.service';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile-page',
@@ -16,29 +16,37 @@ import { Router } from '@angular/router';
 })
 export class ProfilePageComponent {
   me$!: Observable<any>;
-  user$!: Observable<any>;
+  private userSubject = new BehaviorSubject<any>(null);
+  user$ = this.userSubject.asObservable();
   isOwner = false;
+  isAdmin = false;
+  canEdit = false;
   editing = false;
   firstName = '';
   lastName = '';
+  userRoleOptions = ['Admin','Manager','Agent','Requester'];
+  targetUserId: string | null = null;
 
-  constructor(private users: UsersService, private router: Router) {}
+  constructor(private users: UsersService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
+    this.targetUserId = this.route.snapshot.paramMap.get('id');
     this.me$ = this.users.me();
-    this.user$ = this.users.me().pipe(map(u => u));
-    this.me$.subscribe(me => {
-      this.user$.subscribe(user => {
-        const meId = me?.id || me?._id;
-        const userId = user?.id || user?._id;
-        this.isOwner = !!meId && meId === userId;
-        this.firstName = user?.firstName || '';
-        this.lastName = user?.lastName || '';
-      });
+    this.loadUser();
+
+    combineLatest([this.me$, this.user$]).subscribe(([me, user]) => {
+      const meId = me?.id || me?._id;
+      const userId = user?.id || user?._id;
+      const meRole = String(me?.role || '').toLowerCase();
+      this.isOwner = !!meId && !!userId && meId === userId;
+      this.isAdmin = meRole === 'admin';
+      this.canEdit = this.isOwner || this.isAdmin;
+      this.firstName = user?.firstName || '';
+      this.lastName = user?.lastName || '';
     });
   }
 
-  startEdit() { if (this.isOwner) this.editing = true; }
+  startEdit() { if (this.canEdit) this.editing = true; }
   cancelEdit() { this.editing = false; }
   save() {
     if (!this.isOwner) return;
@@ -49,7 +57,7 @@ export class ProfilePageComponent {
         if (this.lastName) { localStorage.setItem('user_lastName', this.lastName); }
         // refresh user streams so the view reflects latest data
         this.me$ = this.users.me();
-        this.user$ = this.users.me().pipe(map(u => u));
+        this.loadUser();
         this.editing = false;
       },
       error: () => { /* handle error */ }
@@ -58,5 +66,27 @@ export class ProfilePageComponent {
 
   goToMyTickets() {
     this.router.navigate(['/'], { queryParams: { tab: 'my' } });
+  }
+
+  changeRole(role: string) {
+    if (!role) return;
+    const user = this.userSubject.value;
+    const id = this.targetUserId || user?.id || user?._id;
+    if (!id || !this.canEdit || !this.editing) return;
+    if (this.isOwner && this.isAdmin) return; // admin cannot change own role
+    const current = String(user?.role || '').toLowerCase();
+    if (current === role.toLowerCase()) return;
+    this.users.setRole(String(id), { role }).subscribe({
+      next: () => {
+        if (this.isOwner) localStorage.setItem('user_role', role.toLowerCase());
+        this.loadUser();
+      },
+      error: () => { /* handle error */ }
+    });
+  }
+
+  private loadUser() {
+    const loader$ = this.targetUserId ? this.users.getById(this.targetUserId) : this.users.me();
+    loader$.pipe(map(u => u)).subscribe(u => this.userSubject.next(u));
   }
 }
