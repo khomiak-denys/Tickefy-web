@@ -47,12 +47,15 @@ export class DashboardPageComponent {
   detailsError: string | null = null;
   selectedTicket: TicketDetailsDto | null = null;
   ticketDetails$?: Observable<TicketDetailsDto | null>;
+  ticketActionLoading = false;
+  ticketActionError: string | null = null;
   teamDetails$?: Observable<any>;
   teamDetailsOpen = false;
   teamDetailsLoading = false;
   selectedTeamId: string | null = null;
   newTeamMemberLogin = '';
   teamError: string | null = null;
+  teamMembers: any[] = [];
   // New comment input state
   newCommentText = '';
   // Create ticket modal state
@@ -265,6 +268,41 @@ export class DashboardPageComponent {
     this.ticketDetails$ = undefined;
   }
 
+  completeTicket(ticketId: string | undefined) {
+    if (!ticketId || this.ticketActionLoading) return;
+    this.ticketActionLoading = true;
+    this.ticketActionError = null;
+    this.tickets.complete(String(ticketId)).subscribe({
+      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
+      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to complete ticket'; },
+      complete: () => { this.ticketActionLoading = false; }
+    });
+  }
+
+  reviseTicket(ticketId: string | undefined) {
+    if (!ticketId || this.ticketActionLoading) return;
+    this.ticketActionLoading = true;
+    this.ticketActionError = null;
+    this.tickets.revise(String(ticketId)).subscribe({
+      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
+      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to revise ticket'; },
+      complete: () => { this.ticketActionLoading = false; }
+    });
+  }
+
+  cancelTicket(ticketId: string | undefined) {
+    if (!ticketId || this.ticketActionLoading) return;
+    this.ticketActionLoading = true;
+    this.ticketActionError = null;
+    this.tickets.cancel(String(ticketId)).subscribe({
+      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
+      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to cancel ticket'; },
+      complete: () => { this.ticketActionLoading = false; }
+    });
+  }
+
+  closeTicketError() { this.ticketActionError = null; }
+
   addComment(ticketId: string | undefined, text: string | undefined) {
     const content = (text || '').trim();
     if (!ticketId || !content) return;
@@ -300,6 +338,7 @@ export class DashboardPageComponent {
   closeTeamDetails() {
     this.teamDetailsOpen = false;
     this.teamDetails$ = undefined;
+    this.teamMembers = [];
   }
 
   addTeamMember() {
@@ -338,7 +377,27 @@ export class DashboardPageComponent {
     if (!this.selectedTeamId) return;
     this.teamError = null;
     this.teamDetails$ = this.teams.getById(this.selectedTeamId).pipe(map((res:any)=>res||null));
-    this.teamDetails$.subscribe({ complete: () => (this.teamDetailsLoading = false), error: () => (this.teamDetailsLoading = false) });
+    this.teamDetails$.subscribe({
+      next: (team) => {
+        const list = Array.isArray(team?.members) ? team.members : [];
+        const normalized = list
+          .map((m: any) => {
+            const u = m?.user || {};
+            return {
+              ...m,
+              id: m?.id || m?._id || m?.userId || u?.id || u?._id,
+              firstName: m?.firstName ?? u?.firstName ?? '',
+              lastName: m?.lastName ?? u?.lastName ?? '',
+              login: m?.login ?? m?.username ?? u?.login ?? u?.username ?? '',
+              role: m?.role ?? u?.role ?? 'member'
+            };
+          })
+          .filter((m: any) => m && (m.firstName || m.lastName || m.login));
+        this.teamMembers = normalized;
+      },
+      complete: () => (this.teamDetailsLoading = false),
+      error: () => { this.teamDetailsLoading = false; }
+    });
   }
 
   viewUser(u: any) {
@@ -441,6 +500,15 @@ export class DashboardPageComponent {
   // TrackBy for stable list rendering
   trackById(index: number, item: any) {
     return item?.id || item?._id || index;
+  }
+
+  trackByUser(index: number, user: any) {
+    return user?.id || user?._id || user?.userId || index;
+  }
+
+  membersList(team: any) {
+    const list = Array.isArray(team?.members) ? team.members : [];
+    return list.filter((m: any) => m && (m.firstName || m.lastName || m.login || m.username));
   }
 
   private fetchUsers() {
