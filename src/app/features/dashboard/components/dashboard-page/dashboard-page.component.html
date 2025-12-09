@@ -43,7 +43,7 @@
 
 		<!-- My Tickets -->
 		<section class="tickets" *ngIf="activeTab==='my'">
-			<ng-container *ngIf="filteredTickets$ | async as tickets; else loading">
+			<ng-container *ngIf="filteredTickets$ | async as tickets; else myLoading">
 				<ng-container *ngIf="tickets.length; else myEmpty">
 					<article class="ticket-card" *ngFor="let t of tickets" (click)="openTicket(t)">
 						<div class="card-top">
@@ -66,7 +66,7 @@
 
 		<!-- All Tickets -->
 		<section class="tickets" *ngIf="activeTab==='all'">
-			<ng-container *ngIf="allTickets$ | async as all; else loading">
+			<ng-container *ngIf="allTickets$ | async as all; else allLoading">
 				<ng-container *ngIf="all.length; else allEmpty">
 					<article class="ticket-card" *ngFor="let t of all" (click)="openTicket(t)">
 						<div class="card-top">
@@ -140,8 +140,8 @@
 						<label>
 							<span>Category</span>
 							<select [(ngModel)]="newTeamCategory">
-								<option value="">Select category</option>
-								<option *ngFor="let c of categoryOptions" [value]="c.value">{{ c.label }}</option>
+								<option [ngValue]="null">Select category</option>
+								<option *ngFor="let c of categoryOptions" [ngValue]="c.value">{{ c.label }}</option>
 							</select>
 						</label>
 					</section>
@@ -162,7 +162,7 @@
 
 				<!-- Users -->
 				<section class="users" *ngIf="activeTab==='users'">
-					<ng-container *ngIf="filteredUsers$ | async as users; else loading">
+					<ng-container *ngIf="filteredUsers$ | async as users; else usersLoading">
 						<div class="users-table" *ngIf="users.length; else usersEmpty">
 							<div class="users-header">
 								<div>User</div>
@@ -210,7 +210,7 @@
 
 				<!-- Activity Logs -->
 				<section class="tickets logs" *ngIf="activeTab==='logs'">
-					<ng-container *ngIf="logs$ | async as logs; else loading">
+					<ng-container *ngIf="logs$ | async as logs; else logsLoading">
 						<!-- List or Empty State -->
 						<ng-container *ngIf="logs.length; else logsEmptyState">
 							<article class="log-item" *ngFor="let l of logs">
@@ -246,7 +246,10 @@
 						</div>
 					</ng-template>
 				</section>
-		<ng-template #loading><p>Loading…</p></ng-template>
+		<ng-template #myLoading><p>Loading your tickets…</p></ng-template>
+		<ng-template #allLoading><p>Loading all tickets…</p></ng-template>
+		<ng-template #usersLoading><p>Loading users…</p></ng-template>
+		<ng-template #logsLoading><p>Loading activity logs…</p></ng-template>
 		<ng-template #empty><p>No tickets found.</p></ng-template>
 	</main>
 

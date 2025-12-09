@@ -62,7 +62,7 @@ export class DashboardPageComponent {
   createTeamError: string | null = null;
   newTeamName = '';
   newTeamDescription = '';
-  newTeamCategory: number | '' = '';
+  newTeamCategory: number | null = null;
   // New comment input state
   newCommentText = '';
   // Create ticket modal state
@@ -422,7 +422,7 @@ export class DashboardPageComponent {
     this.createTeamError = null;
     this.newTeamName = '';
     this.newTeamDescription = '';
-    this.newTeamCategory = '';
+    this.newTeamCategory = null;
   }
 
   closeCreateTeam() {
@@ -435,7 +435,7 @@ export class DashboardPageComponent {
     this.createTeamSubmitting = true;
     this.createTeamError = null;
     const payload: any = { name, description: this.newTeamDescription };
-    if (this.newTeamCategory !== '' && this.newTeamCategory !== null && this.newTeamCategory !== undefined) {
+    if (this.newTeamCategory !== null) {
       payload.category = Number(this.newTeamCategory);
     }
     this.teams.create(payload).subscribe({
