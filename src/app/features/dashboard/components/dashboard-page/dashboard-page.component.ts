@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { AsyncPipe, NgFor, NgIf, NgClass, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TicketsService } from '../../../../shared/services/tickets.service';
-import { AuthService } from '../../../../shared/services/auth.service';
-import { UsersService } from '../../../../shared/services/users.service';
-import { TeamsService } from '../../../../shared/services/teams.service';
-import { ActivityLogService } from '../../../../shared/services/activity-log.service';
+import { TicketsService } from '../../../../core/services/tickets.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { UsersService } from '../../../../core/services/users.service';
+import { TeamsService } from '../../../../core/services/teams.service';
+import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
