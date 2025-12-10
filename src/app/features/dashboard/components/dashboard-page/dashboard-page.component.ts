@@ -39,6 +39,9 @@ export class DashboardPageComponent {
   loggingIn = false;
   error?: string;
   role: string | null = null;
+  isAdmin = false;
+  isAgent = false;
+  isRequester = false;
   firstName: string | null = null;
   lastName: string | null = null;
   // Ticket details modal
@@ -107,10 +110,9 @@ export class DashboardPageComponent {
     const payload = token ? decodeJwtPayload(token) : undefined;
     const roleFromToken = (extractRoleFromPayload(payload) || '').toLowerCase();
     const nameFromToken = extractNamesFromPayload(payload);
-    this.role = roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null;
+    this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
     this.firstName = nameFromToken.firstName || localStorage.getItem('user_firstName');
     this.lastName = nameFromToken.lastName || localStorage.getItem('user_lastName');
-    this.ensureActiveTabValid();
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
         next: (u: any) => {
@@ -120,9 +122,8 @@ export class DashboardPageComponent {
           if (this.lastName) localStorage.setItem('user_lastName', this.lastName);
           const r = (u?.role || u?.userRole || u?.user?.role || '').toLowerCase();
           if (r) {
-            this.role = r;
+            this.setRole(r);
             localStorage.setItem('user_role', r);
-            this.ensureActiveTabValid();
             this.refreshTickets();
           }
         },
@@ -390,11 +391,11 @@ export class DashboardPageComponent {
         this.fetchTeamDetails();
         this.teamDetailsLoading = false;
       },
-      error: (e: any) => {
+      error: (error: any) => {
         this.teamDetailsLoading = false;
         // Обробка помилок від бекенду
-        if (e.status === 404) this.teamError = 'User not found';
-        else if (e.status === 400) this.teamError = e.error.detail; // Наприклад "Only Requester users..."
+        if (error.status === 404) this.teamError = 'User not found';
+        else if (error.status === 400) this.teamError = error.error.detail; // Наприклад "Only Requester users..."
         else this.teamError = 'Failed to add member';
       }
     });
@@ -591,9 +592,18 @@ export class DashboardPageComponent {
       .subscribe((list: any[]) => this.usersSource$.next(list));
   }
 
-  get isAdmin() { return (this.role || '').toLowerCase() === 'admin'; }
-  get isAgent() { return (this.role || '').toLowerCase() === 'agent'; }
-  get isRequester() { return (this.role || '').toLowerCase() === 'requester'; }
+  private updateRoleFlags() {
+    const r = (this.role || '').toLowerCase();
+    this.isAdmin = r === 'admin';
+    this.isAgent = r === 'agent';
+    this.isRequester = r === 'requester';
+  }
+
+  private setRole(role: string | null) {
+    this.role = role ? role.toLowerCase() : null;
+    this.updateRoleFlags();
+    this.ensureActiveTabValid();
+  }
 
   private allowedTabs(): Array<'my' | 'all' | 'users' | 'teams' | 'logs'> {
     return this.isAdmin ? ['all', 'teams', 'users', 'logs'] : ['my', 'teams'];
