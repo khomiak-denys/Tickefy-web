@@ -27,6 +27,11 @@ export class TeamsService {
     return this.http.patch(`${API_BASE_URL}/api/v1/teams/${teamId}/members/${memberId}`, {});
   }
 
+  addMemberByLogin(teamId: string, login: string) {
+    // Backend resolves user by login provided in request body via PATCH
+    return this.http.patch(`${API_BASE_URL}/api/v1/teams/${teamId}/members`, { login });
+  }
+
   removeMember(teamId: string, memberId: string) {
     return this.http.delete(`${API_BASE_URL}/api/v1/teams/${teamId}/members/${memberId}`);
   }

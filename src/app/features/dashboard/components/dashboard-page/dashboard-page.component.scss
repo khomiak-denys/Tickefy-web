@@ -224,8 +224,9 @@
 .person-name { font-weight:600; color:#0f172a; }
 .person-role { color:#6b7280; font-size:13px; }
 .members-list { display:flex; flex-direction:column; gap:10px; }
-.add-member { display:flex; align-items:center; gap:10px; }
-.add-member input { width:220px; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; font-size:14px; outline:none; }
+.add-member { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.add-member input { width:160px; max-width: 60vw; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; font-size:14px; outline:none; }
+.add-member .ghost { min-width: 150px; white-space: normal; word-break: keep-all; }
 .add-member input:focus { border-color:#5b53ff; box-shadow:0 0 0 3px rgba(91,83,255,0.18); }
 .team-error { color:#b91c1c; font-weight:600; font-size:13px; margin-top:8px; }
 .modal-desc { color: #374151; margin-bottom: 16px; }

@@ -132,17 +132,23 @@ export class DashboardPageComponent {
     this.refreshTickets();
   }
 
+  private refreshTeams() {
+    const teamsSource$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
+    this.teams$ = teamsSource$.pipe(map((res: any) => this.normalizeList(res)));
+  }
+
+  private normalizeList(res: any) {
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res?.items)) return res.items;
+    if (Array.isArray(res?.data)) return res.data;
+    if (res && typeof res === 'object') return [res];
+    return [];
+  }
+
   private refreshTickets() {
     // Map possible API wrappers to a plain array
     const source$ = this.isAgent ? this.tickets.getQueue() : this.tickets.getMy();
-    this.tickets$ = source$.pipe(
-      map((res: any) => {
-        if (Array.isArray(res)) return res;
-        if (Array.isArray(res?.items)) return res.items;
-        if (Array.isArray(res?.data)) return res.data;
-        return [];
-      })
-    );
+    this.tickets$ = source$.pipe(map((res: any) => this.normalizeList(res)));
 
     // Stats from all tickets (unfiltered)
     this.stats$ = this.tickets$.pipe(
@@ -188,14 +194,7 @@ export class DashboardPageComponent {
     );
 
     // Collections for tabs
-    const arr = (res: any) => {
-      if (Array.isArray(res)) return res;
-      if (Array.isArray(res?.items)) return res.items;
-      if (Array.isArray(res?.data)) return res.data;
-      if (res && typeof res === 'object') return [res];
-      return [];
-    };
-    this.allTickets$ = this.tickets.getAll().pipe(map(arr));
+    this.allTickets$ = this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)));
     this.users$ = this.usersSource$.asObservable();
     this.fetchUsers();
     // Filtered users stream (align structure to tickets)
@@ -213,11 +212,10 @@ export class DashboardPageComponent {
         });
       })
     );
-    const teamsSource$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
-    this.teams$ = teamsSource$.pipe(map(arr));
+    this.refreshTeams();
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
-      map(arr),
+      map((res: any) => this.normalizeList(res)),
       tap((items: any[]) => {
         const page = this.logsPage$.value;
         this.hasPrevLogsPage = page > 1;
@@ -380,27 +378,24 @@ export class DashboardPageComponent {
   }
 
   addTeamMember() {
-    const login = (this.newTeamMemberLogin || '').trim().toLowerCase();
+    const login = (this.newTeamMemberLogin || '').trim();
     if (!this.selectedTeamId || !login) return;
-    this.teamError = null;
+
     this.teamDetailsLoading = true;
-    this.users.getByLogin(login).subscribe({
-      next: (member: any) => {
-        const role = String(member?.role || '').toLowerCase();
-        if (role !== 'requester') { this.teamDetailsLoading = false; this.teamError = 'Only requester users can be added to a team'; return; }
-        const memberId = member?.id || member?._id || member?.userId;
-        if (!memberId) { this.teamDetailsLoading = false; this.teamError = 'User id missing for this login'; return; }
-        this.teams.addMember(this.selectedTeamId!, String(memberId)).subscribe({
-          next: () => {
-            this.newTeamMemberLogin = '';
-            this.fetchTeamDetails();
-          },
-          error: () => { this.teamDetailsLoading = false; this.teamError = 'Failed to add member'; }
-        });
-      },
-      error: (e) => {
+    
+    // Ми відправляємо Login прямо в API додавання
+    this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
+      next: () => {
+        this.newTeamMemberLogin = '';
+        this.fetchTeamDetails();
         this.teamDetailsLoading = false;
-        this.teamError = e?.status === 404 ? 'User with this login not found' : 'Failed to fetch user by login';
+      },
+      error: (e: any) => {
+        this.teamDetailsLoading = false;
+        // Обробка помилок від бекенду
+        if (e.status === 404) this.teamError = 'User not found';
+        else if (e.status === 400) this.teamError = e.error.detail; // Наприклад "Only Requester users..."
+        else this.teamError = 'Failed to add member';
       }
     });
   }
@@ -442,7 +437,7 @@ export class DashboardPageComponent {
       next: () => {
         this.createTeamSubmitting = false;
         this.createTeamOpen = false;
-        this.refreshTickets();
+        this.refreshTeams();
       },
       error: (e) => {
         this.createTeamSubmitting = false;
@@ -590,8 +585,10 @@ export class DashboardPageComponent {
   }
 
   private fetchUsers() {
-    const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
-    this.users.getAll().pipe(map(arr)).subscribe((list:any[]) => this.usersSource$.next(list));
+    this.users
+      .getAll()
+      .pipe(map((res: any) => this.normalizeList(res)))
+      .subscribe((list: any[]) => this.usersSource$.next(list));
   }
 
   get isAdmin() { return (this.role || '').toLowerCase() === 'admin'; }
