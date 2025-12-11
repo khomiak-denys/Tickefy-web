@@ -7,7 +7,7 @@ import { UsersService } from '../../../../core/services/users.service';
 import { TeamsService } from '../../../../core/services/teams.service';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
@@ -195,9 +195,15 @@ export class DashboardPageComponent {
     );
 
     // Collections for tabs
-    this.allTickets$ = this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)));
+    this.allTickets$ = this.isAdmin
+      ? this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)))
+      : of([]);
     this.users$ = this.usersSource$.asObservable();
-    this.fetchUsers();
+    if (this.isAdmin) {
+      this.fetchUsers();
+    } else {
+      this.usersSource$.next([]);
+    }
     // Filtered users stream (align structure to tickets)
     this.filteredUsers$ = combineLatest([
       this.users$,
