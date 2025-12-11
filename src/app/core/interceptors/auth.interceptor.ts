@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
-export const testInterceptor: HttpInterceptorFn = (req, next) => {
+// Attaches JWT access token from localStorage to outgoing requests
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('access_token');
   const authReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
   return next(authReq);

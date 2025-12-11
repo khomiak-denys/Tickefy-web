@@ -1,19 +1,21 @@
 import { Component } from '@angular/core';
 import { AsyncPipe, NgFor, NgIf, NgClass, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TicketsService } from '../../../../shared/services/tickets.service';
-import { AuthService } from '../../../../shared/services/auth.service';
-import { UsersService } from '../../../../shared/services/users.service';
-import { TeamsService } from '../../../../shared/services/teams.service';
-import { ActivityLogService } from '../../../../shared/services/activity-log.service';
+import { TicketsService } from '../../../../core/services/tickets.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { UsersService } from '../../../../core/services/users.service';
+import { TeamsService } from '../../../../core/services/teams.service';
+import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
-import { TicketDetailsDto } from '../../../../core/api/dtos';
+import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
+
+type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -24,7 +26,11 @@ import { IconsModule } from '../../../../shared/icons/icons.module';
 })
 export class DashboardPageComponent {
   tickets$!: Observable<any[]>;
+  queueTickets$!: Observable<any[]>;
+  myTickets$!: Observable<any[]>;
   filteredTickets$!: Observable<any[]>;
+  filteredQueueTickets$!: Observable<any[]>;
+  filteredMyTickets$!: Observable<any[]>;
   allTickets$!: Observable<any[]>;
   usersSource$ = new BehaviorSubject<any[]>([]);
   users$!: Observable<any[]>;
@@ -39,6 +45,12 @@ export class DashboardPageComponent {
   loggingIn = false;
   error?: string;
   role: string | null = null;
+  currentUserId: string | null = null;
+  isAdmin = false;
+  isAgent = false;
+  isRequester = false;
+  isManager = false;
+  allowedTabsList: TabKey[] = ['my', 'teams'];
   firstName: string | null = null;
   lastName: string | null = null;
   // Ticket details modal
@@ -56,6 +68,13 @@ export class DashboardPageComponent {
   newTeamMemberLogin = '';
   teamError: string | null = null;
   teamMembers: any[] = [];
+  // Create team modal state
+  createTeamOpen = false;
+  createTeamSubmitting = false;
+  createTeamError: string | null = null;
+  newTeamName = '';
+  newTeamDescription = '';
+  newTeamCategory: number | null = null;
   // New comment input state
   newCommentText = '';
   // Create ticket modal state
@@ -68,6 +87,16 @@ export class DashboardPageComponent {
   statusOptions = ['all','open','progress','completed','cancelled'];
   priorityOptions = ['all','low','medium','high'];
   userRoleOptions = ['Admin','Manager','Agent','Requester'];
+  categoryOptions = [
+    { value: Category.Finance, label: 'Finance' },
+    { value: Category.IT, label: 'IT' },
+    { value: Category.Design, label: 'Design' },
+    { value: Category.Marketing, label: 'Marketing' },
+    { value: Category.HumanResources, label: 'Human Resources' },
+    { value: Category.Legal, label: 'Legal' },
+    { value: Category.AccessAndSecurity, label: 'Access & Security' },
+    { value: Category.Other, label: 'Other' },
+  ];
   // Filters
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
@@ -89,8 +118,11 @@ export class DashboardPageComponent {
     const token = localStorage.getItem('access_token') || '';
     const payload = token ? decodeJwtPayload(token) : undefined;
     const roleFromToken = (extractRoleFromPayload(payload) || '').toLowerCase();
+    const idFromToken = (payload?.sub || payload?.userId || payload?.nameid || payload?._id || payload?.id || '').toString() || null;
+    this.currentUserId = idFromToken;
     const nameFromToken = extractNamesFromPayload(payload);
-    this.role = roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null;
+    this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
+    if (this.isAgent) this.activeTab = 'queue';
     this.firstName = nameFromToken.firstName || localStorage.getItem('user_firstName');
     this.lastName = nameFromToken.lastName || localStorage.getItem('user_lastName');
     if (!this.firstName || !this.lastName) {
@@ -98,30 +130,59 @@ export class DashboardPageComponent {
         next: (u: any) => {
           this.firstName = u?.firstName || this.firstName;
           this.lastName = u?.lastName || this.lastName;
+          const uid = u?.id || u?._id || u?.userId;
+          if (uid) this.currentUserId = String(uid);
           if (this.firstName) localStorage.setItem('user_firstName', this.firstName);
           if (this.lastName) localStorage.setItem('user_lastName', this.lastName);
           const r = (u?.role || u?.userRole || u?.user?.role || '').toLowerCase();
-          if (r) { this.role = r; localStorage.setItem('user_role', r); }
+          if (r) {
+            this.setRole(r);
+            localStorage.setItem('user_role', r);
+          }
         },
         error: () => {}
       });
     }
-    this.refreshTickets();
+  }
+
+  private refreshTeams() {
+    const teamsSource$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
+    this.teams$ = teamsSource$.pipe(map((res: any) => this.normalizeList(res)));
+  }
+
+  private normalizeList(res: any) {
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res?.items)) return res.items;
+    if (Array.isArray(res?.data)) return res.data;
+    if (res && typeof res === 'object') return [res];
+    return [];
   }
 
   private refreshTickets() {
-    // Map possible API wrappers to a plain array
-    this.tickets$ = this.tickets.getMy().pipe(
-      map((res: any) => {
-        if (Array.isArray(res)) return res;
-        if (Array.isArray(res?.items)) return res.items;
-        if (Array.isArray(res?.data)) return res.data;
-        return [];
+    const makeFiltered = (stream$: Observable<any[]>) => combineLatest([
+      stream$,
+      this.statusFilter$,
+      this.priorityFilter$,
+      this.typeFilter$,
+    ]).pipe(
+      map(([list, sF, pF, tF]) => {
+        const norm = (v: any) => String(v || '').toLowerCase();
+        return list.filter((t: any) => {
+          const sOk = sF === 'all' || norm(t?.status).includes(sF);
+          const pOk = pF === 'all' || norm(t?.priority) === pF;
+          const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
+          return sOk && pOk && tOk;
+        });
       })
     );
 
-    // Stats from all tickets (unfiltered)
-    this.stats$ = this.tickets$.pipe(
+    if (this.isAgent) {
+      this.queueTickets$ = this.tickets.getQueue().pipe(map((res: any) => this.normalizeList(res)));
+      this.myTickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
+      this.filteredQueueTickets$ = makeFiltered(this.queueTickets$);
+      this.filteredMyTickets$ = makeFiltered(this.myTickets$);
+      // Stats from queue
+      this.stats$ = this.queueTickets$.pipe(
       map(list => {
         const norm = (s: any) => String(s || '').toLowerCase();
         const now = Date.now();
@@ -143,31 +204,50 @@ export class DashboardPageComponent {
         }
         return acc;
       })
-    );
+      );
+    } else {
+      // Map possible API wrappers to a plain array
+      this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
 
-    // Filtered tickets stream (align with /tickets/my schema)
-    this.filteredTickets$ = combineLatest([
-      this.tickets$,
-      this.statusFilter$,
-      this.priorityFilter$,
-      this.typeFilter$,
-    ]).pipe(
-      map(([list, sF, pF, tF]) => {
-        const norm = (v: any) => String(v || '').toLowerCase();
-        return list.filter((t: any) => {
-          const sOk = sF === 'all' || norm(t?.status).includes(sF);
-          const pOk = pF === 'all' || norm(t?.priority) === pF;
-          const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
-          return sOk && pOk && tOk;
-        });
-      })
-    );
+      // Stats from all tickets (unfiltered)
+      this.stats$ = this.tickets$.pipe(
+        map(list => {
+          const norm = (s: any) => String(s || '').toLowerCase();
+          const now = Date.now();
+          const acc = { open: 0, inProgress: 0, completed: 0, cancelled: 0, burning: 0 };
+          for (const t of list) {
+            const s = norm(t?.status);
+            const deadline = t?.deadline ? new Date(t.deadline).getTime() : undefined;
+            const isCompleted = s.startsWith('comp');
+            const isCancelled = s.startsWith('canc');
+            if (s.includes('progress')) acc.inProgress++;
+            else if (isCompleted) acc.completed++;
+            else if (isCancelled) acc.cancelled++;
+            else acc.open++;
+            // Burning Deadlines: deadline < 24h and status != Completed
+            if (!isCompleted && typeof deadline === 'number') {
+              const diffHrs = (deadline - now) / (1000 * 60 * 60);
+              if (diffHrs > 0 && diffHrs < 24) acc.burning++;
+            }
+          }
+          return acc;
+        })
+      );
+
+      // Filtered tickets stream (align with /tickets/my schema)
+      this.filteredTickets$ = makeFiltered(this.tickets$);
+    }
 
     // Collections for tabs
-    const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
-    this.allTickets$ = this.tickets.getAll().pipe(map(arr));
+    this.allTickets$ = this.canViewTab('all')
+      ? this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)))
+      : of([]);
     this.users$ = this.usersSource$.asObservable();
-    this.fetchUsers();
+    if (this.canViewTab('users')) {
+      this.fetchUsers();
+    } else {
+      this.usersSource$.next([]);
+    }
     // Filtered users stream (align structure to tickets)
     this.filteredUsers$ = combineLatest([
       this.users$,
@@ -183,10 +263,10 @@ export class DashboardPageComponent {
         });
       })
     );
-    this.teams$ = this.teams.getAll().pipe(map(arr));
+    this.refreshTeams();
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
-      map(arr),
+      map((res: any) => this.normalizeList(res)),
       tap((items: any[]) => {
         const page = this.logsPage$.value;
         this.hasPrevLogsPage = page > 1;
@@ -301,6 +381,17 @@ export class DashboardPageComponent {
     });
   }
 
+  takeTicket(ticketId: string | undefined) {
+    if (!ticketId || this.ticketActionLoading) return;
+    this.ticketActionLoading = true;
+    this.ticketActionError = null;
+    this.tickets.take(String(ticketId)).subscribe({
+      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
+      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to take ticket'; },
+      complete: () => { this.ticketActionLoading = false; }
+    });
+  }
+
   closeTicketError() { this.ticketActionError = null; }
 
   addComment(ticketId: string | undefined, text: string | undefined) {
@@ -324,8 +415,15 @@ export class DashboardPageComponent {
   }
 
   // Tabs
-  activeTab: 'my' | 'all' | 'users' | 'teams' | 'logs' = 'my';
-  setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') { this.activeTab = tab; }
+  activeTab: TabKey = 'my';
+  setTab(tab: TabKey) {
+    const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
+    if (!allowed.includes(tab)) {
+      this.activeTab = allowed[0];
+      return;
+    }
+    this.activeTab = tab;
+  }
   openTeam(t: any) {
     const id = t?.id || t?.teamId;
     if (!id) return;
@@ -342,23 +440,25 @@ export class DashboardPageComponent {
   }
 
   addTeamMember() {
-    const login = (this.newTeamMemberLogin || '').trim().toLowerCase();
+    const login = (this.newTeamMemberLogin || '').trim();
     if (!this.selectedTeamId || !login) return;
-    this.teamError = null;
-    const users = this.usersSource$.value || [];
-    const member = users.find((u: any) => String(u?.login || u?.username || '').toLowerCase() === login);
-    if (!member) { this.teamError = 'User with this login not found'; return; }
-    const role = String(member?.role || '').toLowerCase();
-    if (role !== 'requester') { this.teamError = 'Only requester users can be added to a team'; return; }
-    const memberId = member?.id || member?._id || member?.userId;
-    if (!memberId) { this.teamError = 'User id missing for this login'; return; }
+
     this.teamDetailsLoading = true;
-    this.teams.addMember(this.selectedTeamId, String(memberId)).subscribe({
+    
+    // Ми відправляємо Login прямо в API додавання
+    this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
       next: () => {
         this.newTeamMemberLogin = '';
         this.fetchTeamDetails();
+        this.teamDetailsLoading = false;
       },
-      error: () => { this.teamDetailsLoading = false; this.teamError = 'Failed to add member'; }
+      error: (error: any) => {
+        this.teamDetailsLoading = false;
+        // Обробка помилок від бекенду
+        if (error.status === 404) this.teamError = 'User not found';
+        else if (error.status === 400) this.teamError = error?.error?.detail; // Наприклад "Only Requester users..."
+        else this.teamError = 'Failed to add member';
+      }
     });
   }
 
@@ -370,6 +470,41 @@ export class DashboardPageComponent {
     this.teams.removeMember(this.selectedTeamId, String(memberId)).subscribe({
       next: () => this.fetchTeamDetails(),
       error: () => { this.teamDetailsLoading = false; }
+    });
+  }
+
+  openCreateTeam() {
+    this.createTeamOpen = true;
+    this.createTeamSubmitting = false;
+    this.createTeamError = null;
+    this.newTeamName = '';
+    this.newTeamDescription = '';
+    this.newTeamCategory = null;
+  }
+
+  closeCreateTeam() {
+    this.createTeamOpen = false;
+  }
+
+  submitCreateTeam() {
+    const name = (this.newTeamName || '').trim();
+    if (!name) { this.createTeamError = 'Team name is required'; return; }
+    this.createTeamSubmitting = true;
+    this.createTeamError = null;
+    const payload: any = { name, description: this.newTeamDescription };
+    if (this.newTeamCategory !== null) {
+      payload.category = Number(this.newTeamCategory);
+    }
+    this.teams.create(payload).subscribe({
+      next: () => {
+        this.createTeamSubmitting = false;
+        this.createTeamOpen = false;
+        this.refreshTeams();
+      },
+      error: (e) => {
+        this.createTeamSubmitting = false;
+        this.createTeamError = e?.error?.detail || 'Failed to create team';
+      }
     });
   }
 
@@ -511,8 +646,81 @@ export class DashboardPageComponent {
     return list.filter((m: any) => m && (m.firstName || m.lastName || m.login || m.username));
   }
 
+  // Ticket ownership/helpers
+  private normalizeId(entity: any): string | null {
+    const id = entity?.id || entity?._id || entity?.userId;
+    return id ? String(id) : null;
+  }
+
+  private ticketRequesterId(ticket: any): string | null {
+    return this.normalizeId(ticket?.requester || ticket?.owner || ticket?.createdBy);
+  }
+
+  private ticketAssignedAgentId(ticket: any): string | null {
+    return this.normalizeId(ticket?.assignedAgent || ticket?.agent || ticket?.assignee);
+  }
+
+  isTicketOwner(ticket: any) {
+    const requesterId = this.ticketRequesterId(ticket);
+    return requesterId && this.currentUserId ? requesterId === this.currentUserId : false;
+  }
+
+  isTicketAssignedToMe(ticket: any) {
+    const assignedId = this.ticketAssignedAgentId(ticket);
+    return assignedId && this.currentUserId ? assignedId === this.currentUserId : false;
+  }
+
+  canAgentTake(ticket: any) {
+    return this.isAgent && !this.isTicketOwner(ticket) && !this.ticketAssignedAgentId(ticket);
+  }
+
+  canAgentComplete(ticket: any) {
+    return (this.isAdmin || (this.isAgent && this.isTicketAssignedToMe(ticket))) && !this.isTicketOwner(ticket);
+  }
+
+  canAgentCancel(ticket: any) {
+    return (this.isAdmin || (this.isAgent && this.isTicketAssignedToMe(ticket))) && !this.isTicketOwner(ticket);
+  }
+
   private fetchUsers() {
-    const arr = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
-    this.users.getAll().pipe(map(arr)).subscribe((list:any[]) => this.usersSource$.next(list));
+    this.users
+      .getAll()
+      .pipe(map((res: any) => this.normalizeList(res)))
+      .subscribe((list: any[]) => this.usersSource$.next(list));
+  }
+
+  private updateRoleFlags() {
+    const r = (this.role || '').toLowerCase();
+    this.isAdmin = r === 'admin';
+    this.isAgent = r === 'agent';
+    this.isRequester = r === 'requester';
+    this.isManager = r === 'manager';
+  }
+
+  private setRole(role: string | null) {
+    this.role = role ? role.toLowerCase() : null;
+    this.updateRoleFlags();
+    this.allowedTabsList = this.computeAllowedTabs();
+    this.ensureActiveTabValid();
+    this.refreshTickets();
+  }
+
+  private computeAllowedTabs(): TabKey[] {
+    if (this.isAdmin) return ['all', 'teams', 'users', 'logs'];
+    if (this.isManager) return ['my', 'teams'];
+    if (this.isAgent) return ['queue', 'my', 'teams'];
+    if (this.isRequester) return ['my', 'teams'];
+    return ['my', 'teams'];
+  }
+
+  canViewTab(tab: TabKey) {
+    return this.allowedTabsList.includes(tab);
+  }
+
+  private ensureActiveTabValid() {
+    const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
+    if (!allowed.includes(this.activeTab)) {
+      this.activeTab = allowed[0];
+    }
   }
 }

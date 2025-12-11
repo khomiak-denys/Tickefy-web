@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsyncPipe, NgIf } from '@angular/common';
-import { UsersService } from '../../../../shared/services/users.service';
+import { UsersService } from '../../../../core/services/users.service';
 import { map } from 'rxjs/operators';
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';

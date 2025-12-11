@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { API_BASE_URL } from '../../core/api/api.config';
-import { LoginUserRequest, RegisterUserRequest, SetPasswordRequest } from '../../core/api/dtos';
+import { API_BASE_URL } from '../api/api.config';
+import { LoginUserRequest, RegisterUserRequest, SetPasswordRequest } from '../api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

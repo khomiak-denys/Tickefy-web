@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { API_BASE_URL } from '../../core/api/api.config';
+import { API_BASE_URL } from '../api/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class ActivityLogService {

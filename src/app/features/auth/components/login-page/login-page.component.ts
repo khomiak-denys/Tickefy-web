@@ -3,7 +3,7 @@ import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../../../shared/services/auth.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { decodeJwtPayload, extractNamesFromPayload, extractRoleFromPayload } from '../../../../shared/helpers/jwt.util';
 
 @Component({

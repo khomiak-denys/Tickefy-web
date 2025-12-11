@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { API_BASE_URL } from '../../core/api/api.config';
-import { SetUserRoleRequest, UpdateProfileRequest } from '../../core/api/dtos';
+import { API_BASE_URL } from '../api/api.config';
+import { SetUserRoleRequest, UpdateProfileRequest } from '../api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -13,6 +13,10 @@ export class UsersService {
 
   getById(userId: string) {
     return this.http.get(`${API_BASE_URL}/api/v1/users/${userId}`);
+  }
+
+  getByLogin(login: string) {
+    return this.http.get(`${API_BASE_URL}/api/v1/users/login/${encodeURIComponent(login)}`);
   }
 
   delete(userId: string) {

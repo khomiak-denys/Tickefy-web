@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { API_BASE_URL } from '../../core/api/api.config';
-import { CreateTicketRequest, PostCommentRequest, TicketDetailsDto } from '../../core/api/dtos';
+import { API_BASE_URL } from '../api/api.config';
+import { CreateTicketRequest, PostCommentRequest, TicketDetailsDto } from '../api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class TicketsService {
@@ -17,6 +17,10 @@ export class TicketsService {
 
   getMy() {
     return this.http.get(`${API_BASE_URL}/api/v1/tickets/my`);
+  }
+
+  getQueue() {
+    return this.http.get(`${API_BASE_URL}/api/v1/tickets/queue`);
   }
 
   getById(ticketId: string) {
@@ -37,5 +41,9 @@ export class TicketsService {
 
   cancel(ticketId: string) {
     return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/cancel`, {});
+  }
+
+  take(ticketId: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/take`, {});
   }
 }

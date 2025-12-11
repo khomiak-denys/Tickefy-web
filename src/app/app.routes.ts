@@ -1,28 +1,56 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'dashboard',
-    loadChildren: () =>
-      import('./features/dashboard/dashboard.module').then(
-        (m) => m.DashboardModule
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./features/dashboard/components/dashboard-page/dashboard-page.component').then(
+        (m) => m.DashboardPageComponent
       ),
-  },
-  {
-    path: 'users',
-    loadChildren: () =>
-      import('./features/users/users.module').then((m) => m.UsersModule),
   },
   {
     path: 'settings',
-    loadChildren: () =>
-      import('./features/settings/settings.module').then(
-        (m) => m.SettingsModule
-      ),
+    children: [
+      {
+        path: 'profile',
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./features/settings/components/profile-page/profile-page.component').then(
+            (m) => m.ProfilePageComponent
+          ),
+      },
+      {
+        path: 'profile/:id',
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import('./features/settings/components/profile-page/profile-page.component').then(
+            (m) => m.ProfilePageComponent
+          ),
+      },
+    ],
   },
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.module').then((m) => m.AuthModule),
+    children: [
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./features/auth/components/login-page/login-page.component').then(
+            (m) => m.LoginPageComponent
+          ),
+      },
+      {
+        path: 'register',
+        loadComponent: () =>
+          import('./features/auth/components/register-page/register-page.component').then(
+            (m) => m.RegisterPageComponent
+          ),
+      },
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
+    ],
   },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: 'dashboard' },
 ];
