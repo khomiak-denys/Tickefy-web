@@ -42,4 +42,8 @@ export class TicketsService {
   cancel(ticketId: string) {
     return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/cancel`, {});
   }
+
+  take(ticketId: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/take`, {});
+  }
 }

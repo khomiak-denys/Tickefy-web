@@ -238,11 +238,12 @@
 .ticket-head { display:grid; grid-template-columns: 1fr auto; grid-template-rows:auto auto; gap:12px; margin-bottom: 12px; }
 .ticket-title { grid-column: 1 / 2; margin:0; font-size: 20px; font-weight: 700; color:#0f172a; }
 .ticket-tags { grid-column: 1 / 2; display:flex; gap:8px; }
-.ticket-actions { grid-column: 2 / 3; display:flex; gap:10px; align-items: start; }
-.act { border:none; border-radius:10px; padding:8px 12px; font-weight:600; cursor:pointer; }
+.ticket-actions { grid-column: 2 / 3; display:flex; gap:10px; align-items: start; flex-wrap:wrap; justify-content:flex-end; }
+.act { border:none; border-radius:10px; padding:8px 12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
 .act.complete { background:#16a34a; color:#fff; }
 .act.revise { background:#7c3aed; color:#fff; }
 .act.cancel { background:#ef4444; color:#fff; }
+.act.primary { background:#5b53ff; color:#fff; }
 
 .ticket-meta-row { display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid #eceff5; border-bottom: 1px solid #eceff5; margin-bottom: 12px; }
 .meta-block { display:grid; grid-template-columns: 18px auto; gap:6px; align-items:center; }

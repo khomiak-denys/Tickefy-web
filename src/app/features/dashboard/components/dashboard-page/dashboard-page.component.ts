@@ -15,7 +15,7 @@ import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 
-type TabKey = 'my' | 'all' | 'users' | 'teams' | 'logs';
+type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -26,7 +26,11 @@ type TabKey = 'my' | 'all' | 'users' | 'teams' | 'logs';
 })
 export class DashboardPageComponent {
   tickets$!: Observable<any[]>;
+  queueTickets$!: Observable<any[]>;
+  myTickets$!: Observable<any[]>;
   filteredTickets$!: Observable<any[]>;
+  filteredQueueTickets$!: Observable<any[]>;
+  filteredMyTickets$!: Observable<any[]>;
   allTickets$!: Observable<any[]>;
   usersSource$ = new BehaviorSubject<any[]>([]);
   users$!: Observable<any[]>;
@@ -41,6 +45,7 @@ export class DashboardPageComponent {
   loggingIn = false;
   error?: string;
   role: string | null = null;
+  currentUserId: string | null = null;
   isAdmin = false;
   isAgent = false;
   isRequester = false;
@@ -113,8 +118,11 @@ export class DashboardPageComponent {
     const token = localStorage.getItem('access_token') || '';
     const payload = token ? decodeJwtPayload(token) : undefined;
     const roleFromToken = (extractRoleFromPayload(payload) || '').toLowerCase();
+    const idFromToken = (payload?.sub || payload?.userId || payload?.nameid || payload?._id || payload?.id || '').toString() || null;
+    this.currentUserId = idFromToken;
     const nameFromToken = extractNamesFromPayload(payload);
     this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
+    if (this.isAgent) this.activeTab = 'queue';
     this.firstName = nameFromToken.firstName || localStorage.getItem('user_firstName');
     this.lastName = nameFromToken.lastName || localStorage.getItem('user_lastName');
     if (!this.firstName || !this.lastName) {
@@ -122,6 +130,8 @@ export class DashboardPageComponent {
         next: (u: any) => {
           this.firstName = u?.firstName || this.firstName;
           this.lastName = u?.lastName || this.lastName;
+          const uid = u?.id || u?._id || u?.userId;
+          if (uid) this.currentUserId = String(uid);
           if (this.firstName) localStorage.setItem('user_firstName', this.firstName);
           if (this.lastName) localStorage.setItem('user_lastName', this.lastName);
           const r = (u?.role || u?.userRole || u?.user?.role || '').toLowerCase();
@@ -149,12 +159,30 @@ export class DashboardPageComponent {
   }
 
   private refreshTickets() {
-    // Map possible API wrappers to a plain array
-    const source$ = this.isAgent ? this.tickets.getQueue() : this.tickets.getMy();
-    this.tickets$ = source$.pipe(map((res: any) => this.normalizeList(res)));
+    const makeFiltered = (stream$: Observable<any[]>) => combineLatest([
+      stream$,
+      this.statusFilter$,
+      this.priorityFilter$,
+      this.typeFilter$,
+    ]).pipe(
+      map(([list, sF, pF, tF]) => {
+        const norm = (v: any) => String(v || '').toLowerCase();
+        return list.filter((t: any) => {
+          const sOk = sF === 'all' || norm(t?.status).includes(sF);
+          const pOk = pF === 'all' || norm(t?.priority) === pF;
+          const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
+          return sOk && pOk && tOk;
+        });
+      })
+    );
 
-    // Stats from all tickets (unfiltered)
-    this.stats$ = this.tickets$.pipe(
+    if (this.isAgent) {
+      this.queueTickets$ = this.tickets.getQueue().pipe(map((res: any) => this.normalizeList(res)));
+      this.myTickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
+      this.filteredQueueTickets$ = makeFiltered(this.queueTickets$);
+      this.filteredMyTickets$ = makeFiltered(this.myTickets$);
+      // Stats from queue
+      this.stats$ = this.queueTickets$.pipe(
       map(list => {
         const norm = (s: any) => String(s || '').toLowerCase();
         const now = Date.now();
@@ -176,25 +204,39 @@ export class DashboardPageComponent {
         }
         return acc;
       })
-    );
+      );
+    } else {
+      // Map possible API wrappers to a plain array
+      this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
 
-    // Filtered tickets stream (align with /tickets/my schema)
-    this.filteredTickets$ = combineLatest([
-      this.tickets$,
-      this.statusFilter$,
-      this.priorityFilter$,
-      this.typeFilter$,
-    ]).pipe(
-      map(([list, sF, pF, tF]) => {
-        const norm = (v: any) => String(v || '').toLowerCase();
-        return list.filter((t: any) => {
-          const sOk = sF === 'all' || norm(t?.status).includes(sF);
-          const pOk = pF === 'all' || norm(t?.priority) === pF;
-          const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
-          return sOk && pOk && tOk;
-        });
-      })
-    );
+      // Stats from all tickets (unfiltered)
+      this.stats$ = this.tickets$.pipe(
+        map(list => {
+          const norm = (s: any) => String(s || '').toLowerCase();
+          const now = Date.now();
+          const acc = { open: 0, inProgress: 0, completed: 0, cancelled: 0, burning: 0 };
+          for (const t of list) {
+            const s = norm(t?.status);
+            const deadline = t?.deadline ? new Date(t.deadline).getTime() : undefined;
+            const isCompleted = s.startsWith('comp');
+            const isCancelled = s.startsWith('canc');
+            if (s.includes('progress')) acc.inProgress++;
+            else if (isCompleted) acc.completed++;
+            else if (isCancelled) acc.cancelled++;
+            else acc.open++;
+            // Burning Deadlines: deadline < 24h and status != Completed
+            if (!isCompleted && typeof deadline === 'number') {
+              const diffHrs = (deadline - now) / (1000 * 60 * 60);
+              if (diffHrs > 0 && diffHrs < 24) acc.burning++;
+            }
+          }
+          return acc;
+        })
+      );
+
+      // Filtered tickets stream (align with /tickets/my schema)
+      this.filteredTickets$ = makeFiltered(this.tickets$);
+    }
 
     // Collections for tabs
     this.allTickets$ = this.canViewTab('all')
@@ -339,6 +381,17 @@ export class DashboardPageComponent {
     });
   }
 
+  takeTicket(ticketId: string | undefined) {
+    if (!ticketId || this.ticketActionLoading) return;
+    this.ticketActionLoading = true;
+    this.ticketActionError = null;
+    this.tickets.take(String(ticketId)).subscribe({
+      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
+      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to take ticket'; },
+      complete: () => { this.ticketActionLoading = false; }
+    });
+  }
+
   closeTicketError() { this.ticketActionError = null; }
 
   addComment(ticketId: string | undefined, text: string | undefined) {
@@ -362,8 +415,8 @@ export class DashboardPageComponent {
   }
 
   // Tabs
-  activeTab: 'my' | 'all' | 'users' | 'teams' | 'logs' = 'my';
-  setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') {
+  activeTab: TabKey = 'my';
+  setTab(tab: TabKey) {
     const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
     if (!allowed.includes(tab)) {
       this.activeTab = allowed[0];
@@ -593,6 +646,42 @@ export class DashboardPageComponent {
     return list.filter((m: any) => m && (m.firstName || m.lastName || m.login || m.username));
   }
 
+  // Ticket ownership/helpers
+  private normalizeId(entity: any): string | null {
+    const id = entity?.id || entity?._id || entity?.userId;
+    return id ? String(id) : null;
+  }
+
+  private ticketRequesterId(ticket: any): string | null {
+    return this.normalizeId(ticket?.requester || ticket?.owner || ticket?.createdBy);
+  }
+
+  private ticketAssignedAgentId(ticket: any): string | null {
+    return this.normalizeId(ticket?.assignedAgent || ticket?.agent || ticket?.assignee);
+  }
+
+  isTicketOwner(ticket: any) {
+    const requesterId = this.ticketRequesterId(ticket);
+    return requesterId && this.currentUserId ? requesterId === this.currentUserId : false;
+  }
+
+  isTicketAssignedToMe(ticket: any) {
+    const assignedId = this.ticketAssignedAgentId(ticket);
+    return assignedId && this.currentUserId ? assignedId === this.currentUserId : false;
+  }
+
+  canAgentTake(ticket: any) {
+    return this.isAgent && !this.isTicketOwner(ticket) && !this.ticketAssignedAgentId(ticket);
+  }
+
+  canAgentComplete(ticket: any) {
+    return (this.isAdmin || (this.isAgent && this.isTicketAssignedToMe(ticket))) && !this.isTicketOwner(ticket);
+  }
+
+  canAgentCancel(ticket: any) {
+    return (this.isAdmin || (this.isAgent && this.isTicketAssignedToMe(ticket))) && !this.isTicketOwner(ticket);
+  }
+
   private fetchUsers() {
     this.users
       .getAll()
@@ -619,7 +708,7 @@ export class DashboardPageComponent {
   private computeAllowedTabs(): TabKey[] {
     if (this.isAdmin) return ['all', 'teams', 'users', 'logs'];
     if (this.isManager) return ['my', 'teams'];
-    if (this.isAgent) return ['my', 'teams'];
+    if (this.isAgent) return ['queue', 'my', 'teams'];
     if (this.isRequester) return ['my', 'teams'];
     return ['my', 'teams'];
   }

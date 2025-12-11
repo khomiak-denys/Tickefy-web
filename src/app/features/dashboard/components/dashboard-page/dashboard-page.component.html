@@ -3,7 +3,8 @@
 	<aside class="sidebar">
 		<div class="brand">Tickefy</div>
 		<nav>
-			<a *ngIf="canViewTab('my')" [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> {{ isAgent ? 'Queue' : 'My Tickets' }}</a>
+			<a *ngIf="isAgent && canViewTab('queue')" [class.active]="activeTab==='queue'" (click)="setTab('queue')"><lucide-icon name="list" size="18"></lucide-icon> Queue</a>
+			<a *ngIf="canViewTab('my')" [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
 			<a *ngIf="canViewTab('all')" [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
 			<a *ngIf="canViewTab('teams')" [class.active]="activeTab==='teams'" (click)="setTab('teams')"><lucide-icon name="users" size="18"></lucide-icon> Teams</a>
 			<a *ngIf="canViewTab('users')" [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
@@ -24,11 +25,13 @@
 	<main class="content">
 		<header class="top">
 			<div>
-				<h1 *ngIf="activeTab==='my'">{{ isAgent ? 'Queue' : 'My Tickets' }}</h1>
+				<h1 *ngIf="activeTab==='queue'">Queue</h1>
+				<h1 *ngIf="activeTab==='my'">My Tickets</h1>
 				<h1 *ngIf="activeTab==='all'">All Tickets</h1>
 				<h1 *ngIf="activeTab==='teams'">Teams</h1>
 				<h1 *ngIf="activeTab==='users'">Users</h1>
 				<h1 *ngIf="activeTab==='logs'">Activity Logs</h1>
+				<p *ngIf="activeTab==='queue'">Tickets waiting to be taken</p>
 				<p *ngIf="activeTab==='my'">{{ isAgent ? 'Tickets assigned to you' : 'View and manage your submitted requests' }}</p>
 				<p *ngIf="activeTab==='all'">Browse all tickets in the system</p>
 				<p *ngIf="activeTab==='teams'">Explore teams and their details</p>
@@ -41,9 +44,32 @@
 
 		<!-- Admin statistics removed per request -->
 
+		<!-- Queue (Agents) -->
+		<section class="tickets" *ngIf="activeTab==='queue'">
+			<ng-container *ngIf="filteredQueueTickets$ | async as tickets; else myLoading">
+				<ng-container *ngIf="tickets.length; else myEmpty">
+					<article class="ticket-card" *ngFor="let t of tickets" (click)="openTicket(t)">
+						<div class="card-top">
+							<h3>{{ t.title }}</h3>
+							<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+								<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
+							</div>
+						</div>
+						<p class="desc">{{ t.description }}</p>
+						<div class="card-meta">
+							<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+							<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
+							<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
+							<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
+						</div>
+					</article>
+				</ng-container>
+			</ng-container>
+		</section>
+
 		<!-- My Tickets -->
 		<section class="tickets" *ngIf="activeTab==='my'">
-			<ng-container *ngIf="filteredTickets$ | async as tickets; else myLoading">
+			<ng-container *ngIf="(isAgent ? filteredMyTickets$ : filteredTickets$) | async as tickets; else myLoading">
 				<ng-container *ngIf="tickets.length; else myEmpty">
 					<article class="ticket-card" *ngFor="let t of tickets" (click)="openTicket(t)">
 						<div class="card-top">
@@ -323,8 +349,9 @@
 			<div class="ticket-head">
 				<h2 class="ticket-title">{{ d.title || ('Ticket #' + (d.id || '')) }}</h2>
 				<div class="ticket-actions">
-					<button class="act complete" (click)="completeTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="check-circle" size="16"></lucide-icon> Complete</button>
-					<button class="act cancel" (click)="cancelTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="x-circle" size="16"></lucide-icon> Cancel</button>
+					<button class="act primary" *ngIf="canAgentTake(d)" (click)="takeTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="plus-circle" size="16"></lucide-icon> Take</button>
+					<button class="act cancel" *ngIf="canAgentCancel(d)" (click)="cancelTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="x-circle" size="16"></lucide-icon> Cancel</button>
+					<button class="act complete" *ngIf="canAgentComplete(d)" (click)="completeTicket(d.id)" [disabled]="ticketActionLoading"><lucide-icon name="check-circle" size="16"></lucide-icon> Complete</button>
 				</div>
 				<div class="ticket-tags">
 					<span class="pill status" [ngClass]="statusClass(d?.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (d.status || 'in progress') }}</span>
