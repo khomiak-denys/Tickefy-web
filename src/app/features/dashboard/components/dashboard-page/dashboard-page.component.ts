@@ -15,6 +15,8 @@ import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 
+type TabKey = 'my' | 'all' | 'users' | 'teams' | 'logs';
+
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
@@ -42,6 +44,8 @@ export class DashboardPageComponent {
   isAdmin = false;
   isAgent = false;
   isRequester = false;
+  isManager = false;
+  allowedTabsList: TabKey[] = ['my', 'teams'];
   firstName: string | null = null;
   lastName: string | null = null;
   // Ticket details modal
@@ -124,13 +128,11 @@ export class DashboardPageComponent {
           if (r) {
             this.setRole(r);
             localStorage.setItem('user_role', r);
-            this.refreshTickets();
           }
         },
         error: () => {}
       });
     }
-    this.refreshTickets();
   }
 
   private refreshTeams() {
@@ -195,11 +197,11 @@ export class DashboardPageComponent {
     );
 
     // Collections for tabs
-    this.allTickets$ = this.isAdmin
+    this.allTickets$ = this.canViewTab('all')
       ? this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)))
       : of([]);
     this.users$ = this.usersSource$.asObservable();
-    if (this.isAdmin) {
+    if (this.canViewTab('users')) {
       this.fetchUsers();
     } else {
       this.usersSource$.next([]);
@@ -362,7 +364,7 @@ export class DashboardPageComponent {
   // Tabs
   activeTab: 'my' | 'all' | 'users' | 'teams' | 'logs' = 'my';
   setTab(tab: 'my' | 'all' | 'users' | 'teams' | 'logs') {
-    const allowed = this.allowedTabs();
+    const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
     if (!allowed.includes(tab)) {
       this.activeTab = allowed[0];
       return;
@@ -401,7 +403,7 @@ export class DashboardPageComponent {
         this.teamDetailsLoading = false;
         // Обробка помилок від бекенду
         if (error.status === 404) this.teamError = 'User not found';
-        else if (error.status === 400) this.teamError = error.error.detail; // Наприклад "Only Requester users..."
+        else if (error.status === 400) this.teamError = error?.error?.detail; // Наприклад "Only Requester users..."
         else this.teamError = 'Failed to add member';
       }
     });
@@ -603,20 +605,31 @@ export class DashboardPageComponent {
     this.isAdmin = r === 'admin';
     this.isAgent = r === 'agent';
     this.isRequester = r === 'requester';
+    this.isManager = r === 'manager';
   }
 
   private setRole(role: string | null) {
     this.role = role ? role.toLowerCase() : null;
     this.updateRoleFlags();
+    this.allowedTabsList = this.computeAllowedTabs();
     this.ensureActiveTabValid();
+    this.refreshTickets();
   }
 
-  private allowedTabs(): Array<'my' | 'all' | 'users' | 'teams' | 'logs'> {
-    return this.isAdmin ? ['all', 'teams', 'users', 'logs'] : ['my', 'teams'];
+  private computeAllowedTabs(): TabKey[] {
+    if (this.isAdmin) return ['all', 'teams', 'users', 'logs'];
+    if (this.isManager) return ['my', 'teams'];
+    if (this.isAgent) return ['my', 'teams'];
+    if (this.isRequester) return ['my', 'teams'];
+    return ['my', 'teams'];
+  }
+
+  canViewTab(tab: TabKey) {
+    return this.allowedTabsList.includes(tab);
   }
 
   private ensureActiveTabValid() {
-    const allowed = this.allowedTabs();
+    const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
     if (!allowed.includes(this.activeTab)) {
       this.activeTab = allowed[0];
     }
