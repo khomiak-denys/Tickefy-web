@@ -6,5 +6,5 @@ export interface JwtPayload {
   exp: number;
   iat: number;
   iss: string;
-  aud: string
+  aud: string;
 }

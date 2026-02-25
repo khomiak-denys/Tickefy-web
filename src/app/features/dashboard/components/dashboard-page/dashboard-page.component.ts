@@ -121,6 +121,8 @@ export class DashboardPageComponent {
     this.currentUserId = payload?.nameid ?? null;
     this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
     if (this.isAgent) this.activeTab = 'queue';
+    this.firstName = this.firstName || localStorage.getItem('user_firstName');
+    this.lastName = this.lastName || localStorage.getItem('user_lastName');
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
         next: (u: any) => {
