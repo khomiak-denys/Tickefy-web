@@ -1,38 +1,31 @@
-export function decodeJwtPayload(token: string): any | undefined {
+import { JwtPayload } from "./dto/jwt.payload"
+
+function isJwtPayload(v: unknown): v is JwtPayload {
+  if (typeof v !== "object" || v === null) return false;
+  const o = v as Record<string, unknown>;
+  return (
+    typeof o["nameid"] === "string" &&
+    typeof o["name"] === "string" &&
+    typeof o["roles"] === "string" &&
+    typeof o["nbf"] === "number" &&
+    typeof o["exp"] === "number" &&
+    typeof o["iat"] === "number" &&
+    typeof o["iss"] === "string" &&
+    typeof o["aud"] === "string"
+  );
+}
+
+export function decodeJwtPayload(token: string): JwtPayload | null {
   try {
     const parts = token.split('.');
-    if (parts.length < 2) return undefined;
+    if (parts.length < 2) return null;
     const base64 = parts[1]
       .replace(/-/g, '+')
       .replace(/_/g, '/');
     const padded = base64.padEnd(base64.length + (4 - (base64.length % 4 || 4)) % 4, '=');
-    const json = atob(padded);
-    return JSON.parse(json);
+    const parsed: unknown = JSON.parse(atob(padded));
+    return isJwtPayload(parsed) ? parsed : null;
   } catch {
-    return undefined;
+    return null;
   }
-}
-
-export function extractRoleFromPayload(payload: any): string | undefined {
-  if (!payload) return undefined;
-  const msClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
-  const role = payload.role || payload.userRole || payload[msClaim];
-  if (Array.isArray(payload.roles) && payload.roles.length) return String(payload.roles[0]);
-  if (Array.isArray(role) && role.length) return String(role[0]);
-  if (role) return String(role);
-  return undefined;
-}
-
-export function extractNamesFromPayload(payload: any): { firstName?: string; lastName?: string } {
-  if (!payload) return {};
-  const firstName = payload.given_name || payload.firstName || payload.givenName;
-  const lastName = payload.family_name || payload.lastName || payload.familyName;
-  if (firstName || lastName) return { firstName: String(firstName || ''), lastName: String(lastName || '') };
-  // Fallback: split name
-  const name: string | undefined = payload.name;
-  if (name) {
-    const parts = String(name).trim().split(/\s+/);
-    return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
-  }
-  return {};
 }

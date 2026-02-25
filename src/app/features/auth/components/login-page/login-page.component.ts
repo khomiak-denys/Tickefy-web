@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { decodeJwtPayload, extractNamesFromPayload, extractRoleFromPayload } from '../../../../shared/helpers/jwt.util';
+import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
 
 @Component({
   selector: 'app-login-page',
@@ -43,11 +43,8 @@ export class LoginPageComponent {
         if (token) {
           localStorage.setItem('access_token', token);
           const payload = decodeJwtPayload(token);
-          const roleFromToken = (extractRoleFromPayload(payload) || '').toLowerCase();
-          const nameFromToken = extractNamesFromPayload(payload);
+          const roleFromToken = payload?.roles;
           if (roleFromToken) localStorage.setItem('user_role', roleFromToken);
-          if (nameFromToken.firstName) localStorage.setItem('user_firstName', nameFromToken.firstName);
-          if (nameFromToken.lastName) localStorage.setItem('user_lastName', nameFromToken.lastName);
           this.router.navigate(['/dashboard']);
         } else {
           this.error = 'No token in response';

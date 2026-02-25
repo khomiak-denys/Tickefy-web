@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
-import { decodeJwtPayload, extractRoleFromPayload, extractNamesFromPayload } from '../../../../shared/helpers/jwt.util';
+import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
 import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
@@ -116,20 +116,16 @@ export class DashboardPageComponent {
 
   ngOnInit() {
     const token = localStorage.getItem('access_token') || '';
-    const payload = token ? decodeJwtPayload(token) : undefined;
-    const roleFromToken = (extractRoleFromPayload(payload) || '').toLowerCase();
-    const idFromToken = (payload?.sub || payload?.userId || payload?.nameid || payload?._id || payload?.id || '').toString() || null;
-    this.currentUserId = idFromToken;
-    const nameFromToken = extractNamesFromPayload(payload);
+    const payload = token ? decodeJwtPayload(token) : null;
+    const roleFromToken = payload?.roles.toLowerCase();
+    this.currentUserId = payload?.nameid ?? null;
     this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
     if (this.isAgent) this.activeTab = 'queue';
-    this.firstName = nameFromToken.firstName || localStorage.getItem('user_firstName');
-    this.lastName = nameFromToken.lastName || localStorage.getItem('user_lastName');
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
         next: (u: any) => {
-          this.firstName = u?.firstName || this.firstName;
-          this.lastName = u?.lastName || this.lastName;
+          this.firstName = u?.firstName;
+          this.lastName = u?.lastName;
           const uid = u?.id || u?._id || u?.userId;
           if (uid) this.currentUserId = String(uid);
           if (this.firstName) localStorage.setItem('user_firstName', this.firstName);
@@ -444,7 +440,7 @@ export class DashboardPageComponent {
     if (!this.selectedTeamId || !login) return;
 
     this.teamDetailsLoading = true;
-    
+
     // Ми відправляємо Login прямо в API додавання
     this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
       next: () => {
