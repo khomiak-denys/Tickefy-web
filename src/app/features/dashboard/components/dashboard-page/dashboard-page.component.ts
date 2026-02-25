@@ -117,17 +117,17 @@ export class DashboardPageComponent {
   ngOnInit() {
     const token = localStorage.getItem('access_token') || '';
     const payload = token ? decodeJwtPayload(token) : null;
-    const roleFromToken = payload?.roles.toLowerCase();
+    const roleFromToken = payload?.roles?.toLowerCase();
     this.currentUserId = payload?.nameid ?? null;
     this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
     if (this.isAgent) this.activeTab = 'queue';
-    this.firstName = this.firstName || localStorage.getItem('user_firstName');
-    this.lastName = this.lastName || localStorage.getItem('user_lastName');
+    this.firstName = localStorage.getItem('user_firstName');
+    this.lastName = localStorage.getItem('user_lastName');
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
         next: (u: any) => {
-          this.firstName = u?.firstName;
-          this.lastName = u?.lastName;
+          this.firstName = u?.firstName || this.firstName;
+          this.lastName = u?.lastName || this.lastName;
           const uid = u?.id || u?._id || u?.userId;
           if (uid) this.currentUserId = String(uid);
           if (this.firstName) localStorage.setItem('user_firstName', this.firstName);
