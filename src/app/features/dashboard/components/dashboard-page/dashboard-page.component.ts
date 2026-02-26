@@ -117,7 +117,7 @@ export class DashboardPageComponent {
   ngOnInit() {
     const token = localStorage.getItem('access_token') || '';
     const payload = token ? decodeJwtPayload(token) : null;
-    const roleFromToken = payload?.roles?.toLowerCase();
+    const roleFromToken = payload?.role?.toLowerCase();
     this.currentUserId = payload?.nameid ?? null;
     this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
     if (this.isAgent) this.activeTab = 'queue';
