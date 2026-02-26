@@ -1,5 +1,5 @@
 import { JwtPayload } from "./dto/jwt.payload"
-import { JwtPayloadSchema} from './dto/jwt.payload.schema';
+import { JwtPayloadSchema } from './dto/jwt.payload.schema';
 import {TokenValidationOptions} from './dto/token.validation.options';
 
 export function validateJwtClaims(
@@ -9,8 +9,6 @@ export function validateJwtClaims(
 
   if (now > payload.exp) return {valid: false, reason: 'Token expired'};
   if (now < payload.nbf) return {valid: false, reason: 'Token not valid before specific time'};
-
-  if (payload.iat !== payload.nbf) return {valid: false, reason: 'Invalid iat'};
 
   if (options.iss && options.iss !== payload.iss) return {valid: false, reason: 'Invalid issuer'};
   if (options.aud && options.aud !== payload.aud) return {valid: false, reason: 'Invalid audience'};
