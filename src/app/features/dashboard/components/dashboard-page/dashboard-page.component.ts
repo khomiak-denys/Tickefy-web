@@ -54,11 +54,9 @@ export class DashboardPageComponent {
   firstName: string | null = null;
   lastName: string | null = null;
   // Ticket details modal
-  detailsOpen = false;
   detailsLoading = false;
   detailsError: string | null = null;
   selectedTicket: TicketDetailsDto | null = null;
-  ticketDetails$?: Observable<TicketDetailsDto | null>;
   ticketActionLoading = false;
   ticketActionError: string | null = null;
   teamDetails$?: Observable<any>;
@@ -340,12 +338,6 @@ export class DashboardPageComponent {
     // mark loading false when first value arrives
     this.ticketDetails$.subscribe({ complete: () => (this.detailsLoading = false), error: () => (this.detailsLoading = false) });
   }
-
-  closeDetails() {
-    this.detailsOpen = false;
-    this.ticketDetails$ = undefined;
-  }
-
   completeTicket(ticketId: string | undefined) {
     if (!ticketId || this.ticketActionLoading) return;
     this.ticketActionLoading = true;
