@@ -43,7 +43,7 @@ export class LoginPageComponent {
         if (token) {
           localStorage.setItem('access_token', token);
           const payload = decodeJwtPayload(token);
-          const roleFromToken = payload?.roles;
+          const roleFromToken = payload?.role;
           if (roleFromToken) localStorage.setItem('user_role', roleFromToken);
           this.router.navigate(['/dashboard']);
         } else {
