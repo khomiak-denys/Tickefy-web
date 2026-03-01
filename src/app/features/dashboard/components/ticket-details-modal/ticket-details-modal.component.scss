@@ -63,4 +63,54 @@
 .act.cancel { background:#ef4444; color:#fff; }
 .act.primary { background:#5b53ff; color:#fff; }
 
+.pill { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #e5e7eb; background:#f8fafc; color:#0f172a; }
+.pill .lucide-icon { vertical-align: middle; }
+.pill.status.open { background:#e8edff; color:#3f46ff; border-color:#dbe2ff; }
+.pill.status.progress { background:#fff7e7; color:#d97706; border-color:#fde9c3; }
+.pill.status.completed { background:#e9fbef; color:#059669; border-color:#c7f0d9; }
+.pill.status.cancelled { background:#ffecec; color:#ef4444; border-color:#ffd2d2; }
+.pill.status.failed { background:#ffecec; color:#b91c1c; border-color:#ffd2d2; }
+.pill.status.assigned { background:#e0f2fe; color:#1d4ed8; border-color:#bae6fd; }
+.pill.status.created { background:#f5f3ff; color:#7c3aed; border-color:#e9d5ff; }
+.pill.priority.low { background:#ecfdf5; color:#065f46; border-color:#d1fae5; }
+.pill.priority.medium { background:#fef3c7; color:#92400e; border-color:#fde68a; }
+.pill.priority.high { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+.pill.type { background:#eef2ff; color:#1e3a8a; border-color:#e0e7ff; }
+.pill.deadline { background:#f0f9ff; color:#0ea5e9; border-color:#cffafe; }
+
+.section-title { font-size:18px; font-weight:700; margin: 16px 0 8px; }
+
+.comments { list-style:none; padding:0; margin:0 0 16px 0; display:flex; flex-direction:column; gap:12px; }
+.comment-item { background: rgba(255,255,255,0.9); border:1px solid #eef2ff; border-radius:16px; padding:12px 14px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+.comment-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.avatar.small { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; color:#fff; background: linear-gradient(135deg,#7c3aed,#5b53ff); box-shadow: 0 6px 14px rgba(124,58,237,0.3); }
+.who-time { display:flex; flex-direction:column; gap:2px; }
+.who { font-weight:600; color:#0f172a; }
+.time { display:flex; align-items:center; gap:6px; color:#6b7280; font-size:12.5px; }
+.c-text { color:#111827; font-size:14px; line-height:1.5; }
+.no-comments { color:#6b7280; font-size:13px; padding:8px 0 0; }
+.comments, .attachments { margin: 0; padding-left: 18px; }
+.comment-input { display:flex; align-items:center; gap:10px; padding:10px 0 2px; }
+.comment-input input { flex:1; border:1px solid #dbeafe; border-radius:20px; padding:12px 14px; font-size:14px; outline:none; background: rgba(255,255,255,0.9); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+.comment-input input:focus { border-color:#5b53ff; box-shadow:0 0 0 3px rgba(91,83,255,0.18); }
+.comment-input .send { width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#7c3aed,#5b53ff); color:#fff; box-shadow: 0 14px 28px rgba(91,83,255,0.25); }
+.comment-input .send:disabled { opacity:.6; cursor:not-allowed; }
+
+.who-time .who { font-weight:600; color:#0f172a; }
+.who-time .time { color:#6b7280; font-size:12px; display:flex; align-items:center; gap:6px; }
+
+.who .name { font-weight: 600; }
+.who .role { font-size: 12px; color: #6b7280; }
+
+.modal-loading {
+  min-height: 360px;      // робить модалку вищою саме під час loading
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 600;
+  color: #0f172a;
+  padding: 32px;
+}
+
 .close { border: none; background: transparent; font-size: 20px; cursor: pointer; }
