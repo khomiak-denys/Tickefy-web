@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {TicketDetailsDto} from '../../../../core/api/dtos';
 import {catchError, Observable, of} from 'rxjs';
-import {LucideAngularModule} from 'lucide-angular/src/icons';
+import { IconsModule } from '../../../../shared/icons/icons.module';
 import {AsyncPipe, DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TicketsService} from '../../../../core/services/tickets.service';
@@ -10,7 +10,7 @@ import {TicketsService} from '../../../../core/services/tickets.service';
   selector: 'app-ticket-details-modal',
   standalone: true,
   imports: [
-    LucideAngularModule,
+    IconsModule,
     NgClass,
     DatePipe,
     FormsModule,
