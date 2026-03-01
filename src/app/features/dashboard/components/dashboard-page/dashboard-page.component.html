@@ -42,8 +42,6 @@
 			<button class="create" *ngIf="activeTab==='teams' && (isAdmin || isRequester)" (click)="openCreateTeam()">Create Team</button>
 		</header>
 
-		<!-- Admin statistics removed per request -->
-
 		<!-- Queue (Agents) -->
 		<section class="tickets" *ngIf="activeTab==='queue'">
 			<ng-container *ngIf="filteredQueueTickets$ | async as tickets; else myLoading">
@@ -380,5 +378,12 @@
 		<button class="primary" [disabled]="createSubmitting" (click)="submitCreate()">{{ createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
 	</footer>
 	<div class="error" *ngIf="error">{{ error }}</div>
-
 </div>
+
+
+<app-ticket-details-modal
+  [open]="isTicketModalOpen"
+  [ticketId]="selectedTicketId"
+  (closed)="closeTicketModal()"
+  (updated)="refreshTickets()"
+></app-ticket-details-modal>

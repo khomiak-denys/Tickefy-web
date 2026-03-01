@@ -42,6 +42,7 @@ export interface TicketSummaryDto {
 
 export interface TicketDetailsDto extends TicketSummaryDto {
   comments?: TicketCommentDto[] | null;
+  availableActions?: TicketAction[];
   attachments?: Array<{
     filePath?: string | null;
     fileName?: string | null;
@@ -58,4 +59,9 @@ export interface CreateTicketRequest {
 
 export interface PostCommentRequest {
   content?: string | null;
+}
+
+export interface TicketAction {
+  key: string;
+  requireReason: boolean;
 }
