@@ -11,16 +11,17 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
+import { Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
+import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, AsyncPipe, NgFor, NgIf, NgClass, IconsModule],
+  imports: [CommonModule, FormsModule, AsyncPipe, NgFor, NgIf, NgClass, IconsModule, TicketDetailsModalComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -53,14 +54,10 @@ export class DashboardPageComponent {
   allowedTabsList: TabKey[] = ['my', 'teams'];
   firstName: string | null = null;
   lastName: string | null = null;
-  // Ticket details modal
-  detailsOpen = false;
-  detailsLoading = false;
-  detailsError: string | null = null;
-  selectedTicket: TicketDetailsDto | null = null;
-  ticketDetails$?: Observable<TicketDetailsDto | null>;
-  ticketActionLoading = false;
-  ticketActionError: string | null = null;
+
+  isTicketModalOpen = false;
+  selectedTicketId: string | null = null;
+
   teamDetails$?: Observable<any>;
   teamDetailsOpen = false;
   teamDetailsLoading = false;
@@ -75,18 +72,12 @@ export class DashboardPageComponent {
   newTeamName = '';
   newTeamDescription = '';
   newTeamCategory: number | null = null;
-  // New comment input state
-  newCommentText = '';
   // Create ticket modal state
   createOpen = false;
   createSubmitting = false;
   newTitle = '';
   newDescription = '';
   newDeadline = '';
-  typeOptions = ['all','bug','design','translation','task'];
-  statusOptions = ['all','open','progress','completed','cancelled'];
-  priorityOptions = ['all','low','medium','high'];
-  userRoleOptions = ['Admin','Manager','Agent','Requester'];
   categoryOptions = [
     { value: Category.Finance, label: 'Finance' },
     { value: Category.IT, label: 'IT' },
@@ -156,7 +147,7 @@ export class DashboardPageComponent {
     return [];
   }
 
-  private refreshTickets() {
+   refreshTickets() {
     const makeFiltered = (stream$: Observable<any[]>) => combineLatest([
       stream$,
       this.statusFilter$,
@@ -330,86 +321,15 @@ export class DashboardPageComponent {
   }
 
   openTicket(t: any) {
-    const id = t?.id || t?._id || t?.ticketId;
+    const id = t?.id;
     if (!id) return;
-    this.detailsOpen = true;
-    this.detailsLoading = true;
-    this.ticketDetails$ = this.tickets.getById(String(id)).pipe(
-      map((res: any) => res || null)
-    );
-    // mark loading false when first value arrives
-    this.ticketDetails$.subscribe({ complete: () => (this.detailsLoading = false), error: () => (this.detailsLoading = false) });
+    this.isTicketModalOpen = true;
+    this.selectedTicketId = String(id);
   }
 
-  closeDetails() {
-    this.detailsOpen = false;
-    this.ticketDetails$ = undefined;
-  }
-
-  completeTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
-    this.tickets.complete(String(ticketId)).subscribe({
-      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
-      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to complete ticket'; },
-      complete: () => { this.ticketActionLoading = false; }
-    });
-  }
-
-  reviseTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
-    this.tickets.revise(String(ticketId)).subscribe({
-      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
-      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to revise ticket'; },
-      complete: () => { this.ticketActionLoading = false; }
-    });
-  }
-
-  cancelTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
-    this.tickets.cancel(String(ticketId)).subscribe({
-      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
-      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to cancel ticket'; },
-      complete: () => { this.ticketActionLoading = false; }
-    });
-  }
-
-  takeTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
-    this.tickets.take(String(ticketId)).subscribe({
-      next: () => { this.refreshTickets(); this.ticketDetails$ = this.tickets.getById(String(ticketId)); },
-      error: (e) => { this.ticketActionLoading = false; this.ticketActionError = e?.status === 403 ? 'Forbidden: insufficient permissions' : 'Failed to take ticket'; },
-      complete: () => { this.ticketActionLoading = false; }
-    });
-  }
-
-  closeTicketError() { this.ticketActionError = null; }
-
-  addComment(ticketId: string | undefined, text: string | undefined) {
-    const content = (text || '').trim();
-    if (!ticketId || !content) return;
-    // Optimistically clear input for UX
-    this.newCommentText = '';
-    // Post comment then refresh details stream
-    this.tickets
-      .postComment(String(ticketId), { content })
-      .subscribe({
-        next: () => {
-          // Re-fetch details to include the new comment
-          this.ticketDetails$ = this.tickets.getById(String(ticketId)).pipe(map((res:any)=>res||null));
-        },
-        error: () => {
-          // If failed, restore text so user can retry
-          this.newCommentText = content;
-        }
-      });
+  closeTicketModal() {
+    this.isTicketModalOpen = false;
+    this.selectedTicketId = null;
   }
 
   // Tabs
@@ -549,12 +469,6 @@ export class DashboardPageComponent {
       error: () => {}
     });
   }
-
-
-  onStatusChange(value: string) { this.statusFilter$.next(value); }
-  onPriorityChange(value: string) { this.priorityFilter$.next(value); }
-  onTypeChange(value: string) { this.typeFilter$.next(value); }
-
   // Helpers for UI badges with graceful fallbacks
   statusClass(status: any) {
     const s = String(status || 'open').toLowerCase();
@@ -630,20 +544,9 @@ export class DashboardPageComponent {
     this.logsPage$.next(p > 0 ? p : 1);
   }
 
-  // TrackBy for stable list rendering
-  trackById(index: number, item: any) {
-    return item?.id || item?._id || index;
-  }
-
   trackByUser(index: number, user: any) {
     return user?.id || user?._id || user?.userId || index;
   }
-
-  membersList(team: any) {
-    const list = Array.isArray(team?.members) ? team.members : [];
-    return list.filter((m: any) => m && (m.firstName || m.lastName || m.login || m.username));
-  }
-
   // Ticket ownership/helpers
   private normalizeId(entity: any): string | null {
     const id = entity?.id || entity?._id || entity?.userId;
@@ -656,28 +559,6 @@ export class DashboardPageComponent {
 
   private ticketAssignedAgentId(ticket: any): string | null {
     return this.normalizeId(ticket?.assignedAgent || ticket?.agent || ticket?.assignee);
-  }
-
-  isTicketOwner(ticket: any) {
-    const requesterId = this.ticketRequesterId(ticket);
-    return requesterId && this.currentUserId ? requesterId === this.currentUserId : false;
-  }
-
-  isTicketAssignedToMe(ticket: any) {
-    const assignedId = this.ticketAssignedAgentId(ticket);
-    return assignedId && this.currentUserId ? assignedId === this.currentUserId : false;
-  }
-
-  canAgentTake(ticket: any) {
-    return this.isAgent && !this.isTicketOwner(ticket) && !this.ticketAssignedAgentId(ticket);
-  }
-
-  canAgentComplete(ticket: any) {
-    return (this.isAdmin || (this.isAgent && this.isTicketAssignedToMe(ticket))) && !this.isTicketOwner(ticket);
-  }
-
-  canAgentCancel(ticket: any) {
-    return (this.isAdmin || (this.isAgent && this.isTicketAssignedToMe(ticket))) && !this.isTicketOwner(ticket);
   }
 
   private fetchUsers() {
