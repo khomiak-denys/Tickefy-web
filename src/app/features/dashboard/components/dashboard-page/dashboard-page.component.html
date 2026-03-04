@@ -338,18 +338,6 @@
 
 </section>
 
-<!-- Ticket action error popup -->
-<div class="modal-backdrop" *ngIf="ticketActionError" (click)="closeTicketError()"></div>
-<div class="modal small" *ngIf="ticketActionError">
-	<header class="modal-head">
-		<h3>Error</h3>
-		<button class="close" (click)="closeTicketError()">×</button>
-	</header>
-	<section class="modal-body">
-		<p>{{ ticketActionError }}</p>
-	</section>
-</div>
-
 <!-- Create Ticket Modal -->
 <div class="modal-backdrop" *ngIf="createOpen" (click)="closeCreate()"></div>
 <div class="modal" *ngIf="createOpen">

@@ -1,8 +1,3 @@
-.ticket-meta-row { display:flex; gap:20px; flex-wrap:wrap; margin:14px 0 6px; }
-.ticket-meta-row .meta-block { flex:1 1 160px; min-width:150px; display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px; background:#f9fafb; }
-.ticket-meta-row .meta-block .meta-label { font-size:12px; color:#6b7280; }
-.ticket-meta-row .meta-block .meta-value { font-weight:600; color:#111827; }
-
 .users { margin-top: 12px; }
 .users-table { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; }
 .users-header { display:grid; grid-template-columns: 2fr 1.5fr 1.2fr 1.5fr 1fr 1fr; gap:0; padding:14px 16px; font-weight:600; color:#374151; background:#f9fafb; border-bottom:1px solid #e5e7eb; }
@@ -153,21 +148,6 @@
 .pr.medium { color: #d97706; }
 .pr.low { color: #059669; }
 
-/* Modal */
-.comments { list-style:none; padding:0; margin:0 0 16px 0; display:flex; flex-direction:column; gap:12px; }
-.comment-item { background: rgba(255,255,255,0.9); border:1px solid #eef2ff; border-radius:16px; padding:12px 14px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
-.comment-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
-.who-time { display:flex; flex-direction:column; gap:2px; }
-.who { font-weight:600; color:#0f172a; }
-.time { display:flex; align-items:center; gap:6px; color:#6b7280; font-size:12.5px; }
-.c-text { color:#111827; font-size:14px; line-height:1.5; }
-.no-comments { color:#6b7280; font-size:13px; padding:8px 0 0; }
-
-.comment-input { display:flex; align-items:center; gap:10px; padding:10px 0 2px; }
-.comment-input input { flex:1; border:1px solid #dbeafe; border-radius:20px; padding:12px 14px; font-size:14px; outline:none; background: rgba(255,255,255,0.9); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
-.comment-input input:focus { border-color:#5b53ff; box-shadow:0 0 0 3px rgba(91,83,255,0.18); }
-.comment-input .send { width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#7c3aed,#5b53ff); color:#fff; box-shadow: 0 14px 28px rgba(91,83,255,0.25); }
-.comment-input .send:disabled { opacity:.6; cursor:not-allowed; }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.35); backdrop-filter: blur(2px); }
 
 .modal.small { width: 420px; max-width: 90vw; }
@@ -218,15 +198,6 @@
 .add-member input:focus { border-color:#5b53ff; box-shadow:0 0 0 3px rgba(91,83,255,0.18); }
 .team-error { color:#b91c1c; font-weight:600; font-size:13px; margin-top:8px; }
 .modal-desc { color: #374151; margin-bottom: 16px; }
-.ticket-head { display:grid; grid-template-columns: 1fr auto; grid-template-rows:auto auto; gap:12px; margin-bottom: 12px; }
-.ticket-title { grid-column: 1 / 2; margin:0; font-size: 20px; font-weight: 700; color:#0f172a; }
-.ticket-tags { grid-column: 1 / 2; display:flex; gap:8px; }
-.ticket-actions { grid-column: 2 / 3; display:flex; gap:10px; align-items: start; flex-wrap:wrap; justify-content:flex-end; }
-.act { border:none; border-radius:10px; padding:8px 12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
-.act.complete { background:#16a34a; color:#fff; }
-.act.revise { background:#7c3aed; color:#fff; }
-.act.cancel { background:#ef4444; color:#fff; }
-.act.primary { background:#5b53ff; color:#fff; }
 
 .ticket-meta-row { display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid #eceff5; border-bottom: 1px solid #eceff5; margin-bottom: 12px; }
 .meta-block { display:grid; grid-template-columns: 18px auto; gap:6px; align-items:center; }
@@ -239,8 +210,6 @@
 .assistant-title { font-weight:600; color:#0f172a; margin-bottom:6px; }
 .assistant-btn { background:#5b53ff; color:#fff; border:none; border-radius:12px; padding:10px 16px; font-weight:600; cursor:pointer; box-shadow: 0 8px 18px rgba(91,83,255,0.25); }
 
-.comment-item { background:#f8fafc; border:1px solid #eceff5; border-radius:12px; padding:12px; margin-bottom:10px; }
-.comment-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
 .avatar.small { width:28px; height:28px; border-radius:8px; background:#eef0ff; display:grid; place-items:center; color:#5b53ff; font-weight:600; }
 .who-time .who { font-weight:600; color:#0f172a; }
 .who-time .time { color:#6b7280; font-size:12px; display:flex; align-items:center; gap:6px; }

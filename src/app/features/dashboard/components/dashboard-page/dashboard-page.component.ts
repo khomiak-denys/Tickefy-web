@@ -11,7 +11,7 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import { TicketDetailsDto, Category } from '../../../../core/api/dtos';
+import { Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
@@ -54,18 +54,10 @@ export class DashboardPageComponent {
   allowedTabsList: TabKey[] = ['my', 'teams'];
   firstName: string | null = null;
   lastName: string | null = null;
-  // Ticket details modal
-  ticketDetails$?: Observable<TicketDetailsDto | null>;
-  detailsOpen = false;
-  detailsLoading = false;
 
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
 
-  detailsError: string | null = null;
-  selectedTicket: TicketDetailsDto | null = null;
-  ticketActionLoading = false;
-  ticketActionError: string | null = null;
   teamDetails$?: Observable<any>;
   teamDetailsOpen = false;
   teamDetailsLoading = false;
@@ -80,18 +72,12 @@ export class DashboardPageComponent {
   newTeamName = '';
   newTeamDescription = '';
   newTeamCategory: number | null = null;
-  // New comment input state
-  newCommentText = '';
   // Create ticket modal state
   createOpen = false;
   createSubmitting = false;
   newTitle = '';
   newDescription = '';
   newDeadline = '';
-  typeOptions = ['all','bug','design','translation','task'];
-  statusOptions = ['all','open','progress','completed','cancelled'];
-  priorityOptions = ['all','low','medium','high'];
-  userRoleOptions = ['Admin','Manager','Agent','Requester'];
   categoryOptions = [
     { value: Category.Finance, label: 'Finance' },
     { value: Category.IT, label: 'IT' },
@@ -345,8 +331,6 @@ export class DashboardPageComponent {
     this.isTicketModalOpen = false;
     this.selectedTicketId = null;
   }
-
-  closeTicketError() { this.ticketActionError = null; }
 
   // Tabs
   activeTab: TabKey = 'my';
