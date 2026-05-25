@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '
 import {TicketDetailsDto} from '../../../../core/api/dtos';
 import {catchError, Observable, of} from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
-import {AsyncPipe, DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
+  import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TicketsService} from '../../../../core/services/tickets.service';
 
@@ -14,9 +14,7 @@ import {TicketsService} from '../../../../core/services/tickets.service';
     NgClass,
     DatePipe,
     FormsModule,
-    NgIf,
-    AsyncPipe,
-    NgForOf
+    AsyncPipe
   ],
   templateUrl: './ticket-details-modal.component.html',
   styleUrl: './ticket-details-modal.component.scss'
