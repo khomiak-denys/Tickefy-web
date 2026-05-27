@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AsyncPipe, NgClass } from '@angular/common';
+import { AsyncPipe, NgClass, LowerCasePipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -21,7 +21,7 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, NgClass, IconsModule, TicketDetailsModalComponent],
+  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })

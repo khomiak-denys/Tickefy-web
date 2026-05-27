@@ -92,7 +92,7 @@
 		@if (activeTab==='queue')
 		{
 			<section class="tickets">
-				@if (filteredQueueTickets$ | async as tickets)
+				@if (filteredQueueTickets$ | async; as tickets)
 				{
 					@for (t of tickets; track t.id)
 					{
@@ -130,7 +130,7 @@
 		@if (activeTab==='my')
 		{
 			<section class="tickets">
-				@if ((isAgent ? filteredMyTickets$ : filteredTickets$) | async as tickets)
+				@if ((isAgent ? filteredMyTickets$ : filteredTickets$) | async; as tickets)
 				{
 					@for (t of tickets; track t.id)
 					{
@@ -168,7 +168,7 @@
 		@if (activeTab==='all')
 		{
 			<section class="tickets">
-				@if (allTickets$ | async as all)
+				@if (allTickets$ | async; as all)
 				{
 					@for (t of all; track t.id)
 					{
@@ -204,7 +204,7 @@
 				@if (activeTab==='teams')
 				{
 					<section class="tickets" >
-						@if (teams$ | async as teams)
+						@if (teams$ | async;  as teams)
 						{
 							@for (tm of teams; track tm.id)
 							{
@@ -260,7 +260,7 @@
 								<span>Category</span>
 								<select [(ngModel)]="newTeamCategory">
 									<option [ngValue]="null">Select category</option>
-									@for (c of categoryOptions)
+									@for (c of categoryOptions; track c.value)
 									{
 										<option [ngValue]="c.value">{{ c.label }}</option>
 									}
@@ -277,12 +277,11 @@
 						}
 					</div>
 				}
-
 				<!-- Users -->
 				@if (activeTab==='users')
 				{
 					<section class="users">
-						@if (filteredUsers$ | async as users)
+						@if (filteredUsers$ | async; as users)
 						{
 							@if (users.length)
 							{
@@ -335,7 +334,7 @@
 				@if (activeTab==='logs')
 				{
 					<section class="tickets logs">
-						@if (logs$ | async as logs)
+						@if (logs$ | async; as logs)
 						{
 							<!-- List or Empty State -->
 							@for (l of logs; track l.id)
@@ -388,7 +387,7 @@
 					<h3>Team Details</h3>
 					<button class="close" (click)="closeTeamDetails()">×</button>
 				</header>
-				@if (teamDetails$ | async as td)
+				@if (teamDetails$ | async; as td)
 				{
 					<section class="modal-body team-modal">
 						<div class="team-header">
@@ -455,7 +454,6 @@
 				}
 			</div>
 		}
-
 </section>
 
 <!-- Create Ticket Modal -->
