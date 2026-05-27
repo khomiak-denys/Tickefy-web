@@ -5,7 +5,7 @@
     <h3>Ticket details</h3>
     <button class="close" (click)="closeDetails()">×</button>
   </header>
-  @if (ticketDetails$ | async as d) {
+  @if (ticketDetails$ | async; as d) {
     <section class="modal-body">
     <div class="ticket-head">
       <h2 class="ticket-title">{{ d.title || ('Ticket #' + (d.id || '')) }}</h2>
@@ -70,7 +70,7 @@
           </div>
           <div class="c-text">{{ c.content }}</div>
         </li>
-      } @empty 
+      } @empty
       {
         <li class="no-comments">No comments.</li>
       }
@@ -83,7 +83,7 @@
       </button>
     </div>
   </section>
-  
+
 }
 @else
 {
