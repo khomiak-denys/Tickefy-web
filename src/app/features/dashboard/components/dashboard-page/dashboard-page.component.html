@@ -239,7 +239,7 @@
 				}
 
 				<!-- Create Team Modal -->
-				@if (createTeamOpen)
+				@if (createTeamModalState.createTeamOpen)
 				{
 					<div class="modal-backdrop" (click)="closeCreateTeam()"></div>
 					<div class="modal">
@@ -250,15 +250,15 @@
 						<section class="modal-body">
 							<label>
 								<span>Name</span>
-								<input type="text" [(ngModel)]="newTeamName" placeholder="Team name" />
+								<input type="text" [(ngModel)]="createTeamModalState.newTeamName" placeholder="Team name" />
 							</label>
 							<label>
 								<span>Description</span>
-								<textarea [(ngModel)]="newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
+								<textarea [(ngModel)]="createTeamModalState.newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
 							</label>
 							<label>
 								<span>Category</span>
-								<select [(ngModel)]="newTeamCategory">
+								<select [(ngModel)]="createTeamModalState.newTeamCategory">
 									<option [ngValue]="null">Select category</option>
 									@for (c of categoryOptions; track c.value)
 									{
@@ -268,12 +268,12 @@
 							</label>
 						</section>
 						<footer class="modal-foot">
-							<button class="secondary" [disabled]="createTeamSubmitting" (click)="closeCreateTeam()">Cancel</button>
-							<button class="primary" [disabled]="createTeamSubmitting" (click)="submitCreateTeam()">{{ createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
+							<button class="secondary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="closeCreateTeam()">Cancel</button>
+							<button class="primary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="submitCreateTeam()">{{ createTeamModalState.createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
 						</footer>
-						@if (createTeamError)
+						@if (createTeamModalState.createTeamError)
 						{
-							<div class="error">{{ createTeamError }}</div>
+							<div class="error">{{ createTeamModalState.createTeamError }}</div>
 						}
 					</div>
 				}
@@ -457,7 +457,7 @@
 </section>
 
 <!-- Create Ticket Modal -->
-@if (createOpen)
+@if (createTicketModalState.open)
 {
 		<div class="modal-backdrop" (click)="closeCreate()"></div>
 		<div class="modal">
@@ -470,20 +470,20 @@
 			<section class="modal-body">
 				<label>
 					<span>Title</span>
-					<input type="text" [(ngModel)]="newTitle" placeholder="Brief description of your request" />
+					<input type="text" [(ngModel)]="createTicketModalState.newTitle" placeholder="Brief description of your request" />
 				</label>
 				<label>
 					<span>Description</span>
-					<textarea [(ngModel)]="newDescription" rows="6" placeholder="Detailed description of what you need..."></textarea>
+					<textarea [(ngModel)]="createTicketModalState.newDescription" rows="6" placeholder="Detailed description of what you need..."></textarea>
 				</label>
 				<label>
 					<span>Deadline</span>
-					<input type="date" [(ngModel)]="newDeadline" placeholder="mm/dd/yyyy" />
+					<input type="date" [(ngModel)]="createTicketModalState.newDeadline" placeholder="mm/dd/yyyy" />
 				</label>
 			</section>
 			<footer class="modal-foot">
-				<button class="secondary" [disabled]="createSubmitting" (click)="closeCreate()">Cancel</button>
-				<button class="primary" [disabled]="createSubmitting" (click)="submitCreate()">{{ createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
+				<button class="secondary" [disabled]="createTicketModalState.createSubmitting" (click)="closeCreate()">Cancel</button>
+				<button class="primary" [disabled]="createTicketModalState.createSubmitting" (click)="submitCreate()">{{ createTicketModalState.createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
 			</footer>
 			@if (error)
 			{

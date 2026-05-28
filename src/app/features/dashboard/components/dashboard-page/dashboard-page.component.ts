@@ -43,17 +43,20 @@ export class DashboardPageComponent {
   hasPrevLogsPage = false;
   hasNextLogsPage = true;
   stats$!: Observable<{open:number; inProgress:number; completed:number; cancelled:number; burning:number}>;
-  loggingIn = false;
-  error?: string;
-  role: string | null = null;
+
   currentUserId: string | null = null;
+  loggingIn = false;
+  role: string | null = null;
+  firstName: string | null = null;
+  lastName: string | null = null;
+
+  error?: string;
   isAdmin = false;
   isAgent = false;
   isRequester = false;
   isManager = false;
   allowedTabsList: TabKey[] = ['my', 'teams'];
-  firstName: string | null = null;
-  lastName: string | null = null;
+
 
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
@@ -65,19 +68,24 @@ export class DashboardPageComponent {
   newTeamMemberLogin = '';
   teamError: string | null = null;
   teamMembers: any[] = [];
-  // Create team modal state
-  createTeamOpen = false;
-  createTeamSubmitting = false;
-  createTeamError: string | null = null;
-  newTeamName = '';
-  newTeamDescription = '';
-  newTeamCategory: number | null = null;
-  // Create ticket modal state
-  createOpen = false;
-  createSubmitting = false;
-  newTitle = '';
-  newDescription = '';
-  newDeadline = '';
+
+  createTeamModalState = {
+    createTeamOpen: false,
+    createTeamSubmitting: false,
+    createTeamError: "",
+    newTeamName: '',
+    newTeamDescription: '',
+    newTeamCategory: 0
+  };
+
+  createTicketModalState = {
+    open: false,
+    createSubmitting: false,
+    newTitle: '',
+    newDescription: '',
+    newDeadline: ''
+  }
+
   categoryOptions = [
     { value: Category.Finance, label: 'Finance' },
     { value: Category.IT, label: 'IT' },
@@ -302,21 +310,21 @@ export class DashboardPageComponent {
   }
 
   openCreate() {
-    this.createOpen = true;
-    this.createSubmitting = false;
-    this.newTitle = '';
-    this.newDescription = '';
-    this.newDeadline = '';
+    this.createTicketModalState.open = true;
+    this.createTicketModalState.createSubmitting = false;
+    this.createTicketModalState.newTitle = '';
+    this.createTicketModalState.newDescription = '';
+    this.createTicketModalState.newDeadline = '';
   }
-  closeCreate() { this.createOpen = false; }
+  closeCreate() { this.createTicketModalState.open = false; }
   submitCreate() {
-    if (!this.newTitle || !this.newDeadline) { this.error = 'Title and deadline are required'; return; }
-    this.createSubmitting = true;
-    const isoDeadline = (() => { try { return new Date(this.newDeadline).toISOString(); } catch { return this.newDeadline; } })();
-    const body = { title: this.newTitle, description: this.newDescription, deadline: isoDeadline } as any;
+    if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline) { this.error = 'Title and deadline are required'; return; }
+    this.createTicketModalState.createSubmitting = true;
+    const isoDeadline = (() => { try { return new Date(this.createTicketModalState.newDeadline).toISOString(); } catch { return this.createTicketModalState.newDeadline; } })();
+    const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as any;
     this.tickets.create(body).subscribe({
-      next: () => { this.createSubmitting = false; this.createOpen = false; this.refreshTickets(); },
-      error: (e) => { this.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
+      next: () => { this.createTicketModalState.createSubmitting = false; this.createTicketModalState.open = false; this.refreshTickets(); },
+      error: (e) => { this.createTicketModalState.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
     });
   }
 
@@ -392,36 +400,36 @@ export class DashboardPageComponent {
   }
 
   openCreateTeam() {
-    this.createTeamOpen = true;
-    this.createTeamSubmitting = false;
-    this.createTeamError = null;
-    this.newTeamName = '';
-    this.newTeamDescription = '';
-    this.newTeamCategory = null;
+    this.createTeamModalState.createTeamOpen = true;
+    this.createTeamModalState.createTeamSubmitting = false;
+    this.createTeamModalState.createTeamError = '';
+    this.createTeamModalState.newTeamName = '';
+    this.createTeamModalState.newTeamDescription = '';
+    this.createTeamModalState.newTeamCategory = -1;
   }
 
   closeCreateTeam() {
-    this.createTeamOpen = false;
+    this.createTeamModalState.createTeamOpen = false;
   }
 
   submitCreateTeam() {
-    const name = (this.newTeamName || '').trim();
-    if (!name) { this.createTeamError = 'Team name is required'; return; }
-    this.createTeamSubmitting = true;
-    this.createTeamError = null;
-    const payload: any = { name, description: this.newTeamDescription };
-    if (this.newTeamCategory !== null) {
-      payload.category = Number(this.newTeamCategory);
+    const name = (this.createTeamModalState.newTeamName || '').trim();
+    if (!name) { this.createTeamModalState.createTeamError = 'Team name is required'; return; }
+    this.createTeamModalState.createTeamSubmitting = true;
+    this.createTeamModalState.createTeamError = '';
+    const payload: any = { name, description: this.createTeamModalState.newTeamDescription };
+    if (this.createTeamModalState.newTeamCategory !== null) {
+      payload.category = Number(this.createTeamModalState.newTeamCategory);
     }
     this.teams.create(payload).subscribe({
       next: () => {
-        this.createTeamSubmitting = false;
-        this.createTeamOpen = false;
+        this.createTeamModalState.createTeamSubmitting = false;
+        this.createTeamModalState.createTeamOpen = false;
         this.refreshTeams();
       },
       error: (e) => {
-        this.createTeamSubmitting = false;
-        this.createTeamError = e?.error?.detail || 'Failed to create team';
+        this.createTeamModalState.createTeamSubmitting = false;
+        this.createTeamModalState.createTeamError = e?.error?.detail || 'Failed to create team';
       }
     });
   }
