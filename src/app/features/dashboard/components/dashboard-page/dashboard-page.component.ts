@@ -16,13 +16,14 @@ import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
 import {TicketsTabComponent} from '../tickets-tab/tickets-tab.component';
+import {TeamsTabComponent} from '../teams-tab/teams-tab.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent],
+  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -352,9 +353,10 @@ export class DashboardPageComponent {
     }
     this.activeTab = tab;
   }
-  openTeam(t: any) {
-    const id = t?.id || t?.teamId;
-    if (!id) return;
+  openTeam(id: string) {
+    if (!id) {
+      return;
+    }
     this.selectedTeamId = String(id);
     this.teamDetailsOpen = true;
     this.teamDetailsLoading = true;

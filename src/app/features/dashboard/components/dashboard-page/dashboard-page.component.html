@@ -114,39 +114,10 @@
         }
 				@if (activeTab==='teams')
 				{
-          <section class="tickets" >
-            @if (teams$ | async;  as teams)
-            {
-              @for (tm of teams; track tm.id)
-              {
-                <article class="ticket-card" (click)="openTeam(tm)">
-                  <div class="card-top">
-                    <h3>{{ tm.name }}</h3>
-                    <div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-                      <span class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ tm.category || 'uncategorized' }}</span>
-                    </div>
-                  </div>
-                  <div class="card-meta">
-                    <span class="pill"><lucide-icon name="user" size="14"></lucide-icon> Team Leader: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
-                  </div>
-                </article>
-              } @empty
-              {
-                <div class="empty-panel">
-                  <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-                  <div class="empty-title">No teams yet</div>
-                  <p class="empty-text">Create a team to see it here.</p>
-                </div>
-              }
-            } @else
-            {
-              <div class="empty-panel">
-                <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-                <div class="empty-title">Loading teams…</div>
-                <p class="empty-text">Please wait while we fetch your teams.</p>
-              </div>
-            }
-          </section>
+          <app-teams-tab
+            [teams$]="teams$"
+            (selectedTeamId)="openTeam($event)"
+          ></app-teams-tab>
 				}
 
 				<!-- Create Team Modal -->
