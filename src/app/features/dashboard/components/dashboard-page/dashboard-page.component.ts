@@ -15,13 +15,14 @@ import { Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
+import {TicketsTabComponent} from '../tickets-tab/tickets-tab.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent],
+  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -56,7 +57,6 @@ export class DashboardPageComponent {
   isRequester = false;
   isManager = false;
   allowedTabsList: TabKey[] = ['my', 'teams'];
-
 
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
@@ -328,9 +328,11 @@ export class DashboardPageComponent {
     });
   }
 
-  openTicket(t: any) {
-    const id = t?.id;
-    if (!id) return;
+  openTicket(id: string) {
+    if (!id){
+      return;
+    }
+
     this.isTicketModalOpen = true;
     this.selectedTicketId = String(id);
   }
@@ -476,24 +478,6 @@ export class DashboardPageComponent {
       },
       error: () => {}
     });
-  }
-  // Helpers for UI badges with graceful fallbacks
-  statusClass(status: any) {
-    const s = String(status || 'open').toLowerCase();
-    return {
-      badge: true,
-      open: s.startsWith('open') || (!s || s === ''),
-      progress: s.includes('progress'),
-      completed: s.startsWith('comp') || s.includes('completed'),
-      failed: s.includes('fail'),
-      cancelled: s.startsWith('canc') || s.includes('cancel'),
-      assigned: s.includes('assign'),
-      created: s.includes('created')
-    };
-  }
-  priorityClass(p: any) {
-    const v = String(p || '').toLowerCase();
-    return { pr: true, low: v==='low', medium: v==='medium', high: v==='high' };
   }
 
   roleClass(role: any) {

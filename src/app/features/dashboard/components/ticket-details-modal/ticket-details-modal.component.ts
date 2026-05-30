@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '
 import {TicketDetailsDto} from '../../../../core/api/dtos';
 import {catchError, Observable, of} from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
-  import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TicketsService} from '../../../../core/services/tickets.service';
 
@@ -67,7 +67,20 @@ export class TicketDetailsModalComponent implements OnChanges {
         this.newCommentText = '';
       }
     })
+  }
 
+  statusClass(status: any) {
+    const s = String(status || 'open').toLowerCase();
+    return {
+      badge: true,
+      open: s.startsWith('open') || (!s || s === ''),
+      progress: s.includes('progress'),
+      completed: s.startsWith('comp') || s.includes('completed'),
+      failed: s.includes('fail'),
+      cancelled: s.startsWith('canc') || s.includes('cancel'),
+      assigned: s.includes('assign'),
+      created: s.includes('created')
+    };
   }
 
   completeTicket(ticketId: string | undefined) {
@@ -136,19 +149,5 @@ export class TicketDetailsModalComponent implements OnChanges {
 
   canCancel(ticket: TicketDetailsDto) {
     return ticket.availableActions?.some(a => a.key === "Cancel") ?? false;
-  }
-
-  statusClass(status: any) {
-    const s = String(status || 'open').toLowerCase();
-    return {
-      badge: true,
-      open: s.startsWith('open') || (!s || s === ''),
-      progress: s.includes('progress'),
-      completed: s.startsWith('comp') || s.includes('completed'),
-      failed: s.includes('fail'),
-      cancelled: s.startsWith('canc') || s.includes('cancel'),
-      assigned: s.includes('assign'),
-      created: s.includes('created')
-    };
   }
 }

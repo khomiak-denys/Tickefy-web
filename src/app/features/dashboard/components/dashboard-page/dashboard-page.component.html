@@ -88,154 +88,65 @@
 			}
 
 		</header>
-		<!-- Queue (Agents) -->
-		@if (activeTab==='queue')
-		{
-			<section class="tickets">
-				@if (filteredQueueTickets$ | async; as tickets)
-				{
-					@for (t of tickets; track t.id)
-					{
-						<article class="ticket-card" (click)="openTicket(t)">
-							<div class="card-top">
-								<h3>{{ t.title }}</h3>
-								<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-									<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
-								</div>
-							</div>
-							<p class="desc">{{ t.description }}</p>
-							<div class="card-meta">
-								<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
-								<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
-								<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
-								<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
-							</div>
-						</article>
-					}
-					@empty
-					{
-						<div class="empty-panel">
-						<div class="empty-icon"><lucide-icon name="ticket" size="28"></lucide-icon></div>
-						<div class="empty-title">No tickets yet</div>
-						<p class="empty-text">Create a ticket to see it here.</p>
-						</div>
-					}
-				} @else
-				{
-					<p>Loading your tickets…</p>
-				}
-			</section>
-		}
-		<!-- My Tickets -->
-		@if (activeTab==='my')
-		{
-			<section class="tickets">
-				@if ((isAgent ? filteredMyTickets$ : filteredTickets$) | async; as tickets)
-				{
-					@for (t of tickets; track t.id)
-					{
-						<article class="ticket-card" (click)="openTicket(t)">
-							<div class="card-top">
-								<h3>{{ t.title }}</h3>
-								<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-									<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
-								</div>
-							</div>
-							<p class="desc">{{ t.description }}</p>
-							<div class="card-meta">
-								<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
-								<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
-								<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
-								<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
-							</div>
-						</article>
-					} @empty
-					{
-						<div class="empty-panel">
-							<div class="empty-icon"><lucide-icon name="ticket" size="28"></lucide-icon></div>
-							<div class="empty-title">No tickets yet</div>
-							<p class="empty-text">Create a ticket to see it here.</p>
-						</div>
-					}
-				} @else
-				{
-					<p>Loading your tickets…</p>
-				}
-			</section>
-		}
 
-		<!-- All Tickets -->
-		@if (activeTab==='all')
-		{
-			<section class="tickets">
-				@if (allTickets$ | async; as all)
-				{
-					@for (t of all; track t.id)
-					{
-						<article class="ticket-card" (click)="openTicket(t)">
-							<div class="card-top">
-								<h3>{{ t.title }}</h3>
-								<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-									<span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
-								</div>
-							</div>
-							<div class="card-meta">
-								<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
-								<span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
-								<span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
-								<span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
-							</div>
-						</article>
-					} @empty
-					{
-						<div class="empty-panel">
-							<div class="empty-icon"><lucide-icon name="layout-dashboard" size="28"></lucide-icon></div>
-							<div class="empty-title">No tickets available</div>
-							<p class="empty-text">All tickets will show up here once created.</p>
-						</div>
-					}
-				} @else
-				{
-					<p>Loading all tickets…</p>
-				}
-			</section>
-		}
-				<!-- Teams -->
+        @if (activeTab==='queue')
+        {
+          <app-tickets-tab
+            [filteredTickets$]="filteredQueueTickets$"
+            (selectedTicketId)="openTicket($event)"
+          ></app-tickets-tab>
+        }
+
+        @if (activeTab==='my')
+        {
+          <app-tickets-tab
+            [filteredTickets$]="(isAgent ? filteredMyTickets$ : filteredTickets$)"
+            (selectedTicketId)="openTicket($event)"
+          ></app-tickets-tab>
+        }
+
+        @if (activeTab==='all')
+        {
+          <app-tickets-tab
+            [filteredTickets$]="filteredTickets$"
+            (selectedTicketId)="openTicket($event)"
+          ></app-tickets-tab>
+        }
 				@if (activeTab==='teams')
 				{
-					<section class="tickets" >
-						@if (teams$ | async;  as teams)
-						{
-							@for (tm of teams; track tm.id)
-							{
-								<article class="ticket-card" (click)="openTeam(tm)">
-									<div class="card-top">
-										<h3>{{ tm.name }}</h3>
-										<div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-											<span class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ tm.category || 'uncategorized' }}</span>
-										</div>
-									</div>
-									<div class="card-meta">
-										<span class="pill"><lucide-icon name="user" size="14"></lucide-icon> Team Leader: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
-									</div>
-								</article>
-							} @empty
-							{
-								<div class="empty-panel">
-									<div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-									<div class="empty-title">No teams yet</div>
-									<p class="empty-text">Create a team to see it here.</p>
-								</div>
-							}
-						} @else
-						{
-							<div class="empty-panel">
-							<div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-							<div class="empty-title">Loading teams…</div>
-							<p class="empty-text">Please wait while we fetch your teams.</p>
-							</div>
-						}
-					</section>
+          <section class="tickets" >
+            @if (teams$ | async;  as teams)
+            {
+              @for (tm of teams; track tm.id)
+              {
+                <article class="ticket-card" (click)="openTeam(tm)">
+                  <div class="card-top">
+                    <h3>{{ tm.name }}</h3>
+                    <div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                      <span class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ tm.category || 'uncategorized' }}</span>
+                    </div>
+                  </div>
+                  <div class="card-meta">
+                    <span class="pill"><lucide-icon name="user" size="14"></lucide-icon> Team Leader: {{ (tm.manager?.firstName || '') + ' ' + (tm.manager?.lastName || '') }}</span>
+                  </div>
+                </article>
+              } @empty
+              {
+                <div class="empty-panel">
+                  <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
+                  <div class="empty-title">No teams yet</div>
+                  <p class="empty-text">Create a team to see it here.</p>
+                </div>
+              }
+            } @else
+            {
+              <div class="empty-panel">
+                <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
+                <div class="empty-title">Loading teams…</div>
+                <p class="empty-text">Please wait while we fetch your teams.</p>
+              </div>
+            }
+          </section>
 				}
 
 				<!-- Create Team Modal -->
@@ -492,10 +403,10 @@
 		</div>
 }
 
-
 <app-ticket-details-modal
   [open]="isTicketModalOpen"
   [ticketId]="selectedTicketId"
   (closed)="closeTicketModal()"
   (updated)="refreshTickets()"
 ></app-ticket-details-modal>
+
