@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AsyncPipe, NgClass, LowerCasePipe, DatePipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -18,13 +18,14 @@ import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-deta
 import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
 import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
 import { UsersTabComponent} from '../users-tab/users-tab.component';
+import {LogsTabComponent} from '../logs-tab/logs-tab.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent],
+  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -195,7 +196,7 @@ export class DashboardPageComponent {
           else if (isCompleted) acc.completed++;
           else if (isCancelled) acc.cancelled++;
           else acc.open++;
-          // Burning Deadlines: deadline < 24h and status != Completed
+
           if (!isCompleted && typeof deadline === 'number') {
             const diffHrs = (deadline - now) / (1000 * 60 * 60);
             if (diffHrs > 0 && diffHrs < 24) acc.burning++;
@@ -205,7 +206,6 @@ export class DashboardPageComponent {
       })
       );
     } else {
-      
       this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
 
       this.stats$ = this.tickets$.pipe(
@@ -271,27 +271,14 @@ export class DashboardPageComponent {
     );
   }
 
-  loginDemo() {
-    this.loggingIn = true;
-    this.error = undefined;
-    this.auth
-      .login({ login: 'admin', password: 'password' })
-      .subscribe({
-        next: (res: any) => {
-          const token = res?.token || res?.accessToken || res;
-          if (token) {
-            localStorage.setItem('access_token', token);
-            this.refreshTickets();
-          } else {
-            this.error = 'No token in response';
-          }
-          this.loggingIn = false;
-        },
-        error: (e) => {
-          this.error = e?.message || 'Login failed';
-          this.loggingIn = false;
-        },
-      });
+  nextLogsPage() {
+    if (!this.hasNextLogsPage) return;
+    this.logsPage$.next(this.logsPage$.value + 1);
+  }
+  prevLogsPage() {
+    if (!this.hasPrevLogsPage) return;
+    const p = this.logsPage$.value - 1;
+    this.logsPage$.next(p > 0 ? p : 1);
   }
 
   logout() {
@@ -482,52 +469,6 @@ export class DashboardPageComponent {
     });
   }
 
-  // Activity log helpers
-  logBadge(eventType: any) {
-    const t = String(eventType || '').toLowerCase();
-    return {
-      badge: true,
-      created: t.includes('requestcreated'),
-      commented: t.includes('commentadded'),
-      completed: t.includes('completed'),
-      status: t.includes('statuschanged'),
-      priority: t.includes('prioritychanged'),
-      deadline: t.includes('deadlinechanged'),
-      team: t.includes('teamassigned'),
-      user: t.includes('userassigned'),
-    };
-  }
-  logIcon(eventType: any) {
-    const t = String(eventType || '').toLowerCase();
-    if (t.includes('requestcreated')) return 'file-text';
-    if (t.includes('commentadded')) return 'message-square';
-    if (t.includes('completed')) return 'check-circle';
-    if (t.includes('statuschanged')) return 'rotate-ccw';
-    if (t.includes('prioritychanged')) return 'alert-circle';
-    if (t.includes('deadlinechanged')) return 'calendar';
-    if (t.includes('teamassigned')) return 'users';
-    if (t.includes('userassigned')) return 'user';
-    return 'file-text';
-  }
-
-  humanizeEvent(eventType: any) {
-    const raw = String(eventType || '').trim();
-    if (!raw) return '';
-    const withSpaces = raw.replace(/([A-Z])/g, ' $1').trim();
-    return withSpaces.toLowerCase();
-  }
-
-  // Logs pagination controls
-  nextLogsPage() {
-    if (!this.hasNextLogsPage) return;
-    this.logsPage$.next(this.logsPage$.value + 1);
-  }
-  prevLogsPage() {
-    if (!this.hasPrevLogsPage) return;
-    const p = this.logsPage$.value - 1;
-    this.logsPage$.next(p > 0 ? p : 1);
-  }
-
   trackByUser(index: number, user: any) {
     return user?.id || user?._id || user?.userId || index;
   }
@@ -535,14 +476,6 @@ export class DashboardPageComponent {
   private normalizeId(entity: any): string | null {
     const id = entity?.id || entity?._id || entity?.userId;
     return id ? String(id) : null;
-  }
-
-  private ticketRequesterId(ticket: any): string | null {
-    return this.normalizeId(ticket?.requester || ticket?.owner || ticket?.createdBy);
-  }
-
-  private ticketAssignedAgentId(ticket: any): string | null {
-    return this.normalizeId(ticket?.assignedAgent || ticket?.agent || ticket?.assignee);
   }
 
   private fetchUsers() {
