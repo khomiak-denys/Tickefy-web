@@ -1,0 +1,48 @@
+.log-item { display:flex; align-items: stretch; background:#fff; border:1px solid #eceff5; border-radius:16px; box-shadow:0 6px 14px rgba(17,24,39,0.04); overflow:hidden; }
+.log-left { width:72px; display:flex; align-items:center; justify-content:center; background: #f6f7fb; }
+.log-icon { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:#eef0ff; color:#5b53ff; font-size:20px; }
+.log-content { flex:1; padding:14px 16px; }
+.log-top { display:flex; align-items:center; justify-content:space-between; }
+.log-title { font-weight:600; color:#0f172a; }
+.log-badge { padding:4px 10px; border-radius:999px; font-size:12px; border:1px solid transparent; }
+.log-badge.badge.created { background:#e8edff; color:#3f46ff; border-color:#dbe2ff; }
+.log-badge.badge.commented { background:#f7e8ff; color:#7c3aed; border-color:#edd3ff; }
+.log-badge.badge.completed { background:#e9fbef; color:#059669; border-color:#c7f0d9; }
+.log-badge.badge.status { background:#eef2ff; color:#4f46e5; border-color:#e0e7ff; }
+.log-badge.badge.priority { background:#fff7e7; color:#d97706; border-color:#fde9c3; }
+.log-badge.badge.deadline { background:#fff1f2; color:#ef4444; border-color:#ffe4e6; }
+.log-badge.badge.team { background:#f0fdf4; color:#16a34a; border-color:#dcfce7; }
+.log-badge.badge.user { background:#f0f9ff; color:#0ea5e9; border-color:#cffafe; }
+.log-meta { margin-top:8px; color:#6b7280; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.log-ticket { margin-top:6px; color:#6b7280; }
+.logs-pagination { display:flex; justify-content:center; gap:12px; padding:12px 0 4px; }
+.page-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #e5e7eb; border-radius:16px; padding:10px 16px; background:#fff; color:#0f172a; font-weight:600; cursor:pointer; box-shadow: 0 2px 6px rgba(15,23,42,0.06); }
+.page-btn.primary { background:#5b53ff; color:#fff; border-color:transparent; box-shadow: 0 10px 22px rgba(91,83,255,0.25); }
+
+.empty-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 16px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.empty-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eef2ff;
+  color: #3f46ff;
+}
+
+.empty-title { font-weight: 700; color: #0f172a; }
+.empty-text { margin: 0; color: #6b7280; }
