@@ -108,7 +108,7 @@
         @if (activeTab==='all')
         {
           <app-tickets-tab
-            [filteredTickets$]="filteredTickets$"
+            [filteredTickets$]="allTickets$"
             (selectedTicketId)="openTicket($event)"
           ></app-tickets-tab>
         }
