@@ -469,15 +469,6 @@ export class DashboardPageComponent {
     });
   }
 
-  trackByUser(index: number, user: any) {
-    return user?.id || user?._id || user?.userId || index;
-  }
-  // Ticket ownership/helpers
-  private normalizeId(entity: any): string | null {
-    const id = entity?.id || entity?._id || entity?.userId;
-    return id ? String(id) : null;
-  }
-
   private fetchUsers() {
     this.users
       .getAll()
