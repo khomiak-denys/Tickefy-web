@@ -1,5 +1,4 @@
 <section class="layout">
-	<!-- Sidebar -->
 	<aside class="sidebar">
 		<div class="brand">Tickefy</div>
 		<nav>
@@ -39,7 +38,6 @@
 			}
 		</div>
 	</aside>
-	<!-- Main content -->
 	<main class="content">
 		<header class="top">
 			<div>
@@ -86,7 +84,6 @@
 			{
 				<button class="create" (click)="openCreateTeam()">Create Team</button>
 			}
-
 		</header>
 
         @if (activeTab==='queue')
@@ -112,155 +109,107 @@
             (selectedTicketId)="openTicket($event)"
           ></app-tickets-tab>
         }
-				@if (activeTab==='teams')
-				{
-          <app-teams-tab
-            [teams$]="teams$"
-            (selectedTeamId)="openTeam($event)"
-          ></app-teams-tab>
-				}
+		@if (activeTab==='teams')
+		{
+			<app-teams-tab
+				[teams$]="teams$"
+				(selectedTeamId)="openTeam($event)"
+			></app-teams-tab>
+		}
 
-				<!-- Create Team Modal -->
-				@if (createTeamModalState.createTeamOpen)
-				{
-					<div class="modal-backdrop" (click)="closeCreateTeam()"></div>
-					<div class="modal">
-						<header class="modal-head">
-							<h3>Create Team</h3>
-							<button class="close" (click)="closeCreateTeam()">×</button>
-						</header>
-						<section class="modal-body">
-							<label>
-								<span>Name</span>
-								<input type="text" [(ngModel)]="createTeamModalState.newTeamName" placeholder="Team name" />
-							</label>
-							<label>
-								<span>Description</span>
-								<textarea [(ngModel)]="createTeamModalState.newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
-							</label>
-							<label>
-								<span>Category</span>
-								<select [(ngModel)]="createTeamModalState.newTeamCategory">
-									<option [ngValue]="null">Select category</option>
-									@for (c of categoryOptions; track c.value)
-									{
-										<option [ngValue]="c.value">{{ c.label }}</option>
-									}
-								</select>
-							</label>
-						</section>
-						<footer class="modal-foot">
-							<button class="secondary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="closeCreateTeam()">Cancel</button>
-							<button class="primary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="submitCreateTeam()">{{ createTeamModalState.createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
-						</footer>
-						@if (createTeamModalState.createTeamError)
-						{
-							<div class="error">{{ createTeamModalState.createTeamError }}</div>
-						}
-					</div>
-				}
-				<!-- Users -->
-				@if (activeTab==='users')
-				{
-					<section class="users">
-						@if (filteredUsers$ | async; as users)
-						{
-							@if (users.length)
+		@if (createTeamModalState.createTeamOpen)
+		{
+			<div class="modal-backdrop" (click)="closeCreateTeam()"></div>
+			<div class="modal">
+				<header class="modal-head">
+					<h3>Create Team</h3>
+					<button class="close" (click)="closeCreateTeam()">×</button>
+				</header>
+				<section class="modal-body">
+					<label>
+						<span>Name</span>
+						<input type="text" [(ngModel)]="createTeamModalState.newTeamName" placeholder="Team name" />
+					</label>
+					<label>
+						<span>Description</span>
+						<textarea [(ngModel)]="createTeamModalState.newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
+					</label>
+					<label>
+						<span>Category</span>
+						<select [(ngModel)]="createTeamModalState.newTeamCategory">
+							<option [ngValue]="null">Select category</option>
+							@for (c of categoryOptions; track c.value)
 							{
-								<div class="users-table">
-									<div class="users-header">
-										<div>User</div>
-										<div>Login</div>
-										<div>Role</div>
-										<div>Team</div>
-										<div>Joined</div>
-										<div>Actions</div>
-									</div>
-									@for (u of users; track u.id)
-									{
-										<div class="user-row">
-											<div class="user-cell">
-												<div class="avatar small">{{ ((u.firstName || u.lastName || u.login || u.username || 'U') + '').slice(0,1) }}</div>
-												<div class="user-name">{{ (u.firstName || '') + ' ' + (u.lastName || '') }}</div>
-											</div>
-											<div class="login-cell">{{ '@' + (u.login || u.username || '') }}</div>
-																<div class="role-cell">
-														<span class="pill role" [ngClass]="roleClass(u.role)">{{ (u.role || 'user') | lowercase }}</span>
-																</div>
-											<div class="team-cell">{{ u.team?.name || '-' }}</div>
-											<div class="joined-cell">{{ (u.joined || u.created || u.createdAt) | date:'dd/MM/yyyy' }}</div>
-											<div class="actions-cell">
-												<button class="icon" (click)="viewUser(u)" title="View details"><lucide-icon name="eye" size="16"></lucide-icon></button>
-												<button class="icon danger" (click)="deleteUser(u)" title="Delete user"><lucide-icon name="trash-2" size="16"></lucide-icon></button>
-											</div>
-										</div>
-									}
-								</div>
-							} @else
-							{
-								<div class="empty-panel">
-									<div class="empty-icon"><lucide-icon name="shield" size="28"></lucide-icon></div>
-									<div class="empty-title">No users found</div>
-									<p class="empty-text">Invite or register users to manage them here.</p>
-								</div>
+								<option [ngValue]="c.value">{{ c.label }}</option>
 							}
-
-						} @else
-						{
-							<p>Loading users…</p>
-						}
-					</section>
-				}
-
-				<!-- Activity Logs -->
-				@if (activeTab==='logs')
+						</select>
+					</label>
+				</section>
+				<footer class="modal-foot">
+					<button class="secondary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="closeCreateTeam()">Cancel</button>
+					<button class="primary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="submitCreateTeam()">{{ createTeamModalState.createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
+				</footer>
+				@if (createTeamModalState.createTeamError)
 				{
-					<section class="tickets logs">
-						@if (logs$ | async; as logs)
-						{
-							<!-- List or Empty State -->
-							@for (l of logs; track l.id)
-							{
-								<article class="log-item">
-									<div class="log-left">
-										<div class="log-icon"><lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon></div>
-									</div>
-									<div class="log-content">
-										<div class="log-top">
-											<div class="log-title">{{ l.description || 'Event' }}</div>
-											<span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{ humanizeEvent(l?.eventType) }}</span>
-										</div>
-										<div class="log-meta">
-											<span><lucide-icon name="user" size="14"></lucide-icon> {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
-											<span class="dot">•</span>
-											<span><lucide-icon name="clock" size="14"></lucide-icon> {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
-										</div>
-										<div class="log-ticket"><lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}</div>
-									</div>
-								</article>
-							} @empty
-							{
-								<div class="empty-panel">
-								<div class="empty-icon"><lucide-icon name="activity" size="28"></lucide-icon></div>
-								<div class="empty-title">No activity yet</div>
-								<p class="empty-text">Activity logs will appear here once events are recorded.</p>
-								</div>
-							}
+					<div class="error">{{ createTeamModalState.createTeamError }}</div>
+				}
+			</div>
+		}
 
-							<!-- Pagination always visible -->
-							<div class="logs-pagination">
-								<button class="page-btn" (click)="prevLogsPage()" [disabled]="!hasPrevLogsPage"><lucide-icon name="arrow-left" size="16"></lucide-icon> Prev</button>
-								<button class="page-btn primary" (click)="nextLogsPage()" [disabled]="!hasNextLogsPage">Next <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg);"></lucide-icon></button>
+		@if (activeTab==='users')
+		{
+			<app-users-tab
+				[filteredUsers$]="filteredUsers$"
+				(selectedUserId)="viewUser($event)"
+				(deletedUserId)="deleteUser($event)"
+			></app-users-tab>
+		}
+
+		@if (activeTab==='logs')
+		{
+			<section class="tickets logs">
+				@if (logs$ | async; as logs)
+				{
+					@for (l of logs; track l.id)
+					{
+						<article class="log-item">
+							<div class="log-left">
+								<div class="log-icon"><lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon></div>
 							</div>
-						} @else
-						{
-							<p>Loading activity logs…</p>
-						}
-					</section>
+							<div class="log-content">
+								<div class="log-top">
+									<div class="log-title">{{ l.description || 'Event' }}</div>
+									<span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{ humanizeEvent(l?.eventType) }}</span>
+								</div>
+								<div class="log-meta">
+									<span><lucide-icon name="user" size="14"></lucide-icon> {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
+									<span class="dot">•</span>
+									<span><lucide-icon name="clock" size="14"></lucide-icon> {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
+								</div>
+								<div class="log-ticket"><lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}</div>
+							</div>
+						</article>
+					} @empty
+					{
+						<div class="empty-panel">
+						<div class="empty-icon"><lucide-icon name="activity" size="28"></lucide-icon></div>
+						<div class="empty-title">No activity yet</div>
+						<p class="empty-text">Activity logs will appear here once events are recorded.</p>
+						</div>
+					}
+
+					<div class="logs-pagination">
+						<button class="page-btn" (click)="prevLogsPage()" [disabled]="!hasPrevLogsPage"><lucide-icon name="arrow-left" size="16"></lucide-icon> Prev</button>
+						<button class="page-btn primary" (click)="nextLogsPage()" [disabled]="!hasNextLogsPage">Next <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg);"></lucide-icon></button>
+					</div>
+				} @else
+				{
+					<p>Loading activity logs…</p>
 				}
+			</section>
+		}
 	</main>
 
-		<!-- Team Details modal -->
 		@if (teamDetailsOpen)
 		{
 			<div class="modal-backdrop" (click)="closeTeamDetails()"></div>
@@ -338,7 +287,6 @@
 		}
 </section>
 
-<!-- Create Ticket Modal -->
 @if (createTicketModalState.open)
 {
 		<div class="modal-backdrop" (click)="closeCreate()"></div>

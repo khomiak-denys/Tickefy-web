@@ -15,15 +15,16 @@ import { Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
-import {TicketsTabComponent} from '../tickets-tab/tickets-tab.component';
-import {TeamsTabComponent} from '../teams-tab/teams-tab.component';
+import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
+import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
+import { UsersTabComponent} from '../users-tab/users-tab.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent],
+  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -204,10 +205,9 @@ export class DashboardPageComponent {
       })
       );
     } else {
-      // Map possible API wrappers to a plain array
+      
       this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
 
-      // Stats from all tickets (unfiltered)
       this.stats$ = this.tickets$.pipe(
         map(list => {
           const norm = (s: any) => String(s || '').toLowerCase();
@@ -222,7 +222,7 @@ export class DashboardPageComponent {
             else if (isCompleted) acc.completed++;
             else if (isCancelled) acc.cancelled++;
             else acc.open++;
-            // Burning Deadlines: deadline < 24h and status != Completed
+
             if (!isCompleted && typeof deadline === 'number') {
               const diffHrs = (deadline - now) / (1000 * 60 * 60);
               if (diffHrs > 0 && diffHrs < 24) acc.burning++;
@@ -232,11 +232,9 @@ export class DashboardPageComponent {
         })
       );
 
-      // Filtered tickets stream (align with /tickets/my schema)
       this.filteredTickets$ = makeFiltered(this.tickets$);
     }
 
-    // Collections for tabs
     this.allTickets$ = this.canViewTab('all')
       ? this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)))
       : of([]);
@@ -246,7 +244,7 @@ export class DashboardPageComponent {
     } else {
       this.usersSource$.next([]);
     }
-    // Filtered users stream (align structure to tickets)
+
     this.filteredUsers$ = combineLatest([
       this.users$,
       this.userRoleFilter$,
@@ -268,7 +266,6 @@ export class DashboardPageComponent {
       tap((items: any[]) => {
         const page = this.logsPage$.value;
         this.hasPrevLogsPage = page > 1;
-        // If current page returns 0 items, prevent advancing further
         this.hasNextLogsPage = items.length >= this.logsPageSize;
       })
     );
@@ -284,7 +281,6 @@ export class DashboardPageComponent {
           const token = res?.token || res?.accessToken || res;
           if (token) {
             localStorage.setItem('access_token', token);
-            // refresh tickets stream to use authorized requests
             this.refreshTickets();
           } else {
             this.error = 'No token in response';
@@ -375,7 +371,6 @@ export class DashboardPageComponent {
 
     this.teamDetailsLoading = true;
 
-    // Ми відправляємо Login прямо в API додавання
     this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
       next: () => {
         this.newTeamMemberLogin = '';
@@ -384,9 +379,8 @@ export class DashboardPageComponent {
       },
       error: (error: any) => {
         this.teamDetailsLoading = false;
-        // Обробка помилок від бекенду
         if (error.status === 404) this.teamError = 'User not found';
-        else if (error.status === 400) this.teamError = error?.error?.detail; // Наприклад "Only Requester users..."
+        else if (error.status === 400) this.teamError = error?.error?.detail;
         else this.teamError = 'Failed to add member';
       }
     });
@@ -465,31 +459,27 @@ export class DashboardPageComponent {
     });
   }
 
-  viewUser(u: any) {
-    const id = u?.id || u?._id || u?.userId;
-    if (!id) return;
+  viewUser(id: string) {
+    if (!id)
+    {
+      return;
+    }
+
     this.router.navigate(['/settings/profile', String(id)]);
   }
 
-  deleteUser(u: any) {
-    const id = u?.id || u?._id || u?.userId;
-    if (!id) return;
+  deleteUser(id: string) {
+    if (!id)
+    {
+      return;
+    }
+
     this.users.delete(String(id)).subscribe({
       next: () => {
         this.fetchUsers();
       },
       error: () => {}
     });
-  }
-
-  roleClass(role: any) {
-    const r = String(role || 'user').toLowerCase();
-    return {
-      admin: r === 'admin',
-      requester: r === 'requester',
-      manager: r === 'manager',
-      agent: r === 'agent'
-    };
   }
 
   // Activity log helpers
