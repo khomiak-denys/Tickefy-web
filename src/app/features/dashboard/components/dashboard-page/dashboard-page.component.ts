@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { AsyncPipe, NgClass, LowerCasePipe, DatePipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
-import { AuthService } from '../../../../core/services/auth.service';
 import { UsersService } from '../../../../core/services/users.service';
 import { TeamsService } from '../../../../core/services/teams.service';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
@@ -15,13 +14,17 @@ import { Category } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
+import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
+import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
+import { UsersTabComponent} from '../users-tab/users-tab.component';
+import {LogsTabComponent} from '../logs-tab/logs-tab.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, NgClass, DatePipe, LowerCasePipe, IconsModule, TicketDetailsModalComponent],
+  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -42,18 +45,18 @@ export class DashboardPageComponent {
   logsPageSize = 10;
   hasPrevLogsPage = false;
   hasNextLogsPage = true;
-  stats$!: Observable<{open:number; inProgress:number; completed:number; cancelled:number; burning:number}>;
-  loggingIn = false;
-  error?: string;
-  role: string | null = null;
+
   currentUserId: string | null = null;
+  role: string | null = null;
+  firstName: string | null = null;
+  lastName: string | null = null;
+
+  error?: string;
   isAdmin = false;
   isAgent = false;
   isRequester = false;
   isManager = false;
   allowedTabsList: TabKey[] = ['my', 'teams'];
-  firstName: string | null = null;
-  lastName: string | null = null;
 
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
@@ -65,19 +68,24 @@ export class DashboardPageComponent {
   newTeamMemberLogin = '';
   teamError: string | null = null;
   teamMembers: any[] = [];
-  // Create team modal state
-  createTeamOpen = false;
-  createTeamSubmitting = false;
-  createTeamError: string | null = null;
-  newTeamName = '';
-  newTeamDescription = '';
-  newTeamCategory: number | null = null;
-  // Create ticket modal state
-  createOpen = false;
-  createSubmitting = false;
-  newTitle = '';
-  newDescription = '';
-  newDeadline = '';
+
+  createTeamModalState = {
+    createTeamOpen: false,
+    createTeamSubmitting: false,
+    createTeamError: "",
+    newTeamName: '',
+    newTeamDescription: '',
+    newTeamCategory: 0
+  };
+
+  createTicketModalState = {
+    open: false,
+    createSubmitting: false,
+    newTitle: '',
+    newDescription: '',
+    newDeadline: ''
+  }
+
   categoryOptions = [
     { value: Category.Finance, label: 'Finance' },
     { value: Category.IT, label: 'IT' },
@@ -88,17 +96,16 @@ export class DashboardPageComponent {
     { value: Category.AccessAndSecurity, label: 'Access & Security' },
     { value: Category.Other, label: 'Other' },
   ];
-  // Filters
+
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
   typeFilter$ = new BehaviorSubject<string>('all');
-  // Users filters (optional, same pattern)
+
   userRoleFilter$ = new BehaviorSubject<string>('all');
   userTeamFilter$ = new BehaviorSubject<string>('all');
 
   constructor(
     private tickets: TicketsService,
-    private auth: AuthService,
     private users: UsersService,
     private teams: TeamsService,
     private logs: ActivityLogService,
@@ -170,64 +177,11 @@ export class DashboardPageComponent {
       this.myTickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
       this.filteredQueueTickets$ = makeFiltered(this.queueTickets$);
       this.filteredMyTickets$ = makeFiltered(this.myTickets$);
-      // Stats from queue
-      this.stats$ = this.queueTickets$.pipe(
-      map(list => {
-        const norm = (s: any) => String(s || '').toLowerCase();
-        const now = Date.now();
-        const acc = { open: 0, inProgress: 0, completed: 0, cancelled: 0, burning: 0 };
-        for (const t of list) {
-          const s = norm(t?.status);
-          const deadline = t?.deadline ? new Date(t.deadline).getTime() : undefined;
-          const isCompleted = s.startsWith('comp');
-          const isCancelled = s.startsWith('canc');
-          if (s.includes('progress')) acc.inProgress++;
-          else if (isCompleted) acc.completed++;
-          else if (isCancelled) acc.cancelled++;
-          else acc.open++;
-          // Burning Deadlines: deadline < 24h and status != Completed
-          if (!isCompleted && typeof deadline === 'number') {
-            const diffHrs = (deadline - now) / (1000 * 60 * 60);
-            if (diffHrs > 0 && diffHrs < 24) acc.burning++;
-          }
-        }
-        return acc;
-      })
-      );
     } else {
-      // Map possible API wrappers to a plain array
       this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
-
-      // Stats from all tickets (unfiltered)
-      this.stats$ = this.tickets$.pipe(
-        map(list => {
-          const norm = (s: any) => String(s || '').toLowerCase();
-          const now = Date.now();
-          const acc = { open: 0, inProgress: 0, completed: 0, cancelled: 0, burning: 0 };
-          for (const t of list) {
-            const s = norm(t?.status);
-            const deadline = t?.deadline ? new Date(t.deadline).getTime() : undefined;
-            const isCompleted = s.startsWith('comp');
-            const isCancelled = s.startsWith('canc');
-            if (s.includes('progress')) acc.inProgress++;
-            else if (isCompleted) acc.completed++;
-            else if (isCancelled) acc.cancelled++;
-            else acc.open++;
-            // Burning Deadlines: deadline < 24h and status != Completed
-            if (!isCompleted && typeof deadline === 'number') {
-              const diffHrs = (deadline - now) / (1000 * 60 * 60);
-              if (diffHrs > 0 && diffHrs < 24) acc.burning++;
-            }
-          }
-          return acc;
-        })
-      );
-
-      // Filtered tickets stream (align with /tickets/my schema)
       this.filteredTickets$ = makeFiltered(this.tickets$);
     }
 
-    // Collections for tabs
     this.allTickets$ = this.canViewTab('all')
       ? this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)))
       : of([]);
@@ -237,7 +191,7 @@ export class DashboardPageComponent {
     } else {
       this.usersSource$.next([]);
     }
-    // Filtered users stream (align structure to tickets)
+
     this.filteredUsers$ = combineLatest([
       this.users$,
       this.userRoleFilter$,
@@ -259,34 +213,19 @@ export class DashboardPageComponent {
       tap((items: any[]) => {
         const page = this.logsPage$.value;
         this.hasPrevLogsPage = page > 1;
-        // If current page returns 0 items, prevent advancing further
         this.hasNextLogsPage = items.length >= this.logsPageSize;
       })
     );
   }
 
-  loginDemo() {
-    this.loggingIn = true;
-    this.error = undefined;
-    this.auth
-      .login({ login: 'admin', password: 'password' })
-      .subscribe({
-        next: (res: any) => {
-          const token = res?.token || res?.accessToken || res;
-          if (token) {
-            localStorage.setItem('access_token', token);
-            // refresh tickets stream to use authorized requests
-            this.refreshTickets();
-          } else {
-            this.error = 'No token in response';
-          }
-          this.loggingIn = false;
-        },
-        error: (e) => {
-          this.error = e?.message || 'Login failed';
-          this.loggingIn = false;
-        },
-      });
+  nextLogsPage() {
+    if (!this.hasNextLogsPage) return;
+    this.logsPage$.next(this.logsPage$.value + 1);
+  }
+  prevLogsPage() {
+    if (!this.hasPrevLogsPage) return;
+    const p = this.logsPage$.value - 1;
+    this.logsPage$.next(p > 0 ? p : 1);
   }
 
   logout() {
@@ -302,27 +241,33 @@ export class DashboardPageComponent {
   }
 
   openCreate() {
-    this.createOpen = true;
-    this.createSubmitting = false;
-    this.newTitle = '';
-    this.newDescription = '';
-    this.newDeadline = '';
+    this.createTicketModalState.open = true;
+    this.createTicketModalState.createSubmitting = false;
+    this.createTicketModalState.newTitle = '';
+    this.createTicketModalState.newDescription = '';
+    this.createTicketModalState.newDeadline = '';
   }
-  closeCreate() { this.createOpen = false; }
+
+  closeCreate() {
+    this.createTicketModalState.open = false;
+  }
+
   submitCreate() {
-    if (!this.newTitle || !this.newDeadline) { this.error = 'Title and deadline are required'; return; }
-    this.createSubmitting = true;
-    const isoDeadline = (() => { try { return new Date(this.newDeadline).toISOString(); } catch { return this.newDeadline; } })();
-    const body = { title: this.newTitle, description: this.newDescription, deadline: isoDeadline } as any;
+    if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline) { this.error = 'Title and deadline are required'; return; }
+    this.createTicketModalState.createSubmitting = true;
+    const isoDeadline = (() => { try { return new Date(this.createTicketModalState.newDeadline).toISOString(); } catch { return this.createTicketModalState.newDeadline; } })();
+    const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as any;
     this.tickets.create(body).subscribe({
-      next: () => { this.createSubmitting = false; this.createOpen = false; this.refreshTickets(); },
-      error: (e) => { this.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
+      next: () => { this.createTicketModalState.createSubmitting = false; this.createTicketModalState.open = false; this.refreshTickets(); },
+      error: (e) => { this.createTicketModalState.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
     });
   }
 
-  openTicket(t: any) {
-    const id = t?.id;
-    if (!id) return;
+  openTicket(id: string) {
+    if (!id){
+      return;
+    }
+
     this.isTicketModalOpen = true;
     this.selectedTicketId = String(id);
   }
@@ -332,7 +277,6 @@ export class DashboardPageComponent {
     this.selectedTicketId = null;
   }
 
-  // Tabs
   activeTab: TabKey = 'my';
   setTab(tab: TabKey) {
     const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
@@ -342,9 +286,10 @@ export class DashboardPageComponent {
     }
     this.activeTab = tab;
   }
-  openTeam(t: any) {
-    const id = t?.id || t?.teamId;
-    if (!id) return;
+  openTeam(id: string) {
+    if (!id) {
+      return;
+    }
     this.selectedTeamId = String(id);
     this.teamDetailsOpen = true;
     this.teamDetailsLoading = true;
@@ -363,7 +308,6 @@ export class DashboardPageComponent {
 
     this.teamDetailsLoading = true;
 
-    // Ми відправляємо Login прямо в API додавання
     this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
       next: () => {
         this.newTeamMemberLogin = '';
@@ -372,9 +316,8 @@ export class DashboardPageComponent {
       },
       error: (error: any) => {
         this.teamDetailsLoading = false;
-        // Обробка помилок від бекенду
         if (error.status === 404) this.teamError = 'User not found';
-        else if (error.status === 400) this.teamError = error?.error?.detail; // Наприклад "Only Requester users..."
+        else if (error.status === 400) this.teamError = error?.error?.detail;
         else this.teamError = 'Failed to add member';
       }
     });
@@ -392,36 +335,36 @@ export class DashboardPageComponent {
   }
 
   openCreateTeam() {
-    this.createTeamOpen = true;
-    this.createTeamSubmitting = false;
-    this.createTeamError = null;
-    this.newTeamName = '';
-    this.newTeamDescription = '';
-    this.newTeamCategory = null;
+    this.createTeamModalState.createTeamOpen = true;
+    this.createTeamModalState.createTeamSubmitting = false;
+    this.createTeamModalState.createTeamError = '';
+    this.createTeamModalState.newTeamName = '';
+    this.createTeamModalState.newTeamDescription = '';
+    this.createTeamModalState.newTeamCategory = -1;
   }
 
   closeCreateTeam() {
-    this.createTeamOpen = false;
+    this.createTeamModalState.createTeamOpen = false;
   }
 
   submitCreateTeam() {
-    const name = (this.newTeamName || '').trim();
-    if (!name) { this.createTeamError = 'Team name is required'; return; }
-    this.createTeamSubmitting = true;
-    this.createTeamError = null;
-    const payload: any = { name, description: this.newTeamDescription };
-    if (this.newTeamCategory !== null) {
-      payload.category = Number(this.newTeamCategory);
+    const name = (this.createTeamModalState.newTeamName || '').trim();
+    if (!name) { this.createTeamModalState.createTeamError = 'Team name is required'; return; }
+    this.createTeamModalState.createTeamSubmitting = true;
+    this.createTeamModalState.createTeamError = '';
+    const payload: any = { name, description: this.createTeamModalState.newTeamDescription };
+    if (this.createTeamModalState.newTeamCategory !== null) {
+      payload.category = Number(this.createTeamModalState.newTeamCategory);
     }
     this.teams.create(payload).subscribe({
       next: () => {
-        this.createTeamSubmitting = false;
-        this.createTeamOpen = false;
+        this.createTeamModalState.createTeamSubmitting = false;
+        this.createTeamModalState.createTeamOpen = false;
         this.refreshTeams();
       },
       error: (e) => {
-        this.createTeamSubmitting = false;
-        this.createTeamError = e?.error?.detail || 'Failed to create team';
+        this.createTeamModalState.createTeamSubmitting = false;
+        this.createTeamModalState.createTeamError = e?.error?.detail || 'Failed to create team';
       }
     });
   }
@@ -453,112 +396,27 @@ export class DashboardPageComponent {
     });
   }
 
-  viewUser(u: any) {
-    const id = u?.id || u?._id || u?.userId;
-    if (!id) return;
+  viewUser(id: string) {
+    if (!id)
+    {
+      return;
+    }
+
     this.router.navigate(['/settings/profile', String(id)]);
   }
 
-  deleteUser(u: any) {
-    const id = u?.id || u?._id || u?.userId;
-    if (!id) return;
+  deleteUser(id: string) {
+    if (!id)
+    {
+      return;
+    }
+
     this.users.delete(String(id)).subscribe({
       next: () => {
         this.fetchUsers();
       },
       error: () => {}
     });
-  }
-  // Helpers for UI badges with graceful fallbacks
-  statusClass(status: any) {
-    const s = String(status || 'open').toLowerCase();
-    return {
-      badge: true,
-      open: s.startsWith('open') || (!s || s === ''),
-      progress: s.includes('progress'),
-      completed: s.startsWith('comp') || s.includes('completed'),
-      failed: s.includes('fail'),
-      cancelled: s.startsWith('canc') || s.includes('cancel'),
-      assigned: s.includes('assign'),
-      created: s.includes('created')
-    };
-  }
-  priorityClass(p: any) {
-    const v = String(p || '').toLowerCase();
-    return { pr: true, low: v==='low', medium: v==='medium', high: v==='high' };
-  }
-
-  roleClass(role: any) {
-    const r = String(role || 'user').toLowerCase();
-    return {
-      admin: r === 'admin',
-      requester: r === 'requester',
-      manager: r === 'manager',
-      agent: r === 'agent'
-    };
-  }
-
-  // Activity log helpers
-  logBadge(eventType: any) {
-    const t = String(eventType || '').toLowerCase();
-    return {
-      badge: true,
-      created: t.includes('requestcreated'),
-      commented: t.includes('commentadded'),
-      completed: t.includes('completed'),
-      status: t.includes('statuschanged'),
-      priority: t.includes('prioritychanged'),
-      deadline: t.includes('deadlinechanged'),
-      team: t.includes('teamassigned'),
-      user: t.includes('userassigned'),
-    };
-  }
-  logIcon(eventType: any) {
-    const t = String(eventType || '').toLowerCase();
-    if (t.includes('requestcreated')) return 'file-text';
-    if (t.includes('commentadded')) return 'message-square';
-    if (t.includes('completed')) return 'check-circle';
-    if (t.includes('statuschanged')) return 'rotate-ccw';
-    if (t.includes('prioritychanged')) return 'alert-circle';
-    if (t.includes('deadlinechanged')) return 'calendar';
-    if (t.includes('teamassigned')) return 'users';
-    if (t.includes('userassigned')) return 'user';
-    return 'file-text';
-  }
-
-  humanizeEvent(eventType: any) {
-    const raw = String(eventType || '').trim();
-    if (!raw) return '';
-    const withSpaces = raw.replace(/([A-Z])/g, ' $1').trim();
-    return withSpaces.toLowerCase();
-  }
-
-  // Logs pagination controls
-  nextLogsPage() {
-    if (!this.hasNextLogsPage) return;
-    this.logsPage$.next(this.logsPage$.value + 1);
-  }
-  prevLogsPage() {
-    if (!this.hasPrevLogsPage) return;
-    const p = this.logsPage$.value - 1;
-    this.logsPage$.next(p > 0 ? p : 1);
-  }
-
-  trackByUser(index: number, user: any) {
-    return user?.id || user?._id || user?.userId || index;
-  }
-  // Ticket ownership/helpers
-  private normalizeId(entity: any): string | null {
-    const id = entity?.id || entity?._id || entity?.userId;
-    return id ? String(id) : null;
-  }
-
-  private ticketRequesterId(ticket: any): string | null {
-    return this.normalizeId(ticket?.requester || ticket?.owner || ticket?.createdBy);
-  }
-
-  private ticketAssignedAgentId(ticket: any): string | null {
-    return this.normalizeId(ticket?.assignedAgent || ticket?.agent || ticket?.assignee);
   }
 
   private fetchUsers() {

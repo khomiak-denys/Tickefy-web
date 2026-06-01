@@ -1,11 +1,3 @@
-.users { margin-top: 12px; }
-.users-table { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; }
-.users-header { display:grid; grid-template-columns: 2fr 1.5fr 1.2fr 1.5fr 1fr 1fr; gap:0; padding:14px 16px; font-weight:600; color:#374151; background:#f9fafb; border-bottom:1px solid #e5e7eb; }
-.user-row { display:grid; grid-template-columns: 2fr 1.5fr 1.2fr 1.5fr 1fr 1fr; align-items:center; padding:12px 16px; border-bottom:1px solid #eef2f7; }
-.user-row:last-child { border-bottom:none; }
-.user-cell { display:flex; align-items:center; gap:10px; }
-.user-name { font-weight:600; color:#111827; }
-.login-cell { color:#6b7280; }
 .role-cell .pill.role { padding:6px 10px; border-radius:999px; font-weight:600; font-size:12px; }
 .pill.role.admin { background:#ffe7e7; color:#b91c1c; border:1px solid #ffcfcf; }
 .pill.role.requester { background:#e7f0ff; color:#1d4ed8; border:1px solid #cfe0ff; }
@@ -84,22 +76,10 @@
 .top p { color: #6b7280; margin: 0; }
 .create { background: #5b53ff; color: #fff; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; box-shadow: 0 8px 18px rgba(91,83,255,0.25); }
 
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 20px 0; }
-.stats .card { background: #fff; border: 1px solid #eceff5; border-radius: 16px; padding: 16px; box-shadow: 0 6px 14px rgba(17,24,39,0.04); }
-.stats .label { color: #6b7280; font-size: 14px; }
-.stats .value { font-weight: 700; font-size: 26px; margin-top: 6px; }
-
 .filters { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #eceff5; border-radius: 16px; padding: 10px 12px; }
 .filters select { border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 10px; background: #fff; }
 .filter-icon { color: #6b7280; margin-right: 4px; }
 
-.tickets { margin-top: 20px; display: flex; flex-direction: column; gap: 16px; }
-.ticket-card { background: #fff; border: 1px solid #eceff5; border-radius: 16px; padding: 12px 14px; box-shadow: 0 8px 18px rgba(17,24,39,0.04); cursor: pointer; transition: transform .05s ease, box-shadow .15s ease; }
-.ticket-card:hover { box-shadow: 0 12px 26px rgba(17,24,39,0.07); transform: translateY(-1px); }
-.card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.card-top h3 { margin: 0; font-size: 16px; font-weight: 600; color: #0f172a; }
-.card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #374151; font-size: 12px; }
-.card-meta .dot { color: #cbd5e1; }
 .pill { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #e5e7eb; background:#f8fafc; color:#0f172a; }
 .pill .lucide-icon { vertical-align: middle; }
 .pill.status.open { background:#e8edff; color:#3f46ff; border-color:#dbe2ff; }
@@ -228,7 +208,6 @@
 	.stats { grid-template-columns: repeat(2,1fr); }
 }
 
-/* Empty state styling for logs page */
 .empty-state {
 	display: flex;
 	align-items: center;

@@ -1,0 +1,34 @@
+<section class="tickets">
+  @if (filteredTickets$ | async; as tickets)
+  {
+    @for (t of tickets; track t.id)
+    {
+      <article class="ticket-card" (click)="onTicketClick(t.id)">
+        <div class="card-top">
+          <h3>{{ t.title }}</h3>
+          <div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+            <span class="pill status" [ngClass]="statusClass(t.status)"><lucide-icon name="clock" size="14"></lucide-icon> {{ (t.status || 'open') | lowercase }}</span>
+          </div>
+        </div>
+        <p class="desc">{{ t.description }}</p>
+        <div class="card-meta">
+          <span class="pill"><lucide-icon name="user" size="14"></lucide-icon> {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span>
+          <span class="pill priority" [ngClass]="priorityClass(t.priority)"><lucide-icon name="alert-circle" size="14"></lucide-icon> {{ (t.priority || 'medium') }}</span>
+          <span class="pill type"><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || t.assignedTeam?.category }}</span>
+          <span class="pill deadline"><lucide-icon name="calendar" size="14"></lucide-icon> {{ t.deadline | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </article>
+    }
+    @empty
+    {
+      <div class="empty-panel">
+        <div class="empty-icon"><lucide-icon name="ticket" size="28"></lucide-icon></div>
+        <div class="empty-title">No tickets yet</div>
+        <p class="empty-text">Create a ticket to see it here.</p>
+      </div>
+    }
+  } @else
+  {
+    <p>Loading your tickets…</p>
+  }
+</section>
