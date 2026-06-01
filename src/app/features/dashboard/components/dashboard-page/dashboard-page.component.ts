@@ -10,7 +10,7 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import {Category, TeamSummary, TicketSummaryDto} from '../../../../core/api/dtos';
+import { Category, TeamSummary, TicketSummaryDto } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
