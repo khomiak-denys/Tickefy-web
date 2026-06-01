@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
-import { AuthService } from '../../../../core/services/auth.service';
 import { UsersService } from '../../../../core/services/users.service';
 import { TeamsService } from '../../../../core/services/teams.service';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
@@ -46,10 +45,8 @@ export class DashboardPageComponent {
   logsPageSize = 10;
   hasPrevLogsPage = false;
   hasNextLogsPage = true;
-  stats$!: Observable<{open:number; inProgress:number; completed:number; cancelled:number; burning:number}>;
 
   currentUserId: string | null = null;
-  loggingIn = false;
   role: string | null = null;
   firstName: string | null = null;
   lastName: string | null = null;
@@ -99,17 +96,16 @@ export class DashboardPageComponent {
     { value: Category.AccessAndSecurity, label: 'Access & Security' },
     { value: Category.Other, label: 'Other' },
   ];
-  // Filters
+
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
   typeFilter$ = new BehaviorSubject<string>('all');
-  // Users filters (optional, same pattern)
+
   userRoleFilter$ = new BehaviorSubject<string>('all');
   userTeamFilter$ = new BehaviorSubject<string>('all');
 
   constructor(
     private tickets: TicketsService,
-    private auth: AuthService,
     private users: UsersService,
     private teams: TeamsService,
     private logs: ActivityLogService,
@@ -181,57 +177,8 @@ export class DashboardPageComponent {
       this.myTickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
       this.filteredQueueTickets$ = makeFiltered(this.queueTickets$);
       this.filteredMyTickets$ = makeFiltered(this.myTickets$);
-      // Stats from queue
-      this.stats$ = this.queueTickets$.pipe(
-      map(list => {
-        const norm = (s: any) => String(s || '').toLowerCase();
-        const now = Date.now();
-        const acc = { open: 0, inProgress: 0, completed: 0, cancelled: 0, burning: 0 };
-        for (const t of list) {
-          const s = norm(t?.status);
-          const deadline = t?.deadline ? new Date(t.deadline).getTime() : undefined;
-          const isCompleted = s.startsWith('comp');
-          const isCancelled = s.startsWith('canc');
-          if (s.includes('progress')) acc.inProgress++;
-          else if (isCompleted) acc.completed++;
-          else if (isCancelled) acc.cancelled++;
-          else acc.open++;
-
-          if (!isCompleted && typeof deadline === 'number') {
-            const diffHrs = (deadline - now) / (1000 * 60 * 60);
-            if (diffHrs > 0 && diffHrs < 24) acc.burning++;
-          }
-        }
-        return acc;
-      })
-      );
     } else {
       this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
-
-      this.stats$ = this.tickets$.pipe(
-        map(list => {
-          const norm = (s: any) => String(s || '').toLowerCase();
-          const now = Date.now();
-          const acc = { open: 0, inProgress: 0, completed: 0, cancelled: 0, burning: 0 };
-          for (const t of list) {
-            const s = norm(t?.status);
-            const deadline = t?.deadline ? new Date(t.deadline).getTime() : undefined;
-            const isCompleted = s.startsWith('comp');
-            const isCancelled = s.startsWith('canc');
-            if (s.includes('progress')) acc.inProgress++;
-            else if (isCompleted) acc.completed++;
-            else if (isCancelled) acc.cancelled++;
-            else acc.open++;
-
-            if (!isCompleted && typeof deadline === 'number') {
-              const diffHrs = (deadline - now) / (1000 * 60 * 60);
-              if (diffHrs > 0 && diffHrs < 24) acc.burning++;
-            }
-          }
-          return acc;
-        })
-      );
-
       this.filteredTickets$ = makeFiltered(this.tickets$);
     }
 
@@ -300,7 +247,11 @@ export class DashboardPageComponent {
     this.createTicketModalState.newDescription = '';
     this.createTicketModalState.newDeadline = '';
   }
-  closeCreate() { this.createTicketModalState.open = false; }
+
+  closeCreate() {
+    this.createTicketModalState.open = false;
+  }
+
   submitCreate() {
     if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline) { this.error = 'Title and deadline are required'; return; }
     this.createTicketModalState.createSubmitting = true;
@@ -326,7 +277,6 @@ export class DashboardPageComponent {
     this.selectedTicketId = null;
   }
 
-  // Tabs
   activeTab: TabKey = 'my';
   setTab(tab: TabKey) {
     const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();

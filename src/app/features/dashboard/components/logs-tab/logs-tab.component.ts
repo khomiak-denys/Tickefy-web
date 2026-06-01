@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AsyncPipe, DatePipe, NgClass} from "@angular/common";
 import {LucideAngularModule} from "lucide-angular";
-import {BehaviorSubject, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-logs-tab',
