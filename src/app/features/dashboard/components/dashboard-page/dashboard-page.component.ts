@@ -10,14 +10,14 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import { Category } from '../../../../core/api/dtos';
+import {Category, TeamSummary, TicketSummaryDto} from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
 import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
 import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
 import { UsersTabComponent} from '../users-tab/users-tab.component';
-import {LogsTabComponent} from '../logs-tab/logs-tab.component';
+import { LogsTabComponent} from '../logs-tab/logs-tab.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -29,17 +29,17 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
   styleUrl: './dashboard-page.component.scss'
 })
 export class DashboardPageComponent {
-  tickets$!: Observable<any[]>;
-  queueTickets$!: Observable<any[]>;
-  myTickets$!: Observable<any[]>;
-  filteredTickets$!: Observable<any[]>;
-  filteredQueueTickets$!: Observable<any[]>;
-  filteredMyTickets$!: Observable<any[]>;
-  allTickets$!: Observable<any[]>;
+  tickets$!: Observable<TicketSummaryDto[]>;
+  queueTickets$!: Observable<TicketSummaryDto[]>;
+  myTickets$!: Observable<TicketSummaryDto[]>;
+  filteredTickets$!: Observable<TicketSummaryDto[]>;
+  filteredQueueTickets$!: Observable<TicketSummaryDto[]>;
+  filteredMyTickets$!: Observable<TicketSummaryDto[]>;
+  allTickets$!: Observable<TicketSummaryDto[]>;
   usersSource$ = new BehaviorSubject<any[]>([]);
   users$!: Observable<any[]>;
   filteredUsers$!: Observable<any[]>;
-  teams$!: Observable<any[]>;
+  teams$!: Observable<TeamSummary[]>;
   logs$!: Observable<any[]>;
   logsPage$ = new BehaviorSubject<number>(1);
   logsPageSize = 10;
