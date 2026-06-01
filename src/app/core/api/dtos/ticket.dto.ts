@@ -1,10 +1,8 @@
+import {userShortDto} from './user.dto';
+
 export interface TicketCommentDto {
   id: string;
-  user: {
-    id: string;
-    firstName?: string | null;
-    lastName?: string | null;
-  };
+  user: userShortDto | null;
   content?: string | null;
   created: string; // ISO date
 }
@@ -13,26 +11,14 @@ export interface TicketSummaryDto {
   id: string;
   title?: string | null;
   description?: string | null;
-  requester?: {
-    id: string;
-    firstName?: string | null;
-    lastName?: string | null;
-  };
+  requester?: userShortDto | null;
   assignedTeam?: {
     id: string;
     name?: string | null;
     category?: string | null;
-    manager?: {
-      id: string;
-      firstName?: string | null;
-      lastName?: string | null;
-    };
+    manager?: userShortDto | null;
   };
-  assignedAgent?: {
-    id: string;
-    firstName?: string | null;
-    lastName?: string | null;
-  };
+  assignedAgent?: userShortDto | null;
   category?: string | null;
   priority?: string | null;
   status?: string | null;

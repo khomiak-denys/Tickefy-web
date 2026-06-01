@@ -10,7 +10,7 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import { Category, TeamSummary, TicketSummaryDto } from '../../../../core/api/dtos';
+import {Category, TeamDetails, TeamSummary, TicketSummaryDto, UserDto, UserShortDto} from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
@@ -36,9 +36,9 @@ export class DashboardPageComponent {
   filteredQueueTickets$!: Observable<TicketSummaryDto[]>;
   filteredMyTickets$!: Observable<TicketSummaryDto[]>;
   allTickets$!: Observable<TicketSummaryDto[]>;
-  usersSource$ = new BehaviorSubject<any[]>([]);
-  users$!: Observable<any[]>;
-  filteredUsers$!: Observable<any[]>;
+  usersSource$ = new BehaviorSubject<UserDto[]>([]);
+  users$!: Observable<UserDto[]>;
+  filteredUsers$!: Observable<UserDto[]>;
   teams$!: Observable<TeamSummary[]>;
   logs$!: Observable<any[]>;
   logsPage$ = new BehaviorSubject<number>(1);
@@ -61,13 +61,13 @@ export class DashboardPageComponent {
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
 
-  teamDetails$?: Observable<any>;
+  teamDetails$?: Observable<TeamDetails>;
   teamDetailsOpen = false;
   teamDetailsLoading = false;
   selectedTeamId: string | null = null;
   newTeamMemberLogin = '';
   teamError: string | null = null;
-  teamMembers: any[] = [];
+  teamMembers: UserShortDto[] = [];
 
   createTeamModalState = {
     createTeamOpen: false,
@@ -118,22 +118,33 @@ export class DashboardPageComponent {
     const roleFromToken = payload?.role?.toLowerCase();
     this.currentUserId = payload?.nameid ?? null;
     this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
-    if (this.isAgent) this.activeTab = 'queue';
+    if (this.isAgent) {
+      this.activeTab = 'queue';
+    }
     this.firstName = localStorage.getItem('user_firstName');
     this.lastName = localStorage.getItem('user_lastName');
+
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
-        next: (u: any) => {
+        next: (u: UserDto) => {
           this.firstName = u?.firstName || this.firstName;
           this.lastName = u?.lastName || this.lastName;
-          const uid = u?.id || u?._id || u?.userId;
-          if (uid) this.currentUserId = String(uid);
-          if (this.firstName) localStorage.setItem('user_firstName', this.firstName);
-          if (this.lastName) localStorage.setItem('user_lastName', this.lastName);
-          const r = (u?.role || u?.userRole || u?.user?.role || '').toLowerCase();
-          if (r) {
-            this.setRole(r);
-            localStorage.setItem('user_role', r);
+          if (u.id) {
+            this.currentUserId = u.id;
+          }
+
+          if (this.firstName) {
+            localStorage.setItem('user_firstName', this.firstName);
+          }
+
+          if (this.lastName) {
+            localStorage.setItem('user_lastName', this.lastName);
+          }
+
+          const role = (u?.role || '').toLowerCase();
+          if (role) {
+            this.setRole(role);
+            localStorage.setItem('user_role', role);
           }
         },
         error: () => {}
@@ -423,7 +434,7 @@ export class DashboardPageComponent {
     this.users
       .getAll()
       .pipe(map((res: any) => this.normalizeList(res)))
-      .subscribe((list: any[]) => this.usersSource$.next(list));
+      .subscribe((list: UserDto[]) => this.usersSource$.next(list));
   }
 
   private updateRoleFlags() {

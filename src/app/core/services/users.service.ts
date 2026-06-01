@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import { SetUserRoleRequest, UpdateProfileRequest } from '../api/dtos';
+import {SetUserRoleRequest, UpdateProfileRequest, UserDto} from '../api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -28,7 +28,7 @@ export class UsersService {
   }
 
   me() {
-    return this.http.get(`${API_BASE_URL}/api/v1/users/me`);
+    return this.http.get<UserDto>(`${API_BASE_URL}/api/v1/users/me`);
   }
 
   updateProfile(body: UpdateProfileRequest) {
