@@ -433,7 +433,6 @@ export class DashboardPageComponent {
   private fetchUsers() {
     this.users
       .getAll()
-      .pipe(map((res: any) => this.normalizeList(res)))
       .subscribe((list: UserDto[]) => this.usersSource$.next(list));
   }
 

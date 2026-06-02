@@ -8,15 +8,11 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   getAll() {
-    return this.http.get(`${API_BASE_URL}/api/v1/users`);
+    return this.http.get<UserDto[]>(`${API_BASE_URL}/api/v1/users`);
   }
 
   getById(userId: string) {
-    return this.http.get(`${API_BASE_URL}/api/v1/users/${userId}`);
-  }
-
-  getByLogin(login: string) {
-    return this.http.get(`${API_BASE_URL}/api/v1/users/login/${encodeURIComponent(login)}`);
+    return this.http.get<UserDto>(`${API_BASE_URL}/api/v1/users/${userId}`);
   }
 
   delete(userId: string) {
