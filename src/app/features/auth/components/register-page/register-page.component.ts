@@ -20,7 +20,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 })
 export class RegisterPageComponent {
   loading = false;
-  error?: string;
+  error: string | null = null;
   form!: FormGroup;
   submitted = false;
 
@@ -41,7 +41,7 @@ export class RegisterPageComponent {
       return;
     }
     this.loading = true;
-    this.error = undefined;
+    this.error = null;
     const { firstName, lastName, login, password } = this.form.value as { firstName: string; lastName: string; login: string; password: string };
     this.auth.register({ firstName, lastName, login, password }).subscribe({
       next: () => {

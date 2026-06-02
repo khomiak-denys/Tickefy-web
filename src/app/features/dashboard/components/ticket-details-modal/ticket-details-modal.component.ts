@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {TicketDetailsDto} from '../../../../core/api/dtos';
+import {TicketDetailsDto, TicketSummaryDto} from '../../../../core/api/dtos';
 import {catchError, Observable, of} from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
@@ -20,7 +20,7 @@ import {TicketsService} from '../../../../core/services/tickets.service';
   styleUrl: './ticket-details-modal.component.scss'
 })
 export class TicketDetailsModalComponent implements OnChanges {
-  ticketDetails$?: Observable<TicketDetailsDto | null>;
+  ticketDetails$: Observable<TicketDetailsDto | null> = new Observable<TicketDetailsDto>;
   @Input() open = false;
   @Input() ticketId: string | null = null;
   @Output() closed = new EventEmitter<void>();

@@ -4,7 +4,7 @@ import {TokenValidationOptions} from './dto/token.validation.options';
 
 export function validateJwtClaims(
   payload: JwtPayload,
-  options: TokenValidationOptions) : { valid : boolean; reason?: string } {
+  options: TokenValidationOptions) : { valid : boolean; reason: string | null } {
   const now = Date.now() / 1000;
 
   if (now > payload.exp) return {valid: false, reason: 'Token expired'};
@@ -13,7 +13,7 @@ export function validateJwtClaims(
   if (options.iss && options.iss !== payload.iss) return {valid: false, reason: 'Invalid issuer'};
   if (options.aud && options.aud !== payload.aud) return {valid: false, reason: 'Invalid audience'};
 
-  return {valid: true};
+  return {valid: true, reason: null};
 }
 export function decodeJwtPayload(token: string): JwtPayload | null {
   try {

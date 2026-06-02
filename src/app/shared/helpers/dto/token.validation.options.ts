@@ -1,4 +1,4 @@
 export interface TokenValidationOptions {
-  iss?: string;
-  aud?: string;
+  iss: string | null;
+  aud: string | null;
 }

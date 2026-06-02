@@ -15,7 +15,7 @@ import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
 })
 export class LoginPageComponent {
   loading = false;
-  error?: string;
+  error: string | null = null;
   submitted = false;
 
   form!: FormGroup;
@@ -35,7 +35,7 @@ export class LoginPageComponent {
       return;
     }
     this.loading = true;
-    this.error = undefined;
+    this.error = null;
     const { login, password } = this.form.value as { login: string; password: string };
     this.auth.login({ login, password }).subscribe({
       next: (res: any) => {

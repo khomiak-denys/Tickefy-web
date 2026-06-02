@@ -10,7 +10,15 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import {Category, TeamDetails, TeamSummary, TicketSummaryDto, UserDto, UserShortDto} from '../../../../core/api/dtos';
+import {
+  ActivityLogDto,
+  Category, CreateTeamRequest, CreateTicketRequest,
+  TeamDetails,
+  TeamSummary,
+  TicketSummaryDto,
+  UserDto,
+  UserShortDto
+} from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
@@ -40,7 +48,7 @@ export class DashboardPageComponent {
   users$!: Observable<UserDto[]>;
   filteredUsers$!: Observable<UserDto[]>;
   teams$!: Observable<TeamSummary[]>;
-  logs$!: Observable<any[]>;
+  logs$!: Observable<ActivityLogDto[]>;
   logsPage$ = new BehaviorSubject<number>(1);
   logsPageSize = 10;
   hasPrevLogsPage = false;
@@ -51,7 +59,7 @@ export class DashboardPageComponent {
   firstName: string | null = null;
   lastName: string | null = null;
 
-  error?: string;
+  error: string | null = null;
   isAdmin = false;
   isAgent = false;
   isRequester = false;
@@ -61,7 +69,7 @@ export class DashboardPageComponent {
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
 
-  teamDetails$?: Observable<TeamDetails>;
+  teamDetails$: Observable<TeamDetails | null> = new Observable<TeamDetails>();
   teamDetailsOpen = false;
   teamDetailsLoading = false;
   selectedTeamId: string | null = null;
@@ -156,24 +164,16 @@ export class DashboardPageComponent {
     this.teams$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
   }
 
-  private normalizeList(res: any) {
-    if (Array.isArray(res)) return res;
-    if (Array.isArray(res?.items)) return res.items;
-    if (Array.isArray(res?.data)) return res.data;
-    if (res && typeof res === 'object') return [res];
-    return [];
-  }
-
    refreshTickets() {
-    const makeFiltered = (stream$: Observable<any[]>) => combineLatest([
+    const makeFiltered = (stream$: Observable<TicketSummaryDto[]>) => combineLatest([
       stream$,
       this.statusFilter$,
       this.priorityFilter$,
       this.typeFilter$,
     ]).pipe(
       map(([list, sF, pF, tF]) => {
-        const norm = (v: any) => String(v || '').toLowerCase();
-        return list.filter((t: any) => {
+        const norm = (v: string | null) => String(v || '').toLowerCase();
+        return list.filter((t: TicketSummaryDto) => {
           const sOk = sF === 'all' || norm(t?.status).includes(sF);
           const pOk = pF === 'all' || norm(t?.priority) === pF;
           const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
@@ -208,8 +208,8 @@ export class DashboardPageComponent {
       this.userTeamFilter$,
     ]).pipe(
       map(([list, rF, tF]) => {
-        const norm = (v: any) => String(v || '').toLowerCase();
-        return list.filter((u: any) => {
+        const norm = (v: string | null) => String(v || '').toLowerCase();
+        return list.filter((u: UserDto) => {
           const rOk = rF === 'all' || norm(u?.role) === norm(rF);
           const tOk = tF === 'all' || norm(u?.team?.name) === norm(tF);
           return rOk && tOk;
@@ -219,8 +219,7 @@ export class DashboardPageComponent {
     this.refreshTeams();
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
-      map((res: any) => this.normalizeList(res)),
-      tap((items: any[]) => {
+      tap((items: ActivityLogDto[]) => {
         const page = this.logsPage$.value;
         this.hasPrevLogsPage = page > 1;
         this.hasNextLogsPage = items.length >= this.logsPageSize;
@@ -266,7 +265,7 @@ export class DashboardPageComponent {
     if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline) { this.error = 'Title and deadline are required'; return; }
     this.createTicketModalState.createSubmitting = true;
     const isoDeadline = (() => { try { return new Date(this.createTicketModalState.newDeadline).toISOString(); } catch { return this.createTicketModalState.newDeadline; } })();
-    const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as any;
+    const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as CreateTicketRequest;
     this.tickets.create(body).subscribe({
       next: () => { this.createTicketModalState.createSubmitting = false; this.createTicketModalState.open = false; this.refreshTickets(); },
       error: (e) => { this.createTicketModalState.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
@@ -308,7 +307,7 @@ export class DashboardPageComponent {
 
   closeTeamDetails() {
     this.teamDetailsOpen = false;
-    this.teamDetails$ = undefined;
+    this.teamDetails$ = new Observable<null>();
     this.teamMembers = [];
   }
 
@@ -326,19 +325,28 @@ export class DashboardPageComponent {
       },
       error: (error: any) => {
         this.teamDetailsLoading = false;
-        if (error.status === 404) this.teamError = 'User not found';
-        else if (error.status === 400) this.teamError = error?.error?.detail;
+        if (error.status === 404) {
+          this.teamError = 'User not found';
+        }
+        else if (error.status === 400) {
+          this.teamError = error?.error?.detail;
+        }
         else this.teamError = 'Failed to add member';
       }
     });
   }
 
-  removeTeamMember(member: any) {
-    if (!this.selectedTeamId) return;
-    const memberId = member?.id || member?._id || member?.userId;
-    if (!memberId) return;
+  removeTeamMember(member: UserShortDto) {
+    if (!this.selectedTeamId) {
+      return;
+    }
+
+    if (!member.id) {
+      return;
+    }
+
     this.teamDetailsLoading = true;
-    this.teams.removeMember(this.selectedTeamId, String(memberId)).subscribe({
+    this.teams.removeMember(this.selectedTeamId, member.id).subscribe({
       next: () => this.fetchTeamDetails(),
       error: () => { this.teamDetailsLoading = false; }
     });
@@ -362,7 +370,7 @@ export class DashboardPageComponent {
     if (!name) { this.createTeamModalState.createTeamError = 'Team name is required'; return; }
     this.createTeamModalState.createTeamSubmitting = true;
     this.createTeamModalState.createTeamError = '';
-    const payload: any = { name, description: this.createTeamModalState.newTeamDescription };
+    const payload: CreateTeamRequest = { name, description: this.createTeamModalState.newTeamDescription, category: this.createTeamModalState.newTeamCategory };
     if (this.createTeamModalState.newTeamCategory !== null) {
       payload.category = Number(this.createTeamModalState.newTeamCategory);
     }
@@ -380,26 +388,27 @@ export class DashboardPageComponent {
   }
 
   private fetchTeamDetails() {
-    if (!this.selectedTeamId) return;
+    if (!this.selectedTeamId) {
+      return;
+    }
     this.teamError = null;
-    this.teamDetails$ = this.teams.getById(this.selectedTeamId).pipe(map((res:any)=>res||null));
+    this.teamDetails$ = this.teams.getById(this.selectedTeamId);
     this.teamDetails$.subscribe({
       next: (team) => {
-        const list = Array.isArray(team?.members) ? team.members : [];
-        const normalized = list
-          .map((m: any) => {
-            const u = m?.user || {};
+        if (!team) {
+          return;
+        }
+
+        const list = team.members;
+        this.teamMembers = list
+          .map((m: UserShortDto) => {
             return {
-              ...m,
-              id: m?.id || m?._id || m?.userId || u?.id || u?._id,
-              firstName: m?.firstName ?? u?.firstName ?? '',
-              lastName: m?.lastName ?? u?.lastName ?? '',
-              login: m?.login ?? m?.username ?? u?.login ?? u?.username ?? '',
-              role: m?.role ?? u?.role ?? 'member'
+              id: m?.id,
+              firstName: m?.firstName ?? '',
+              lastName: m?.lastName ?? ''
             };
           })
-          .filter((m: any) => m && (m.firstName || m.lastName || m.login));
-        this.teamMembers = normalized;
+          .filter((m: UserShortDto) => m && (m.firstName || m.lastName));
       },
       complete: () => (this.teamDetailsLoading = false),
       error: () => { this.teamDetailsLoading = false; }
