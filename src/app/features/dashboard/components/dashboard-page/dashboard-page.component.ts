@@ -153,8 +153,7 @@ export class DashboardPageComponent {
   }
 
   private refreshTeams() {
-    const teamsSource$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
-    this.teams$ = teamsSource$.pipe(map((res: any) => this.normalizeList(res)));
+    this.teams$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
   }
 
   private normalizeList(res: any) {

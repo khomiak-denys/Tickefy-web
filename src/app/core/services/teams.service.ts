@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import { CreateTeamRequest } from '../api/dtos';
+import {CreateTeamRequest, TeamDetails, TeamSummary} from '../api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class TeamsService {
@@ -12,11 +12,11 @@ export class TeamsService {
   }
 
   getAll() {
-    return this.http.get(`${API_BASE_URL}/api/v1/teams`);
+    return this.http.get<TeamSummary[]>(`${API_BASE_URL}/api/v1/teams`);
   }
 
   getById(teamId: string) {
-    return this.http.get(`${API_BASE_URL}/api/v1/teams/${teamId}`);
+    return this.http.get<TeamDetails>(`${API_BASE_URL}/api/v1/teams/${teamId}`);
   }
 
   delete(teamId: string) {
@@ -37,6 +37,6 @@ export class TeamsService {
   }
 
   getMy() {
-    return this.http.get(`${API_BASE_URL}/api/v1/teams/my`);
+    return this.http.get<TeamSummary[]>(`${API_BASE_URL}/api/v1/teams/my`);
   }
 }
