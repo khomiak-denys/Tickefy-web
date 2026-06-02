@@ -62,7 +62,7 @@
       {
         <li class="comment-item">
           <div class="comment-head">
-            <div class="avatar small">{{ ((c.user?.firstName || '') + (c.user?.lastName ? ' ' + c.user.lastName : '') || 'U').slice(0,1) }}</div>
+            <div class="avatar small">{{ ((c.user?.firstName || '') + (c.user?.lastName ? ' ' + c.user?.lastName : '') || 'U').slice(0,1) }}</div>
             <div class="who-time">
               <div class="who">{{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}</div>
               <div class="time"><lucide-icon name="clock" size="14"></lucide-icon> {{ c.created | date:'MM/dd/yyyy, hh:mm:ss a' }}</div>
