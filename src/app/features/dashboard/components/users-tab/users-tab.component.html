@@ -16,15 +16,15 @@
                 {
                     <div class="user-row">
                         <div class="user-cell">
-                            <div class="avatar small">{{ ((u.firstName || u.lastName || u.login || u.username || 'U') + '').slice(0,1) }}</div>
+                            <div class="avatar small">{{ ((u.firstName || u.lastName || u.login || 'U') + '').slice(0,1) }}</div>
                             <div class="user-name">{{ (u.firstName || '') + ' ' + (u.lastName || '') }}</div>
                         </div>
-                        <div class="login-cell">{{ '@' + (u.login || u.username || '') }}</div>
+                        <div class="login-cell">{{ '@' + (u.login || '') }}</div>
                                             <div class="role-cell">
                                     <span class="pill role" [ngClass]="roleClass(u.role)">{{ (u.role || 'user') | lowercase }}</span>
                                             </div>
                         <div class="team-cell">{{ u.team?.name || '-' }}</div>
-                        <div class="joined-cell">{{ (u.joined || u.created || u.createdAt) | date:'dd/MM/yyyy' }}</div>
+                        <div class="joined-cell">{{ (u.created | date:'dd/MM/yyyy')}}</div>
                         <div class="actions-cell">
                             <button class="icon" (click)="viewUser(u.id)" title="View details"><lucide-icon name="eye" size="16"></lucide-icon></button>
                             <button class="icon danger" (click)="deleteUser(u.id)" title="Delete user"><lucide-icon name="trash-2" size="16"></lucide-icon></button>

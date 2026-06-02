@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AsyncPipe, DatePipe, NgClass} from "@angular/common";
 import {LucideAngularModule} from "lucide-angular";
 import {Observable} from 'rxjs';
+import {ActivityLogDto} from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-logs-tab',
@@ -15,7 +16,7 @@ import {Observable} from 'rxjs';
   styleUrl: './logs-tab.component.scss'
 })
 export class LogsTabComponent {
-  @Input() logs$?: Observable<any[] | null>;
+  @Input() logs$: Observable<ActivityLogDto[] | null> = new Observable<ActivityLogDto[]>;
   @Input() hasPrevPage = false
   @Input() hasNextPage = true
 

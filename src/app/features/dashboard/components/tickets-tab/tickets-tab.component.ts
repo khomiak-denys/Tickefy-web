@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AsyncPipe, DatePipe, LowerCasePipe, NgClass} from "@angular/common";
 import {LucideAngularModule} from "lucide-angular";
 import {Observable} from 'rxjs';
-import {TicketDetailsDto} from '../../../../core/api/dtos';
+import {TicketDetailsDto, TicketSummaryDto} from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-tickets-tab',
@@ -18,7 +18,7 @@ import {TicketDetailsDto} from '../../../../core/api/dtos';
 })
 
 export class TicketsTabComponent {
-  @Input() filteredTickets$?: Observable<TicketDetailsDto[] | null>;
+  @Input() filteredTickets$: Observable<TicketSummaryDto[] | null> = new Observable<TicketSummaryDto[] | null>();
   @Output() selectedTicketId = new EventEmitter<string>();
 
   onTicketClick(id : string) {

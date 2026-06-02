@@ -17,11 +17,11 @@ export class TicketsService {
   }
 
   getMy() {
-    return this.http.get(`${API_BASE_URL}/api/v1/tickets/my`);
+    return this.http.get<TicketSummaryDto[]>(`${API_BASE_URL}/api/v1/tickets/my`);
   }
 
   getQueue() {
-    return this.http.get(`${API_BASE_URL}/api/v1/tickets/queue`);
+    return this.http.get<TicketSummaryDto[]>(`${API_BASE_URL}/api/v1/tickets/queue`);
   }
 
   getById(ticketId: string) : Observable<TicketDetailsDto | null> {

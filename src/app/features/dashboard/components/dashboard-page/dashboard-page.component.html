@@ -227,10 +227,10 @@
 								@for (m of teamMembers; track m.id)
 								{
 									<div class="person-card muted">
-										<div class="person-avatar light">{{ ((m?.firstName || m?.lastName || m?.login || 'U') + '').slice(0,1) }}</div>
+										<div class="person-avatar light">{{ ((m?.firstName || m?.lastName) + '').slice(0,1) }}</div>
 										<div class="person-meta">
 											<div class="person-name">{{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}</div>
-											<div class="person-role">{{ m?.role || 'member' }}</div>
+
 										</div>
 										<button class="icon danger" type="button" aria-label="Remove member" (click)="removeTeamMember(m)" [disabled]="teamDetailsLoading"><lucide-icon name="user-minus" size="16"></lucide-icon></button>
 									</div>
