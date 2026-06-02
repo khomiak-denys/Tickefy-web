@@ -1,8 +1,8 @@
-import {userShortDto} from './user.dto';
+import { UserShortDto } from './user.dto';
 
 export interface TicketCommentDto {
   id: string;
-  user: userShortDto | null;
+  user: UserShortDto | null;
   content?: string | null;
   created: string; // ISO date
 }
@@ -11,14 +11,14 @@ export interface TicketSummaryDto {
   id: string;
   title?: string | null;
   description?: string | null;
-  requester?: userShortDto | null;
+  requester?: UserShortDto | null;
   assignedTeam?: {
     id: string;
     name?: string | null;
     category?: string | null;
-    manager?: userShortDto | null;
+    manager?: UserShortDto | null;
   };
-  assignedAgent?: userShortDto | null;
+  assignedAgent?: UserShortDto | null;
   category?: string | null;
   priority?: string | null;
   status?: string | null;
