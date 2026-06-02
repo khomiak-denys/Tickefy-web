@@ -183,17 +183,17 @@ export class DashboardPageComponent {
     );
 
     if (this.isAgent) {
-      this.queueTickets$ = this.tickets.getQueue().pipe(map((res: any) => this.normalizeList(res)));
-      this.myTickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
+      this.queueTickets$ = this.tickets.getQueue();
+      this.myTickets$ = this.tickets.getMy();
       this.filteredQueueTickets$ = makeFiltered(this.queueTickets$);
       this.filteredMyTickets$ = makeFiltered(this.myTickets$);
     } else {
-      this.tickets$ = this.tickets.getMy().pipe(map((res: any) => this.normalizeList(res)));
+      this.tickets$ = this.tickets.getMy();
       this.filteredTickets$ = makeFiltered(this.tickets$);
     }
 
     this.allTickets$ = this.canViewTab('all')
-      ? this.tickets.getAll().pipe(map((res: any) => this.normalizeList(res)))
+      ? this.tickets.getAll()
       : of([]);
     this.users$ = this.usersSource$.asObservable();
     if (this.canViewTab('users')) {
