@@ -5,6 +5,7 @@ import {LoginUserRequest, RegisterUserRequest, UserDto} from '../api/dtos';
 import {decodeJwtPayload, validateJwtClaims} from '../../shared/helpers/jwt.util';
 import {JwtPayload} from '../../shared/helpers/dto/jwt.payload';
 import {JWT_AUDIENCE, JWT_ISSUER} from '../guards/jwt.config';
+import {AuthDto} from '../api/dtos/auth.dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
   }
 
   login(body: LoginUserRequest) {
-    return this.http.post(`${API_BASE_URL}/api/v1/auth/login`, body);
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
   }
 
   getCurrentUser() : JwtPayload | null {
@@ -37,7 +38,6 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_firstName');
     localStorage.removeItem('user_lastName');
-    localStorage.removeItem('user_role');
   }
 
   getRole() : string | null {
@@ -67,7 +67,7 @@ export class AuthService {
     return localStorage.getItem('user_lastName');
   }
 
-  saveUserProfile(firstName: string | null, lastName: string | null, role: string | null): void {
+  saveUserProfile(firstName: string | null, lastName: string | null): void {
     if (firstName) {
       localStorage.setItem('user_firstName', firstName);
     }
@@ -75,13 +75,16 @@ export class AuthService {
     if (lastName) {
       localStorage.setItem('user_lastName', lastName);
     }
-
-    if (role) {
-      localStorage.setItem('user_role', role);
-    }
   }
 
   saveUserFromProfile(user: UserDto) : void {
-    this.saveUserProfile(user.firstName, user.lastName, user.role.toLowerCase());
+    this.saveUserProfile(user.firstName, user.lastName);
+  }
+
+  saveToken(token : string) : void {
+    localStorage.removeItem('user_firstName');
+    localStorage.removeItem('user_lastName');
+    localStorage.setItem('access_token', token);
+    this.currentUser = null;
   }
 }
