@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {AsyncPipe, DatePipe} from '@angular/common';
 import { UsersService } from '../../../../core/services/users.service';
-import { map } from 'rxjs/operators';
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
+import {Observable, combineLatest, BehaviorSubject, Subject} from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserDto } from '../../../../core/api/dtos';
@@ -15,7 +15,9 @@ import { UserDto } from '../../../../core/api/dtos';
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss'
 })
-export class ProfilePageComponent {
+export class ProfilePageComponent implements OnDestroy {
+  private destroy$: Subject<void> = new Subject<void>();
+
   me$!: Observable<UserDto>;
   private userSubject = new BehaviorSubject<UserDto | null>(null);
   user$ = this.userSubject.asObservable();
@@ -40,7 +42,9 @@ export class ProfilePageComponent {
     this.me$ = this.users.me();
     this.loadUser();
 
-    combineLatest([this.me$, this.user$]).subscribe(([me, user]) => {
+    combineLatest([this.me$, this.user$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([me, user]) => {
       const meId = me.id;
       const userId = user?.id;
       const meRole = String(me?.role || '').toLowerCase();
@@ -50,6 +54,11 @@ export class ProfilePageComponent {
       this.firstName = user?.firstName || '';
       this.lastName = user?.lastName || '';
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   startEdit() {
