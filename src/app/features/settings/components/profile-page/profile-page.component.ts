@@ -1,22 +1,25 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, OnDestroy} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AsyncPipe, NgIf } from '@angular/common';
+import {AsyncPipe, DatePipe} from '@angular/common';
 import { UsersService } from '../../../../core/services/users.service';
-import { map } from 'rxjs/operators';
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
+import {Observable, combineLatest, BehaviorSubject, Subject} from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+import { UserDto } from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, AsyncPipe, NgIf],
+  imports: [FormsModule, AsyncPipe, DatePipe],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss'
 })
-export class ProfilePageComponent {
-  me$!: Observable<any>;
-  private userSubject = new BehaviorSubject<any>(null);
+export class ProfilePageComponent implements OnDestroy {
+  private destroy$: Subject<void> = new Subject<void>();
+
+  me$!: Observable<UserDto>;
+  private userSubject = new BehaviorSubject<UserDto | null>(null);
   user$ = this.userSubject.asObservable();
   isOwner = false;
   isAdmin = false;
@@ -27,16 +30,23 @@ export class ProfilePageComponent {
   userRoleOptions = ['Admin','Manager','Agent','Requester'];
   targetUserId: string | null = null;
 
-  constructor(private users: UsersService, private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private users: UsersService,
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     this.targetUserId = this.route.snapshot.paramMap.get('id');
     this.me$ = this.users.me();
     this.loadUser();
 
-    combineLatest([this.me$, this.user$]).subscribe(([me, user]) => {
-      const meId = me?.id || me?._id;
-      const userId = user?.id || user?._id;
+    combineLatest([this.me$, this.user$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([me, user]) => {
+      const meId = me.id;
+      const userId = user?.id;
       const meRole = String(me?.role || '').toLowerCase();
       this.isOwner = !!meId && !!userId && meId === userId;
       this.isAdmin = meRole === 'admin';
@@ -46,21 +56,32 @@ export class ProfilePageComponent {
     });
   }
 
-  startEdit() { if (this.canEdit) this.editing = true; }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  startEdit() {
+    if (this.canEdit) {
+      this.editing = true;
+    }
+  }
+
   cancelEdit() { this.editing = false; }
   save() {
-    if (!this.isOwner) return;
+    if (!this.isOwner) {
+      return;
+    }
+
     const body = { firstName: this.firstName, lastName: this.lastName };
     this.users.updateProfile(body).subscribe({
       next: () => {
-        if (this.firstName) { localStorage.setItem('user_firstName', this.firstName); }
-        if (this.lastName) { localStorage.setItem('user_lastName', this.lastName); }
-        // refresh user streams so the view reflects latest data
+        this.authService.saveUserProfile(this.firstName, this.lastName);
         this.me$ = this.users.me();
         this.loadUser();
         this.editing = false;
       },
-      error: () => { /* handle error */ }
+      error: () => {}
     });
   }
 
@@ -69,19 +90,28 @@ export class ProfilePageComponent {
   }
 
   changeRole(role: string) {
-    if (!role) return;
+    if (!role) {
+      return;
+    }
+
     const user = this.userSubject.value;
-    const id = this.targetUserId || user?.id || user?._id;
-    if (!id || !this.canEdit || !this.editing) return;
-    if (this.isOwner && this.isAdmin) return; // admin cannot change own role
+    const id = this.targetUserId || user?.id;
+
+    if (!id || !this.canEdit || !this.editing) {
+      return;
+    }
+
+    if (this.isOwner && this.isAdmin){
+      return;
+    }
+
     const current = String(user?.role || '').toLowerCase();
     if (current === role.toLowerCase()) return;
     this.users.setRole(String(id), { role }).subscribe({
       next: () => {
-        if (this.isOwner) localStorage.setItem('user_role', role.toLowerCase());
         this.loadUser();
       },
-      error: () => { /* handle error */ }
+      error: () => {}
     });
   }
 

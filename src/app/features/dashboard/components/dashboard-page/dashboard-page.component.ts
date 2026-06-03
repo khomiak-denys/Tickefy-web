@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
-import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
 import {
   ActivityLogDto,
   Category, CreateTeamRequest, CreateTicketRequest,
@@ -26,6 +25,7 @@ import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
 import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
 import { UsersTabComponent} from '../users-tab/users-tab.component';
 import { LogsTabComponent} from '../logs-tab/logs-tab.component';
+import {AuthService} from '../../../../core/services/auth.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -116,44 +116,36 @@ export class DashboardPageComponent {
     private tickets: TicketsService,
     private users: UsersService,
     private teams: TeamsService,
+    private authService : AuthService,
     private logs: ActivityLogService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    const token = localStorage.getItem('access_token') || '';
-    const payload = token ? decodeJwtPayload(token) : null;
-    const roleFromToken = payload?.role?.toLowerCase();
+    const payload = this.authService.getCurrentUser();
+    const roleFromToken = this.authService.getRole();
     this.currentUserId = payload?.nameid ?? null;
-    this.setRole(roleFromToken || (localStorage.getItem('user_role') || '').toLowerCase() || null);
+    this.setRole(roleFromToken || null);
+
     if (this.isAgent) {
       this.activeTab = 'queue';
     }
-    this.firstName = localStorage.getItem('user_firstName');
-    this.lastName = localStorage.getItem('user_lastName');
+    this.firstName = this.authService.getUserFirstName();
+    this.lastName = this.authService.getUserLastName();
 
     if (!this.firstName || !this.lastName) {
       this.users.me().subscribe({
         next: (u: UserDto) => {
-          this.firstName = u?.firstName || this.firstName;
-          this.lastName = u?.lastName || this.lastName;
           if (u.id) {
             this.currentUserId = u.id;
           }
 
-          if (this.firstName) {
-            localStorage.setItem('user_firstName', this.firstName);
-          }
+          this.authService.saveUserFromProfile(u);
 
-          if (this.lastName) {
-            localStorage.setItem('user_lastName', this.lastName);
-          }
+          this.firstName = this.authService.getUserFirstName();
+          this.lastName = this.authService.getUserLastName();
 
-          const role = (u?.role || '').toLowerCase();
-          if (role) {
-            this.setRole(role);
-            localStorage.setItem('user_role', role);
-          }
+          this.setRole(this.authService.getRole());
         },
         error: () => {}
       });
@@ -238,10 +230,7 @@ export class DashboardPageComponent {
   }
 
   logout() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
-    localStorage.removeItem('user_firstName');
-    localStorage.removeItem('user_lastName');
+    this.authService.clearCurrentUser();
     this.router.navigate(['/auth/login']);
   }
 
@@ -453,7 +442,11 @@ export class DashboardPageComponent {
   }
 
   private setRole(role: string | null) {
-    this.role = role ? role.toLowerCase() : null;
+    if (!role) {
+      return;
+    }
+
+    this.role = role;
     this.updateRoleFlags();
     this.allowedTabsList = this.computeAllowedTabs();
     this.ensureActiveTabValid();

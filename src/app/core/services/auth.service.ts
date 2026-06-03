@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import { LoginUserRequest, RegisterUserRequest, SetPasswordRequest } from '../api/dtos';
+import {LoginUserRequest, RegisterUserRequest, UserDto} from '../api/dtos';
+import {decodeJwtPayload, validateJwtClaims} from '../../shared/helpers/jwt.util';
+import {JwtPayload} from '../../shared/helpers/dto/jwt.payload';
+import {JWT_AUDIENCE, JWT_ISSUER} from '../guards/jwt.config';
+import {AuthDto} from '../api/dtos/auth.dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+
+  private currentUser: JwtPayload | null = null;
   constructor(private http: HttpClient) {}
 
   register(body: RegisterUserRequest) {
@@ -12,10 +18,73 @@ export class AuthService {
   }
 
   login(body: LoginUserRequest) {
-    return this.http.post(`${API_BASE_URL}/api/v1/auth/login`, body);
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
   }
 
-  setPassword(body: SetPasswordRequest) {
-    return this.http.patch(`${API_BASE_URL}/api/v1/auth/password`, body);
+  getCurrentUser() : JwtPayload | null {
+    if (this.currentUser) {
+      return this.currentUser;
+    }
+
+    const token = localStorage.getItem('access_token') || '';
+    const payload = token ? decodeJwtPayload(token) : null;
+    this.currentUser = payload;
+
+    return payload;
+  }
+
+  clearCurrentUser(){
+    this.currentUser = null;
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_firstName');
+    localStorage.removeItem('user_lastName');
+  }
+
+  getRole() : string | null {
+    const payload = this.getCurrentUser();
+    if (!payload) {
+      return null;
+    }
+
+    return payload.role.toLowerCase();
+  }
+
+  isLoggedIn(): boolean {
+    const payload = this.getCurrentUser();
+    if (!payload) {
+      return false;
+    }
+
+    const result = validateJwtClaims(payload, {iss: JWT_ISSUER, aud: JWT_AUDIENCE});
+    return result.valid;
+  }
+
+  getUserFirstName(): string | null {
+    return localStorage.getItem('user_firstName');
+  }
+
+  getUserLastName(): string | null {
+    return localStorage.getItem('user_lastName');
+  }
+
+  saveUserProfile(firstName: string | null, lastName: string | null): void {
+    if (firstName) {
+      localStorage.setItem('user_firstName', firstName);
+    }
+
+    if (lastName) {
+      localStorage.setItem('user_lastName', lastName);
+    }
+  }
+
+  saveUserFromProfile(user: UserDto) : void {
+    this.saveUserProfile(user.firstName, user.lastName);
+  }
+
+  saveToken(token : string) : void {
+    localStorage.removeItem('user_firstName');
+    localStorage.removeItem('user_lastName');
+    localStorage.setItem('access_token', token);
+    this.currentUser = null;
   }
 }
