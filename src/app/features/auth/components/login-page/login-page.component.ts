@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
+import {AuthDto} from '../../../../core/api/dtos/auth.dto';
 
 @Component({
   selector: 'app-login-page',
@@ -20,7 +21,11 @@ export class LoginPageComponent {
 
   form!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       login: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -38,13 +43,13 @@ export class LoginPageComponent {
     this.error = null;
     const { login, password } = this.form.value as { login: string; password: string };
     this.auth.login({ login, password }).subscribe({
-      next: (res: any) => {
-        const token = res?.token || res?.accessToken || res;
-        if (token) {
-          localStorage.setItem('access_token', token);
-          const payload = decodeJwtPayload(token);
-          const roleFromToken = payload?.role;
-          if (roleFromToken) localStorage.setItem('user_role', roleFromToken);
+      next: (res: AuthDto) => {
+        if (!res) {
+          return;
+        }
+        if (res.token) {
+
+          this.auth.saveToken(res.token);
           this.router.navigate(['/dashboard']);
         } else {
           this.error = 'No token in response';
@@ -52,7 +57,6 @@ export class LoginPageComponent {
         this.loading = false;
       },
       error: (e) => {
-        // Handle ProblemDetails-like responses and various HTTP errors
         const body = e?.error;
         const status = e?.status;
         const title = body?.title || body?.error || undefined;
@@ -73,7 +77,6 @@ export class LoginPageComponent {
           if (parts.length) fieldErrors = parts.join('\n');
         }
 
-        // Compose a user-friendly message
         const base = title || (status ? `HTTP ${status}` : 'Request failed');
         const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
         this.error = msg || 'Login failed';
