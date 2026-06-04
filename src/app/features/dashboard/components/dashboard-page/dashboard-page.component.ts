@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { UsersService } from '../../../../core/services/users.service';
 import { TeamsService } from '../../../../core/services/teams.service';
@@ -12,11 +10,9 @@ import { switchMap } from 'rxjs/operators';
 import {
   ActivityLogDto,
   CreateTeamRequest, CreateTicketRequest,
-  TeamDetails,
   TeamSummary,
   TicketSummaryDto,
-  UserDto,
-  UserShortDto
+  UserDto
 } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
@@ -28,13 +24,14 @@ import { LogsTabComponent} from '../logs-tab/logs-tab.component';
 import {AuthService} from '../../../../core/services/auth.service';
 import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
 import {CreateTeamModalComponent} from '../create-team-modal/create-team-modal.component';
+import {TeamDetailsModalComponent} from '../team-details-modal/team-details-modal.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent, CreateTeamModalComponent],
+  imports: [IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent, CreateTeamModalComponent, TeamDetailsModalComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -71,13 +68,8 @@ export class DashboardPageComponent {
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
 
-  teamDetails$: Observable<TeamDetails | null> = new Observable<TeamDetails>();
   teamDetailsOpen = false;
-  teamDetailsLoading = false;
   selectedTeamId: string | null = null;
-  newTeamMemberLogin = '';
-  teamError: string | null = null;
-  teamMembers: UserShortDto[] = [];
 
   isCreateTicketModalOpen = false;
   isCreateTeamModalOpen = false;
@@ -263,55 +255,10 @@ export class DashboardPageComponent {
     }
     this.selectedTeamId = String(id);
     this.teamDetailsOpen = true;
-    this.teamDetailsLoading = true;
-    this.fetchTeamDetails();
   }
 
   closeTeamDetails() {
     this.teamDetailsOpen = false;
-    this.teamDetails$ = new Observable<null>();
-    this.teamMembers = [];
-  }
-
-  addTeamMember() {
-    const login = (this.newTeamMemberLogin || '').trim();
-    if (!this.selectedTeamId || !login) return;
-
-    this.teamDetailsLoading = true;
-
-    this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
-      next: () => {
-        this.newTeamMemberLogin = '';
-        this.fetchTeamDetails();
-        this.teamDetailsLoading = false;
-      },
-      error: (error: any) => {
-        this.teamDetailsLoading = false;
-        if (error.status === 404) {
-          this.teamError = 'User not found';
-        }
-        else if (error.status === 400) {
-          this.teamError = error?.error?.detail;
-        }
-        else this.teamError = 'Failed to add member';
-      }
-    });
-  }
-
-  removeTeamMember(member: UserShortDto) {
-    if (!this.selectedTeamId) {
-      return;
-    }
-
-    if (!member.id) {
-      return;
-    }
-
-    this.teamDetailsLoading = true;
-    this.teams.removeMember(this.selectedTeamId, member.id).subscribe({
-      next: () => this.fetchTeamDetails(),
-      error: () => { this.teamDetailsLoading = false; }
-    });
   }
 
   openCreateTeamModal() {
@@ -331,34 +278,6 @@ export class DashboardPageComponent {
       error: (e) => {
         this.error = e?.error?.detail || 'Failed to create team';
       }
-    });
-  }
-
-  private fetchTeamDetails() {
-    if (!this.selectedTeamId) {
-      return;
-    }
-    this.teamError = null;
-    this.teamDetails$ = this.teams.getById(this.selectedTeamId);
-    this.teamDetails$.subscribe({
-      next: (team) => {
-        if (!team) {
-          return;
-        }
-
-        const list = team.members;
-        this.teamMembers = list
-          .map((m: UserShortDto) => {
-            return {
-              id: m?.id,
-              firstName: m?.firstName ?? '',
-              lastName: m?.lastName ?? ''
-            };
-          })
-          .filter((m: UserShortDto) => m && (m.firstName || m.lastName));
-      },
-      complete: () => (this.teamDetailsLoading = false),
-      error: () => { this.teamDetailsLoading = false; }
     });
   }
 

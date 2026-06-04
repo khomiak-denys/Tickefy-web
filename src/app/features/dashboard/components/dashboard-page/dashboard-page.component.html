@@ -138,81 +138,7 @@
 		}
 	</main>
 
-		@if (teamDetailsOpen)
-		{
-			<div class="modal-backdrop" (click)="closeTeamDetails()"></div>
-			<div class="modal">
-				<header class="modal-head">
-					<h3>Team Details</h3>
-					<button class="close" (click)="closeTeamDetails()">×</button>
-				</header>
-				@if (teamDetails$ | async; as td)
-				{
-					<section class="modal-body team-modal">
-						<div class="team-header">
-							<h2>{{ td?.name || 'Team' }}</h2>
-							<p class="team-desc">{{ td?.description || 'Team description not provided' }}</p>
-							<div class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ td?.category || 'uncategorized' }}</div>
-						</div>
 
-						<div class="team-section">
-							<div class="section-title">Team Leader</div>
-							<div class="person-card">
-								<div class="person-avatar">{{ ((td?.manager?.firstName || td?.manager?.lastName || 'U') + '').slice(0,1) }}</div>
-								<div class="person-meta">
-									<div class="person-name">{{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}</div>
-									<div class="person-role">Team Leader</div>
-								</div>
-							</div>
-						</div>
-
-						<div class="team-section members">
-							<div class="members-head">
-								<div class="section-title">Members ({{ teamMembers?.length || 0 }})</div>
-								<div class="add-member">
-									<input type="text" placeholder="Member login" [(ngModel)]="newTeamMemberLogin" [disabled]="teamDetailsLoading" />
-									<button class="ghost" type="button" (click)="addTeamMember()" [disabled]="teamDetailsLoading || !newTeamMemberLogin?.trim()">
-										<lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
-									</button>
-								</div>
-							</div>
-
-							@if (teamError)
-							{
-								<div class="team-error">{{ teamError }}</div>
-							}
-
-							@if (teamMembers.length)
-							{
-								<div class="members-list">
-								@for (m of teamMembers; track m.id)
-								{
-									<div class="person-card muted">
-										<div class="person-avatar light">{{ ((m?.firstName || m?.lastName) + '').slice(0,1) }}</div>
-										<div class="person-meta">
-											<div class="person-name">{{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}</div>
-
-										</div>
-										<button class="icon danger" type="button" aria-label="Remove member" (click)="removeTeamMember(m)" [disabled]="teamDetailsLoading"><lucide-icon name="user-minus" size="16"></lucide-icon></button>
-									</div>
-								}
-								</div>
-							} @else
-							{
-								<div class="empty-panel">
-									<div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-									<div class="empty-title">No members yet</div>
-									<p class="empty-text">Add members by login to populate this team.</p>
-								</div>
-							}
-						</div>
-					</section>
-				} @else
-				{
-					<div class="modal-loading">Loading team details…</div>
-				}
-			</div>
-		}
 </section>
 
 <app-ticket-details-modal
@@ -233,4 +159,10 @@
   (closed)="closeCreateTeamModal()"
   (submitted)="createTeam($event)"
 ></app-create-team-modal>
+
+<app-team-details-modal
+  [open]="teamDetailsOpen"
+  [teamId]="selectedTeamId"
+  (closed)="closeTeamDetails()"
+></app-team-details-modal>
 
