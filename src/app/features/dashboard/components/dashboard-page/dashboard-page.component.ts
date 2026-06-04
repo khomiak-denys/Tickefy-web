@@ -11,7 +11,7 @@ import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import {
   ActivityLogDto,
-  Category, CreateTeamRequest, CreateTicketRequest,
+  CreateTeamRequest, CreateTicketRequest,
   TeamDetails,
   TeamSummary,
   TicketSummaryDto,
@@ -118,7 +118,6 @@ export class DashboardPageComponent {
           }
 
           this.authService.saveUserFromProfile(u);
-
           this.firstName = this.authService.getUserFirstName();
           this.lastName = this.authService.getUserLastName();
 
@@ -323,7 +322,7 @@ export class DashboardPageComponent {
     this.isCreateTeamModalOpen = false;
   }
 
-  CreateTeam(req: CreateTeamRequest) {
+  createTeam(req: CreateTeamRequest) {
     this.teams.create(req).subscribe({
       next: () => {
         this.isCreateTeamModalOpen = false;
