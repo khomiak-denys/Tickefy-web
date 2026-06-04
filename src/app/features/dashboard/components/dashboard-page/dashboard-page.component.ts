@@ -251,7 +251,11 @@ export class DashboardPageComponent {
   }
 
   submitCreate() {
-    if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline) { this.error = 'Title and deadline are required'; return; }
+    if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline)
+    {
+      this.error = 'Title and deadline are required';
+      return;
+    }
     this.createTicketModalState.createSubmitting = true;
     const isoDeadline = (() => { try { return new Date(this.createTicketModalState.newDeadline).toISOString(); } catch { return this.createTicketModalState.newDeadline; } })();
     const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as CreateTicketRequest;
