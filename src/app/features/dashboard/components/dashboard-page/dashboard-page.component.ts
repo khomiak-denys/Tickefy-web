@@ -27,13 +27,14 @@ import { UsersTabComponent} from '../users-tab/users-tab.component';
 import { LogsTabComponent} from '../logs-tab/logs-tab.component';
 import {AuthService} from '../../../../core/services/auth.service';
 import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
+import {CreateTeamModalComponent} from '../create-team-modal/create-team-modal.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent],
+  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent, CreateTeamModalComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -79,26 +80,7 @@ export class DashboardPageComponent {
   teamMembers: UserShortDto[] = [];
 
   isCreateTicketModalOpen = false;
-
-  createTeamModalState = {
-    createTeamOpen: false,
-    createTeamSubmitting: false,
-    createTeamError: "",
-    newTeamName: '',
-    newTeamDescription: '',
-    newTeamCategory: 0
-  };
-
-  categoryOptions = [
-    { value: Category.Finance, label: 'Finance' },
-    { value: Category.IT, label: 'IT' },
-    { value: Category.Design, label: 'Design' },
-    { value: Category.Marketing, label: 'Marketing' },
-    { value: Category.HumanResources, label: 'Human Resources' },
-    { value: Category.Legal, label: 'Legal' },
-    { value: Category.AccessAndSecurity, label: 'Access & Security' },
-    { value: Category.Other, label: 'Other' },
-  ];
+  isCreateTeamModalOpen = false;
 
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
@@ -333,37 +315,22 @@ export class DashboardPageComponent {
     });
   }
 
-  openCreateTeam() {
-    this.createTeamModalState.createTeamOpen = true;
-    this.createTeamModalState.createTeamSubmitting = false;
-    this.createTeamModalState.createTeamError = '';
-    this.createTeamModalState.newTeamName = '';
-    this.createTeamModalState.newTeamDescription = '';
-    this.createTeamModalState.newTeamCategory = -1;
+  openCreateTeamModal() {
+    this.isCreateTeamModalOpen = true;
   }
 
-  closeCreateTeam() {
-    this.createTeamModalState.createTeamOpen = false;
+  closeCreateTeamModal() {
+    this.isCreateTeamModalOpen = false;
   }
 
-  submitCreateTeam() {
-    const name = (this.createTeamModalState.newTeamName || '').trim();
-    if (!name) { this.createTeamModalState.createTeamError = 'Team name is required'; return; }
-    this.createTeamModalState.createTeamSubmitting = true;
-    this.createTeamModalState.createTeamError = '';
-    const payload: CreateTeamRequest = { name, description: this.createTeamModalState.newTeamDescription, category: this.createTeamModalState.newTeamCategory };
-    if (this.createTeamModalState.newTeamCategory !== null) {
-      payload.category = Number(this.createTeamModalState.newTeamCategory);
-    }
-    this.teams.create(payload).subscribe({
+  CreateTeam(req: CreateTeamRequest) {
+    this.teams.create(req).subscribe({
       next: () => {
-        this.createTeamModalState.createTeamSubmitting = false;
-        this.createTeamModalState.createTeamOpen = false;
+        this.isCreateTeamModalOpen = false;
         this.refreshTeams();
       },
       error: (e) => {
-        this.createTeamModalState.createTeamSubmitting = false;
-        this.createTeamModalState.createTeamError = e?.error?.detail || 'Failed to create team';
+        this.error = e?.error?.detail || 'Failed to create team';
       }
     });
   }

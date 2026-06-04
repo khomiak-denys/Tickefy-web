@@ -82,7 +82,7 @@
 			}
 			@if (activeTab==='teams' && (isAdmin || isRequester))
 			{
-				<button class="create" (click)="openCreateTeam()">Create Team</button>
+				<button class="create" (click)="openCreateTeamModal()">Create Team</button>
 			}
 		</header>
 
@@ -115,45 +115,6 @@
 				[teams$]="teams$"
 				(selectedTeamId)="openTeam($event)"
 			></app-teams-tab>
-		}
-
-		@if (createTeamModalState.createTeamOpen)
-		{
-			<div class="modal-backdrop" (click)="closeCreateTeam()"></div>
-			<div class="modal">
-				<header class="modal-head">
-					<h3>Create Team</h3>
-					<button class="close" (click)="closeCreateTeam()">×</button>
-				</header>
-				<section class="modal-body">
-					<label>
-						<span>Name</span>
-						<input type="text" [(ngModel)]="createTeamModalState.newTeamName" placeholder="Team name" />
-					</label>
-					<label>
-						<span>Description</span>
-						<textarea [(ngModel)]="createTeamModalState.newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
-					</label>
-					<label>
-						<span>Category</span>
-						<select [(ngModel)]="createTeamModalState.newTeamCategory">
-							<option [ngValue]="null">Select category</option>
-							@for (c of categoryOptions; track c.value)
-							{
-								<option [ngValue]="c.value">{{ c.label }}</option>
-							}
-						</select>
-					</label>
-				</section>
-				<footer class="modal-foot">
-					<button class="secondary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="closeCreateTeam()">Cancel</button>
-					<button class="primary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="submitCreateTeam()">{{ createTeamModalState.createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
-				</footer>
-				@if (createTeamModalState.createTeamError)
-				{
-					<div class="error">{{ createTeamModalState.createTeamError }}</div>
-				}
-			</div>
 		}
 
 		@if (activeTab==='users')
@@ -266,4 +227,10 @@
   (closed)="closeTicketCreate()"
   (submitted)="createTicket($event)"
 ></app-create-ticket-modal>
+
+<app-create-team-modal
+  [open]="isCreateTeamModalOpen"
+  (closed)="closeCreateTeamModal()"
+  (submitted)="CreateTeam($event)"
+></app-create-team-modal>
 
