@@ -31,29 +31,29 @@ export class TicketDetailsModalComponent implements OnChanges {
 
   constructor(
     private tickets: TicketsService
-  ) {}
+  ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-        if((changes['ticketId'] || changes['open']) && this.open && this.ticketId) {
-          this.loadDetails(this.ticketId);
-        }
+    if ((changes['ticketId'] || changes['open']) && this.open && this.ticketId) {
+      this.loadDetails(this.ticketId);
     }
+  }
 
-    loadDetails(ticketId: string): void {
-      this.ticketDetails$ = this.tickets.getById(ticketId).pipe(catchError(() => of(null)));
-    }
-
+  loadDetails(ticketId: string): void {
+    this.ticketDetails$ = this.tickets.getById(ticketId).pipe(catchError(() => of(null)));
+  }
 
   closeDetails() {
     this.closed.emit();
   }
+
   addComment(ticketId: string | undefined, text: string | undefined) {
     const content = (text || '').trim();
     if (!ticketId || !content) return;
     // Optimistically clear input for UX
     this.newCommentText = '';
     // Post comment then refresh details stream
-    this.tickets.postComment(String(ticketId), { content }).subscribe({
+    this.tickets.postComment(String(ticketId), {content}).subscribe({
       next: () => {
         this.newCommentText = '';
         this.loadDetails(ticketId);

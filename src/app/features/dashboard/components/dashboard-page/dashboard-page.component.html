@@ -82,7 +82,7 @@
 			}
 			@if (activeTab==='teams' && (isAdmin || isRequester))
 			{
-				<button class="create" (click)="openCreateTeam()">Create Team</button>
+				<button class="create" (click)="openCreateTeamModal()">Create Team</button>
 			}
 		</header>
 
@@ -117,45 +117,6 @@
 			></app-teams-tab>
 		}
 
-		@if (createTeamModalState.createTeamOpen)
-		{
-			<div class="modal-backdrop" (click)="closeCreateTeam()"></div>
-			<div class="modal">
-				<header class="modal-head">
-					<h3>Create Team</h3>
-					<button class="close" (click)="closeCreateTeam()">×</button>
-				</header>
-				<section class="modal-body">
-					<label>
-						<span>Name</span>
-						<input type="text" [(ngModel)]="createTeamModalState.newTeamName" placeholder="Team name" />
-					</label>
-					<label>
-						<span>Description</span>
-						<textarea [(ngModel)]="createTeamModalState.newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
-					</label>
-					<label>
-						<span>Category</span>
-						<select [(ngModel)]="createTeamModalState.newTeamCategory">
-							<option [ngValue]="null">Select category</option>
-							@for (c of categoryOptions; track c.value)
-							{
-								<option [ngValue]="c.value">{{ c.label }}</option>
-							}
-						</select>
-					</label>
-				</section>
-				<footer class="modal-foot">
-					<button class="secondary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="closeCreateTeam()">Cancel</button>
-					<button class="primary" [disabled]="createTeamModalState.createTeamSubmitting" (click)="submitCreateTeam()">{{ createTeamModalState.createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
-				</footer>
-				@if (createTeamModalState.createTeamError)
-				{
-					<div class="error">{{ createTeamModalState.createTeamError }}</div>
-				}
-			</div>
-		}
-
 		@if (activeTab==='users')
 		{
 			<app-users-tab
@@ -177,117 +138,8 @@
 		}
 	</main>
 
-		@if (teamDetailsOpen)
-		{
-			<div class="modal-backdrop" (click)="closeTeamDetails()"></div>
-			<div class="modal">
-				<header class="modal-head">
-					<h3>Team Details</h3>
-					<button class="close" (click)="closeTeamDetails()">×</button>
-				</header>
-				@if (teamDetails$ | async; as td)
-				{
-					<section class="modal-body team-modal">
-						<div class="team-header">
-							<h2>{{ td?.name || 'Team' }}</h2>
-							<p class="team-desc">{{ td?.description || 'Team description not provided' }}</p>
-							<div class="pill type"><lucide-icon name="users" size="14"></lucide-icon> {{ td?.category || 'uncategorized' }}</div>
-						</div>
 
-						<div class="team-section">
-							<div class="section-title">Team Leader</div>
-							<div class="person-card">
-								<div class="person-avatar">{{ ((td?.manager?.firstName || td?.manager?.lastName || 'U') + '').slice(0,1) }}</div>
-								<div class="person-meta">
-									<div class="person-name">{{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}</div>
-									<div class="person-role">Team Leader</div>
-								</div>
-							</div>
-						</div>
-
-						<div class="team-section members">
-							<div class="members-head">
-								<div class="section-title">Members ({{ teamMembers?.length || 0 }})</div>
-								<div class="add-member">
-									<input type="text" placeholder="Member login" [(ngModel)]="newTeamMemberLogin" [disabled]="teamDetailsLoading" />
-									<button class="ghost" type="button" (click)="addTeamMember()" [disabled]="teamDetailsLoading || !newTeamMemberLogin?.trim()">
-										<lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
-									</button>
-								</div>
-							</div>
-
-							@if (teamError)
-							{
-								<div class="team-error">{{ teamError }}</div>
-							}
-
-							@if (teamMembers.length)
-							{
-								<div class="members-list">
-								@for (m of teamMembers; track m.id)
-								{
-									<div class="person-card muted">
-										<div class="person-avatar light">{{ ((m?.firstName || m?.lastName) + '').slice(0,1) }}</div>
-										<div class="person-meta">
-											<div class="person-name">{{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}</div>
-
-										</div>
-										<button class="icon danger" type="button" aria-label="Remove member" (click)="removeTeamMember(m)" [disabled]="teamDetailsLoading"><lucide-icon name="user-minus" size="16"></lucide-icon></button>
-									</div>
-								}
-								</div>
-							} @else
-							{
-								<div class="empty-panel">
-									<div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-									<div class="empty-title">No members yet</div>
-									<p class="empty-text">Add members by login to populate this team.</p>
-								</div>
-							}
-						</div>
-					</section>
-				} @else
-				{
-					<div class="modal-loading">Loading team details…</div>
-				}
-			</div>
-		}
 </section>
-
-@if (createTicketModalState.open)
-{
-		<div class="modal-backdrop" (click)="closeCreate()"></div>
-		<div class="modal">
-			<header class="modal-head">
-				<h3>Create New Ticket</h3>
-				<button class="close" (click)="closeCreate()" aria-label="Close">
-					<lucide-icon name="x" size="18"></lucide-icon>
-				</button>
-			</header>
-			<section class="modal-body">
-				<label>
-					<span>Title</span>
-					<input type="text" [(ngModel)]="createTicketModalState.newTitle" placeholder="Brief description of your request" />
-				</label>
-				<label>
-					<span>Description</span>
-					<textarea [(ngModel)]="createTicketModalState.newDescription" rows="6" placeholder="Detailed description of what you need..."></textarea>
-				</label>
-				<label>
-					<span>Deadline</span>
-					<input type="date" [(ngModel)]="createTicketModalState.newDeadline" placeholder="mm/dd/yyyy" />
-				</label>
-			</section>
-			<footer class="modal-foot">
-				<button class="secondary" [disabled]="createTicketModalState.createSubmitting" (click)="closeCreate()">Cancel</button>
-				<button class="primary" [disabled]="createTicketModalState.createSubmitting" (click)="submitCreate()">{{ createTicketModalState.createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
-			</footer>
-			@if (error)
-			{
-				<div class="error">{{ error }}</div>
-			}
-		</div>
-}
 
 <app-ticket-details-modal
   [open]="isTicketModalOpen"
@@ -295,4 +147,22 @@
   (closed)="closeTicketModal()"
   (updated)="refreshTickets()"
 ></app-ticket-details-modal>
+
+<app-create-ticket-modal
+  [open]="isCreateTicketModalOpen"
+  (closed)="closeTicketCreate()"
+  (submitted)="createTicket($event)"
+></app-create-ticket-modal>
+
+<app-create-team-modal
+  [open]="isCreateTeamModalOpen"
+  (closed)="closeCreateTeamModal()"
+  (submitted)="createTeam($event)"
+></app-create-team-modal>
+
+<app-team-details-modal
+  [open]="teamDetailsOpen"
+  [teamId]="selectedTeamId"
+  (closed)="closeTeamDetails()"
+></app-team-details-modal>
 

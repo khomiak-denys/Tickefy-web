@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { UsersService } from '../../../../core/services/users.service';
 import { TeamsService } from '../../../../core/services/teams.service';
@@ -11,12 +9,10 @@ import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import {
   ActivityLogDto,
-  Category, CreateTeamRequest, CreateTicketRequest,
-  TeamDetails,
+  CreateTeamRequest, CreateTicketRequest,
   TeamSummary,
   TicketSummaryDto,
-  UserDto,
-  UserShortDto
+  UserDto
 } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
@@ -26,13 +22,16 @@ import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
 import { UsersTabComponent} from '../users-tab/users-tab.component';
 import { LogsTabComponent} from '../logs-tab/logs-tab.component';
 import {AuthService} from '../../../../core/services/auth.service';
+import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
+import {CreateTeamModalComponent} from '../create-team-modal/create-team-modal.component';
+import {TeamDetailsModalComponent} from '../team-details-modal/team-details-modal.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent],
+  imports: [IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent, CreateTeamModalComponent, TeamDetailsModalComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -69,41 +68,11 @@ export class DashboardPageComponent {
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
 
-  teamDetails$: Observable<TeamDetails | null> = new Observable<TeamDetails>();
   teamDetailsOpen = false;
-  teamDetailsLoading = false;
   selectedTeamId: string | null = null;
-  newTeamMemberLogin = '';
-  teamError: string | null = null;
-  teamMembers: UserShortDto[] = [];
 
-  createTeamModalState = {
-    createTeamOpen: false,
-    createTeamSubmitting: false,
-    createTeamError: "",
-    newTeamName: '',
-    newTeamDescription: '',
-    newTeamCategory: 0
-  };
-
-  createTicketModalState = {
-    open: false,
-    createSubmitting: false,
-    newTitle: '',
-    newDescription: '',
-    newDeadline: ''
-  }
-
-  categoryOptions = [
-    { value: Category.Finance, label: 'Finance' },
-    { value: Category.IT, label: 'IT' },
-    { value: Category.Design, label: 'Design' },
-    { value: Category.Marketing, label: 'Marketing' },
-    { value: Category.HumanResources, label: 'Human Resources' },
-    { value: Category.Legal, label: 'Legal' },
-    { value: Category.AccessAndSecurity, label: 'Access & Security' },
-    { value: Category.Other, label: 'Other' },
-  ];
+  isCreateTicketModalOpen = false;
+  isCreateTeamModalOpen = false;
 
   statusFilter$ = new BehaviorSubject<string>('all');
   priorityFilter$ = new BehaviorSubject<string>('all');
@@ -141,7 +110,6 @@ export class DashboardPageComponent {
           }
 
           this.authService.saveUserFromProfile(u);
-
           this.firstName = this.authService.getUserFirstName();
           this.lastName = this.authService.getUserLastName();
 
@@ -239,29 +207,22 @@ export class DashboardPageComponent {
   }
 
   openCreate() {
-    this.createTicketModalState.open = true;
-    this.createTicketModalState.createSubmitting = false;
-    this.createTicketModalState.newTitle = '';
-    this.createTicketModalState.newDescription = '';
-    this.createTicketModalState.newDeadline = '';
+    this.isCreateTicketModalOpen = true;
   }
 
-  closeCreate() {
-    this.createTicketModalState.open = false;
+  closeTicketCreate() {
+    this.isCreateTicketModalOpen = false;
   }
 
-  submitCreate() {
-    if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline)
-    {
-      this.error = 'Title and deadline are required';
-      return;
-    }
-    this.createTicketModalState.createSubmitting = true;
-    const isoDeadline = (() => { try { return new Date(this.createTicketModalState.newDeadline).toISOString(); } catch { return this.createTicketModalState.newDeadline; } })();
-    const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as CreateTicketRequest;
-    this.tickets.create(body).subscribe({
-      next: () => { this.createTicketModalState.createSubmitting = false; this.createTicketModalState.open = false; this.refreshTickets(); },
-      error: (e) => { this.createTicketModalState.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
+  createTicket(req: CreateTicketRequest) {
+    this.tickets.create(req).subscribe({
+      next: () => {
+        this.isCreateTicketModalOpen = false;
+        this.refreshTickets();
+      },
+      error: (e) => {
+        this.error = e?.message || 'Failed to create ticket';
+      }
     });
   }
 
@@ -294,117 +255,29 @@ export class DashboardPageComponent {
     }
     this.selectedTeamId = String(id);
     this.teamDetailsOpen = true;
-    this.teamDetailsLoading = true;
-    this.fetchTeamDetails();
   }
 
   closeTeamDetails() {
     this.teamDetailsOpen = false;
-    this.teamDetails$ = new Observable<null>();
-    this.teamMembers = [];
   }
 
-  addTeamMember() {
-    const login = (this.newTeamMemberLogin || '').trim();
-    if (!this.selectedTeamId || !login) return;
+  openCreateTeamModal() {
+    this.isCreateTeamModalOpen = true;
+  }
 
-    this.teamDetailsLoading = true;
+  closeCreateTeamModal() {
+    this.isCreateTeamModalOpen = false;
+  }
 
-    this.teams.addMemberByLogin(this.selectedTeamId!, login).subscribe({
+  createTeam(req: CreateTeamRequest) {
+    this.teams.create(req).subscribe({
       next: () => {
-        this.newTeamMemberLogin = '';
-        this.fetchTeamDetails();
-        this.teamDetailsLoading = false;
-      },
-      error: (error: any) => {
-        this.teamDetailsLoading = false;
-        if (error.status === 404) {
-          this.teamError = 'User not found';
-        }
-        else if (error.status === 400) {
-          this.teamError = error?.error?.detail;
-        }
-        else this.teamError = 'Failed to add member';
-      }
-    });
-  }
-
-  removeTeamMember(member: UserShortDto) {
-    if (!this.selectedTeamId) {
-      return;
-    }
-
-    if (!member.id) {
-      return;
-    }
-
-    this.teamDetailsLoading = true;
-    this.teams.removeMember(this.selectedTeamId, member.id).subscribe({
-      next: () => this.fetchTeamDetails(),
-      error: () => { this.teamDetailsLoading = false; }
-    });
-  }
-
-  openCreateTeam() {
-    this.createTeamModalState.createTeamOpen = true;
-    this.createTeamModalState.createTeamSubmitting = false;
-    this.createTeamModalState.createTeamError = '';
-    this.createTeamModalState.newTeamName = '';
-    this.createTeamModalState.newTeamDescription = '';
-    this.createTeamModalState.newTeamCategory = -1;
-  }
-
-  closeCreateTeam() {
-    this.createTeamModalState.createTeamOpen = false;
-  }
-
-  submitCreateTeam() {
-    const name = (this.createTeamModalState.newTeamName || '').trim();
-    if (!name) { this.createTeamModalState.createTeamError = 'Team name is required'; return; }
-    this.createTeamModalState.createTeamSubmitting = true;
-    this.createTeamModalState.createTeamError = '';
-    const payload: CreateTeamRequest = { name, description: this.createTeamModalState.newTeamDescription, category: this.createTeamModalState.newTeamCategory };
-    if (this.createTeamModalState.newTeamCategory !== null) {
-      payload.category = Number(this.createTeamModalState.newTeamCategory);
-    }
-    this.teams.create(payload).subscribe({
-      next: () => {
-        this.createTeamModalState.createTeamSubmitting = false;
-        this.createTeamModalState.createTeamOpen = false;
+        this.isCreateTeamModalOpen = false;
         this.refreshTeams();
       },
       error: (e) => {
-        this.createTeamModalState.createTeamSubmitting = false;
-        this.createTeamModalState.createTeamError = e?.error?.detail || 'Failed to create team';
+        this.error = e?.error?.detail || 'Failed to create team';
       }
-    });
-  }
-
-  private fetchTeamDetails() {
-    if (!this.selectedTeamId) {
-      return;
-    }
-    this.teamError = null;
-    this.teamDetails$ = this.teams.getById(this.selectedTeamId);
-    this.teamDetails$.subscribe({
-      next: (team) => {
-        if (!team) {
-          return;
-        }
-
-        const list = team.members;
-        this.teamMembers = list
-          .map((m: UserShortDto) => {
-            return {
-              id: m?.id,
-              firstName: m?.firstName ?? '',
-              lastName: m?.lastName ?? ''
-            };
-          })
-          .filter((m: UserShortDto) => m && (m.firstName || m.lastName));
-      },
-      complete: () => (this.teamDetailsLoading = false),
-      error: () => { this.teamDetailsLoading = false; }
     });
   }
 
