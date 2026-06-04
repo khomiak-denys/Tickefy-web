@@ -26,13 +26,14 @@ import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
 import { UsersTabComponent} from '../users-tab/users-tab.component';
 import { LogsTabComponent} from '../logs-tab/logs-tab.component';
 import {AuthService} from '../../../../core/services/auth.service';
+import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent],
+  imports: [FormsModule, AsyncPipe, IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
@@ -77,6 +78,8 @@ export class DashboardPageComponent {
   teamError: string | null = null;
   teamMembers: UserShortDto[] = [];
 
+  isCreateTicketModalOpen = false;
+
   createTeamModalState = {
     createTeamOpen: false,
     createTeamSubmitting: false,
@@ -85,14 +88,6 @@ export class DashboardPageComponent {
     newTeamDescription: '',
     newTeamCategory: 0
   };
-
-  createTicketModalState = {
-    open: false,
-    createSubmitting: false,
-    newTitle: '',
-    newDescription: '',
-    newDeadline: ''
-  }
 
   categoryOptions = [
     { value: Category.Finance, label: 'Finance' },
@@ -239,29 +234,22 @@ export class DashboardPageComponent {
   }
 
   openCreate() {
-    this.createTicketModalState.open = true;
-    this.createTicketModalState.createSubmitting = false;
-    this.createTicketModalState.newTitle = '';
-    this.createTicketModalState.newDescription = '';
-    this.createTicketModalState.newDeadline = '';
+    this.isCreateTicketModalOpen = true;
   }
 
-  closeCreate() {
-    this.createTicketModalState.open = false;
+  closeTicketCreate() {
+    this.isCreateTicketModalOpen = false;
   }
 
-  submitCreate() {
-    if (!this.createTicketModalState.newTitle || !this.createTicketModalState.newDeadline)
-    {
-      this.error = 'Title and deadline are required';
-      return;
-    }
-    this.createTicketModalState.createSubmitting = true;
-    const isoDeadline = (() => { try { return new Date(this.createTicketModalState.newDeadline).toISOString(); } catch { return this.createTicketModalState.newDeadline; } })();
-    const body = { title: this.createTicketModalState.newTitle, description: this.createTicketModalState.newDescription, deadline: isoDeadline } as CreateTicketRequest;
-    this.tickets.create(body).subscribe({
-      next: () => { this.createTicketModalState.createSubmitting = false; this.createTicketModalState.open = false; this.refreshTickets(); },
-      error: (e) => { this.createTicketModalState.createSubmitting = false; this.error = e?.message || 'Failed to create ticket'; }
+  createTicket(req: CreateTicketRequest) {
+    this.tickets.create(req).subscribe({
+      next: () => {
+        this.isCreateTicketModalOpen = false;
+        this.refreshTickets();
+      },
+      error: (e) => {
+        this.error = e?.message || 'Failed to create ticket';
+      }
     });
   }
 
