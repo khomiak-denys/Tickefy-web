@@ -27,7 +27,7 @@
 			}
 		</nav>
 		<div class="profile">
-			<div class="avatar">J</div>
+			<div class="avatar">{{ firstName?.charAt(0) }}</div>
 			<div class="who">
 				<div class="name" (click)="navigateToProfile()" style="cursor:pointer">{{ (firstName || 'User') + ' ' + (lastName || '') }}</div>
 				<div class="role">{{ role || 'user' }}</div>

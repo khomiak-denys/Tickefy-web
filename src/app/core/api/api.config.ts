@@ -1,1 +1,3 @@
-export const API_BASE_URL = import.meta.env.NG_APP_API_BASE_URL ?? 'http://localhost:5000';
+import { appEnv } from '../config/env.config';
+
+export const API_BASE_URL = appEnv.NG_APP_API_BASE_URL;
