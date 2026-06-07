@@ -12,6 +12,7 @@ import {
   CreateTeamRequest,
   CreateTicketRequest,
   TeamSummary,
+  TicketSummaryDto,
   UserDto,
 } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
@@ -47,6 +48,10 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
   styleUrl: './dashboard-page.component.scss',
 })
 export class DashboardPageComponent implements OnInit {
+  filteredAllTickets$ = new Observable<TicketSummaryDto[]>();
+  filteredMyTickets$ = new Observable<TicketSummaryDto[]>();
+  filteredQueueTickets$ = new Observable<TicketSummaryDto[]>();
+
   usersSource$ = new BehaviorSubject<UserDto[]>([]);
   users$!: Observable<UserDto[]>;
   filteredUsers$!: Observable<UserDto[]>;
@@ -82,14 +87,17 @@ export class DashboardPageComponent implements OnInit {
   userTeamFilter$ = new BehaviorSubject<string>('all');
 
   constructor(
-    private ticketsRepository: TicketsService,
     private users: UsersService,
     private teams: TeamsService,
     private authService: AuthService,
     private logs: ActivityLogService,
     private router: Router,
     public ticketService: DashboardTicketService
-  ) {}
+  ) {
+    this.filteredAllTickets$ = this.ticketService.filteredAllTickets$;
+    this.filteredMyTickets$ = this.ticketService.filteredMyTickets$;
+    this.filteredQueueTickets$ = this.ticketService.filteredQueueTickets$;
+  }
 
   ngOnInit() {
     const payload = this.authService.getCurrentUser();
@@ -195,13 +203,13 @@ export class DashboardPageComponent implements OnInit {
   }
 
   createTicket(req: CreateTicketRequest) {
-    this.ticketsRepository.create(req).subscribe({
+    this.ticketService.createTicket(req).subscribe({
       next: () => {
         this.isCreateTicketModalOpen = false;
         this.refreshTickets();
       },
-      error: (e) => {
-        this.error = e?.message || 'Failed to create ticket';
+      error: (error) => {
+        this.error = error;
       },
     });
   }

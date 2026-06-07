@@ -95,21 +95,21 @@
 
     @if (activeTab === 'queue') {
       <app-tickets-tab
-        [filteredTickets$]="this.ticketService.filteredQueueTickets$"
+        [filteredTickets$]="filteredQueueTickets$"
         (selectedTicketId)="openTicket($event)"
       ></app-tickets-tab>
     }
 
     @if (activeTab === 'my') {
       <app-tickets-tab
-        [filteredTickets$]="this.ticketService.filteredMyTickets$"
+        [filteredTickets$]="filteredMyTickets$"
         (selectedTicketId)="openTicket($event)"
       ></app-tickets-tab>
     }
 
     @if (activeTab === 'all') {
       <app-tickets-tab
-        [filteredTickets$]="this.ticketService.filteredAllTickets$"
+        [filteredTickets$]="filteredAllTickets$"
         (selectedTicketId)="openTicket($event)"
       ></app-tickets-tab>
     }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { TicketSummaryDto } from '../../../core/api/dtos';
+import { CreateTicketRequest, TicketSummaryDto } from '../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { TicketsService } from '../../../core/services/tickets.service';
 
@@ -85,15 +85,19 @@ export class DashboardTicketService {
     }
   }
 
-  filterByStatus(status: string) {
+  createTicket(req: CreateTicketRequest) {
+    return this.tickets.create(req);
+  }
+
+  filterByStatus(status: string): void {
     this.statusFilter$.next(status);
   }
 
-  filterByPriority(priority: string) {
+  filterByPriority(priority: string): void {
     this.priorityFilter$.next(priority);
   }
 
-  filterByType(priority: string) {
+  filterByType(priority: string): void {
     this.typeFilter$.next(priority);
   }
 }
