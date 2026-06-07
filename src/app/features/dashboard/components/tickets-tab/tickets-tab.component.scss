@@ -23,3 +23,43 @@
 .pill.deadline { background:#f0f9ff; color:#0ea5e9; border-color:#cffafe; }
 
 .desc { color: #4b5563; margin: 8px 0 12px; }
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #eceff5;
+  border-radius: 12px;
+  background: #fff;
+  color: #6b7280;
+}
+
+.empty-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 16px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.empty-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eef2ff;
+  color: #3f46ff;
+}
+
+.empty-title { font-weight: 700; color: #0f172a; }
+.empty-text { margin: 0; color: #6b7280; }
