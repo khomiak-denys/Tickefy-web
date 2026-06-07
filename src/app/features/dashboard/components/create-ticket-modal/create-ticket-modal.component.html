@@ -1,5 +1,4 @@
-@if (open)
-{
+@if (open) {
   <div class="modal-backdrop" (click)="close()"></div>
   <div class="modal">
     <header class="modal-head">
@@ -15,7 +14,11 @@
       </label>
       <label>
         <span>Description</span>
-        <textarea [(ngModel)]="newDescription" rows="6" placeholder="Detailed description of what you need..."></textarea>
+        <textarea
+          [(ngModel)]="newDescription"
+          rows="6"
+          placeholder="Detailed description of what you need..."
+        ></textarea>
       </label>
       <label>
         <span>Deadline</span>
@@ -24,10 +27,11 @@
     </section>
     <footer class="modal-foot">
       <button class="secondary" [disabled]="createSubmitting" (click)="close()">Cancel</button>
-      <button class="primary" [disabled]="createSubmitting" (click)="submit()">{{ createSubmitting ? 'Creating…' : 'Create Ticket' }}</button>
+      <button class="primary" [disabled]="createSubmitting" (click)="submit()">
+        {{ createSubmitting ? 'Creating…' : 'Create Ticket' }}
+      </button>
     </footer>
-    @if (error)
-    {
+    @if (error) {
       <div class="error">{{ error }}</div>
     }
   </div>

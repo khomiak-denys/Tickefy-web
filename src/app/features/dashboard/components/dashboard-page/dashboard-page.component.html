@@ -1,133 +1,131 @@
 <section class="layout">
-	<aside class="sidebar">
-		<div class="brand">Tickefy</div>
-		<nav>
-			@if (isAgent && canViewTab('queue')) {
-				<a [class.active]="activeTab==='queue'" (click)="setTab('queue')"><lucide-icon name="list" size="18"></lucide-icon> Queue</a>
-			}
+  <aside class="sidebar">
+    <div class="brand">Tickefy</div>
+    <nav>
+      @if (isAgent && canViewTab('queue')) {
+        <a [class.active]="activeTab === 'queue'" (click)="setTab('queue')"
+          ><lucide-icon name="list" size="18"></lucide-icon> Queue</a
+        >
+      }
 
-			@if (canViewTab('my')) {
-				<a [class.active]="activeTab==='my'" (click)="setTab('my')"><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a>
-			}
+      @if (canViewTab('my')) {
+        <a [class.active]="activeTab === 'my'" (click)="setTab('my')"
+          ><lucide-icon name="ticket" size="18"></lucide-icon> My Tickets</a
+        >
+      }
 
-			@if (canViewTab('all')) {
-				<a [class.active]="activeTab==='all'" (click)="setTab('all')"><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a>
-			}
+      @if (canViewTab('all')) {
+        <a [class.active]="activeTab === 'all'" (click)="setTab('all')"
+          ><lucide-icon name="layout-dashboard" size="18"></lucide-icon> All Tickets</a
+        >
+      }
 
-			@if (canViewTab('teams')) {
-				<a [class.active]="activeTab==='teams'" (click)="setTab('teams')"><lucide-icon name="users" size="18"></lucide-icon> Teams</a>
-			}
+      @if (canViewTab('teams')) {
+        <a [class.active]="activeTab === 'teams'" (click)="setTab('teams')"
+          ><lucide-icon name="users" size="18"></lucide-icon> Teams</a
+        >
+      }
 
-			@if (canViewTab('users')) {
-				<a [class.active]="activeTab==='users'" (click)="setTab('users')"><lucide-icon name="shield" size="18"></lucide-icon> Users</a>
-			}
+      @if (canViewTab('users')) {
+        <a [class.active]="activeTab === 'users'" (click)="setTab('users')"
+          ><lucide-icon name="shield" size="18"></lucide-icon> Users</a
+        >
+      }
 
-			@if (canViewTab('logs')) {
-				<a [class.active]="activeTab==='logs'" (click)="setTab('logs')"><lucide-icon name="activity" size="18"></lucide-icon> Activity Logs</a>
-			}
-		</nav>
-		<div class="profile">
-			<div class="avatar">{{ firstName?.charAt(0) }}</div>
-			<div class="who">
-				<div class="name" (click)="navigateToProfile()" style="cursor:pointer">{{ (firstName || 'User') + ' ' + (lastName || '') }}</div>
-				<div class="role">{{ role || 'user' }}</div>
-			</div>
-			<button class="logout" (click)="logout()">Log Out</button>
-			@if (error) {
-				<div class="error">{{ error }}</div>
-			}
-		</div>
-	</aside>
-	<main class="content">
-		<header class="top">
-			<div>
-				@switch (activeTab)
-				{
-					@case ('queue')
-					{
-						<h1>Queue</h1>
-						<p>Tickets waiting to be taken</p>
-					}
-					@case ('my')
-					{
-						<h1>My Tickets</h1>
-						<p>{{ isAgent ? 'Tickets assigned to you' : 'View and manage your submitted requests' }}</p>
-					}
-					@case ('all')
-					{
-						<h1>All Tickets</h1>
-						<p>Browse all tickets in the system</p>
-					}
-					@case ('teams')
-					{
-						<h1>Teams</h1>
-						<p>Explore teams and their details</p>
-					}
-					@case ('users')
-					{
-						<h1>Users</h1>
-						<p>Manage and view users</p>
-					}
-					@case ('logs')
-					{
-						<h1>Activity Logs</h1>
-						<p>Recent activity logs</p>
-					}
-				}
-			</div>
-
-			@if (activeTab==='my')
-			{
-				<button class="create" (click)="openCreate()">Create New Ticket</button>
-			}
-			@if (activeTab==='teams' && (isAdmin || isRequester))
-			{
-				<button class="create" (click)="openCreateTeamModal()">Create Team</button>
-			}
-		</header>
-
-        @if (activeTab==='queue')
-        {
-          <app-tickets-tab
-            [filteredTickets$]="this.ticketService.filteredQueueTickets$"
-            (selectedTicketId)="openTicket($event)"
-          ></app-tickets-tab>
+      @if (canViewTab('logs')) {
+        <a [class.active]="activeTab === 'logs'" (click)="setTab('logs')"
+          ><lucide-icon name="activity" size="18"></lucide-icon> Activity Logs</a
+        >
+      }
+    </nav>
+    <div class="profile">
+      <div class="avatar">{{ firstName?.charAt(0) }}</div>
+      <div class="who">
+        <div class="name" (click)="navigateToProfile()" style="cursor: pointer">
+          {{ (firstName || 'User') + ' ' + (lastName || '') }}
+        </div>
+        <div class="role">{{ role || 'user' }}</div>
+      </div>
+      <button class="logout" (click)="logout()">Log Out</button>
+      @if (error) {
+        <div class="error">{{ error }}</div>
+      }
+    </div>
+  </aside>
+  <main class="content">
+    <header class="top">
+      <div>
+        @switch (activeTab) {
+          @case ('queue') {
+            <h1>Queue</h1>
+            <p>Tickets waiting to be taken</p>
+          }
+          @case ('my') {
+            <h1>My Tickets</h1>
+            <p>
+              {{ isAgent ? 'Tickets assigned to you' : 'View and manage your submitted requests' }}
+            </p>
+          }
+          @case ('all') {
+            <h1>All Tickets</h1>
+            <p>Browse all tickets in the system</p>
+          }
+          @case ('teams') {
+            <h1>Teams</h1>
+            <p>Explore teams and their details</p>
+          }
+          @case ('users') {
+            <h1>Users</h1>
+            <p>Manage and view users</p>
+          }
+          @case ('logs') {
+            <h1>Activity Logs</h1>
+            <p>Recent activity logs</p>
+          }
         }
+      </div>
 
-        @if (activeTab==='my')
-        {
-          <app-tickets-tab
-            [filteredTickets$]="this.ticketService.filteredMyTickets$"
-            (selectedTicketId)="openTicket($event)"
-          ></app-tickets-tab>
-        }
+      @if (activeTab === 'my') {
+        <button class="create" (click)="openCreate()">Create New Ticket</button>
+      }
+      @if (activeTab === 'teams' && (isAdmin || isRequester)) {
+        <button class="create" (click)="openCreateTeamModal()">Create Team</button>
+      }
+    </header>
 
-        @if (activeTab==='all')
-        {
-          <app-tickets-tab
-            [filteredTickets$]="this.ticketService.filteredAllTickets$"
-            (selectedTicketId)="openTicket($event)"
-          ></app-tickets-tab>
-        }
-		@if (activeTab==='teams')
-		{
-			<app-teams-tab
-				[teams$]="teams$"
-				(selectedTeamId)="openTeam($event)"
-			></app-teams-tab>
-		}
+    @if (activeTab === 'queue') {
+      <app-tickets-tab
+        [filteredTickets$]="this.ticketService.filteredQueueTickets$"
+        (selectedTicketId)="openTicket($event)"
+      ></app-tickets-tab>
+    }
 
-		@if (activeTab==='users')
-		{
-			<app-users-tab
-				[filteredUsers$]="filteredUsers$"
-				(selectedUserId)="viewUser($event)"
-				(deletedUserId)="deleteUser($event)"
-			></app-users-tab>
-		}
+    @if (activeTab === 'my') {
+      <app-tickets-tab
+        [filteredTickets$]="this.ticketService.filteredMyTickets$"
+        (selectedTicketId)="openTicket($event)"
+      ></app-tickets-tab>
+    }
 
-		@if (activeTab==='logs')
-		{
+    @if (activeTab === 'all') {
+      <app-tickets-tab
+        [filteredTickets$]="this.ticketService.filteredAllTickets$"
+        (selectedTicketId)="openTicket($event)"
+      ></app-tickets-tab>
+    }
+    @if (activeTab === 'teams') {
+      <app-teams-tab [teams$]="teams$" (selectedTeamId)="openTeam($event)"></app-teams-tab>
+    }
+
+    @if (activeTab === 'users') {
+      <app-users-tab
+        [filteredUsers$]="filteredUsers$"
+        (selectedUserId)="viewUser($event)"
+        (deletedUserId)="deleteUser($event)"
+      ></app-users-tab>
+    }
+
+    @if (activeTab === 'logs') {
       <app-logs-tab
         [logs$]="logs$"
         [hasPrevPage]="hasPrevLogsPage"
@@ -135,8 +133,8 @@
         (nextPage)="nextLogsPage()"
         (prevPage)="prevLogsPage()"
       ></app-logs-tab>
-		}
-	</main>
+    }
+  </main>
 </section>
 
 <app-ticket-details-modal

@@ -1,26 +1,20 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {TicketDetailsDto, TicketSummaryDto} from '../../../../core/api/dtos';
-import {catchError, Observable, of} from 'rxjs';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { TicketDetailsDto, TicketSummaryDto } from '../../../../core/api/dtos';
+import { catchError, Observable, of } from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
-import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {TicketsService} from '../../../../core/services/tickets.service';
+import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TicketsService } from '../../../../core/services/tickets.service';
 
 @Component({
   selector: 'app-ticket-details-modal',
   standalone: true,
-  imports: [
-    IconsModule,
-    NgClass,
-    DatePipe,
-    FormsModule,
-    AsyncPipe
-  ],
+  imports: [IconsModule, NgClass, DatePipe, FormsModule, AsyncPipe],
   templateUrl: './ticket-details-modal.component.html',
-  styleUrl: './ticket-details-modal.component.scss'
+  styleUrl: './ticket-details-modal.component.scss',
 })
 export class TicketDetailsModalComponent implements OnChanges {
-  ticketDetails$: Observable<TicketDetailsDto | null> = new Observable<TicketDetailsDto>;
+  ticketDetails$: Observable<TicketDetailsDto | null> = new Observable<TicketDetailsDto>();
   @Input() open = false;
   @Input() ticketId: string | null = null;
   @Output() closed = new EventEmitter<void>();
@@ -29,9 +23,7 @@ export class TicketDetailsModalComponent implements OnChanges {
   newCommentText = '';
   ticketActionError: string | null = null;
 
-  constructor(
-    private tickets: TicketsService
-  ) { }
+  constructor(private tickets: TicketsService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['ticketId'] || changes['open']) && this.open && this.ticketId) {
@@ -53,7 +45,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     // Optimistically clear input for UX
     this.newCommentText = '';
     // Post comment then refresh details stream
-    this.tickets.postComment(String(ticketId), {content}).subscribe({
+    this.tickets.postComment(String(ticketId), { content }).subscribe({
       next: () => {
         this.newCommentText = '';
         this.loadDetails(ticketId);
@@ -65,21 +57,21 @@ export class TicketDetailsModalComponent implements OnChanges {
       },
       complete: () => {
         this.newCommentText = '';
-      }
-    })
+      },
+    });
   }
 
   statusClass(status: any) {
     const s = String(status || 'open').toLowerCase();
     return {
       badge: true,
-      open: s.startsWith('open') || (!s || s === ''),
+      open: s.startsWith('open') || !s || s === '',
       progress: s.includes('progress'),
       completed: s.startsWith('comp') || s.includes('completed'),
       failed: s.includes('fail'),
       cancelled: s.startsWith('canc') || s.includes('cancel'),
       assigned: s.includes('assign'),
-      created: s.includes('created')
+      created: s.includes('created'),
     };
   }
 
@@ -92,8 +84,8 @@ export class TicketDetailsModalComponent implements OnChanges {
         this.loadDetails(ticketId);
         this.updated.emit();
       },
-      error: () => this.ticketActionError = 'Failed to take ticket',
-      complete: () => this.ticketActionLoading = false
+      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      complete: () => (this.ticketActionLoading = false),
     });
   }
 
@@ -106,9 +98,9 @@ export class TicketDetailsModalComponent implements OnChanges {
         this.updated.emit();
         this.loadDetails(ticketId);
       },
-      error: () => this.ticketActionError = 'Failed to take ticket',
-      complete: () => this.ticketActionLoading = false
-    })
+      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      complete: () => (this.ticketActionLoading = false),
+    });
   }
 
   cancelTicket(ticketId: string | undefined) {
@@ -120,9 +112,9 @@ export class TicketDetailsModalComponent implements OnChanges {
         this.updated.emit();
         this.loadDetails(ticketId);
       },
-      error: () => this.ticketActionError = 'Failed to take ticket',
-      complete: () => this.ticketActionLoading = false
-    })
+      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      complete: () => (this.ticketActionLoading = false),
+    });
   }
 
   takeTicket(ticketId: string | undefined) {
@@ -134,20 +126,20 @@ export class TicketDetailsModalComponent implements OnChanges {
         this.updated.emit();
         this.loadDetails(ticketId);
       },
-      error: () => this.ticketActionError = 'Failed to take ticket',
-      complete: () => this.ticketActionLoading = false
-    })
+      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      complete: () => (this.ticketActionLoading = false),
+    });
   }
 
   canTake(ticket: TicketDetailsDto) {
-    return ticket.availableActions?.some(a => a.key === "Take") ?? false;
+    return ticket.availableActions?.some((a) => a.key === 'Take') ?? false;
   }
 
   canComplete(ticket: TicketDetailsDto) {
-    return ticket.availableActions?.some(a => a.key === "Complete") ?? false;
+    return ticket.availableActions?.some((a) => a.key === 'Complete') ?? false;
   }
 
   canCancel(ticket: TicketDetailsDto) {
-    return ticket.availableActions?.some(a => a.key === "Cancel") ?? false;
+    return ticket.availableActions?.some((a) => a.key === 'Cancel') ?? false;
   }
 }

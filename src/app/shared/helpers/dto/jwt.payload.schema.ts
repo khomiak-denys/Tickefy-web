@@ -8,5 +8,5 @@ export const JwtPayloadSchema = z.object({
   exp: z.number(),
   iat: z.number(),
   iss: z.string(),
-  aud: z.string()
+  aud: z.string(),
 });

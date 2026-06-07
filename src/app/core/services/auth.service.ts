@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import {LoginUserRequest, RegisterUserRequest, UserDto} from '../api/dtos';
-import {decodeJwtPayload, validateJwtClaims} from '../../shared/helpers/jwt.util';
-import {JwtPayload} from '../../shared/helpers/dto/jwt.payload';
-import {JWT_AUDIENCE, JWT_ISSUER} from '../guards/jwt.config';
-import {AuthDto} from '../api/dtos/auth.dto';
+import { LoginUserRequest, RegisterUserRequest, UserDto } from '../api/dtos';
+import { decodeJwtPayload, validateJwtClaims } from '../../shared/helpers/jwt.util';
+import { JwtPayload } from '../../shared/helpers/dto/jwt.payload';
+import { JWT_AUDIENCE, JWT_ISSUER } from '../guards/jwt.config';
+import { AuthDto } from '../api/dtos/auth.dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-
   private currentUser: JwtPayload | null = null;
   constructor(private http: HttpClient) {}
 
@@ -21,7 +20,7 @@ export class AuthService {
     return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
   }
 
-  getCurrentUser() : JwtPayload | null {
+  getCurrentUser(): JwtPayload | null {
     if (this.currentUser) {
       return this.currentUser;
     }
@@ -33,14 +32,14 @@ export class AuthService {
     return payload;
   }
 
-  clearCurrentUser(){
+  clearCurrentUser() {
     this.currentUser = null;
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_firstName');
     localStorage.removeItem('user_lastName');
   }
 
-  getRole() : string | null {
+  getRole(): string | null {
     const payload = this.getCurrentUser();
     if (!payload) {
       return null;
@@ -55,7 +54,7 @@ export class AuthService {
       return false;
     }
 
-    const result = validateJwtClaims(payload, {iss: JWT_ISSUER, aud: JWT_AUDIENCE});
+    const result = validateJwtClaims(payload, { iss: JWT_ISSUER, aud: JWT_AUDIENCE });
     return result.valid;
   }
 
@@ -77,11 +76,11 @@ export class AuthService {
     }
   }
 
-  saveUserFromProfile(user: UserDto) : void {
+  saveUserFromProfile(user: UserDto): void {
     this.saveUserProfile(user.firstName, user.lastName);
   }
 
-  saveToken(token : string) : void {
+  saveToken(token: string): void {
     localStorage.removeItem('user_firstName');
     localStorage.removeItem('user_lastName');
     localStorage.setItem('access_token', token);

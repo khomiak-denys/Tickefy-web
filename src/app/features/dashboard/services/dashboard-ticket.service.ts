@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { TicketSummaryDto } from '../../../core/api/dtos';
 import { map } from 'rxjs/operators';
-import {TicketsService} from '../../../core/services/tickets.service';
+import { TicketsService } from '../../../core/services/tickets.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DashboardTicketService {
   private queueSource = new BehaviorSubject<TicketSummaryDto[]>([]);
@@ -24,29 +24,29 @@ export class DashboardTicketService {
   constructor(
     private auth: AuthService,
     private tickets: TicketsService
-  ) { }
+  ) {}
 
   private filterTickets(stream$: Observable<TicketSummaryDto[]>) {
     return combineLatest([
       stream$,
       this.statusFilter$,
       this.typeFilter$,
-      this.priorityFilter$])
-      .pipe(
-        map(([source, statusFilter, typeFilter, priorityFilter]) => {
-          const norm = (v: string | null) => String(v || '').toLowerCase();
-          return source.filter((ticket: TicketSummaryDto) => {
-            const statusOk = statusFilter === 'all' || norm(ticket.status).includes(statusFilter);
-            const typeOk = typeFilter === 'all' || norm(ticket.category) === typeFilter;
-            const priorityOk = priorityFilter === 'all' || norm(ticket.priority) === priorityFilter;
+      this.priorityFilter$,
+    ]).pipe(
+      map(([source, statusFilter, typeFilter, priorityFilter]) => {
+        const norm = (v: string | null) => String(v || '').toLowerCase();
+        return source.filter((ticket: TicketSummaryDto) => {
+          const statusOk = statusFilter === 'all' || norm(ticket.status).includes(statusFilter);
+          const typeOk = typeFilter === 'all' || norm(ticket.category) === typeFilter;
+          const priorityOk = priorityFilter === 'all' || norm(ticket.priority) === priorityFilter;
 
-            return statusOk && priorityOk && typeOk;
-          });
-        })
-      )
+          return statusOk && priorityOk && typeOk;
+        });
+      })
+    );
   }
 
-  loadTickets(){
+  loadTickets() {
     const role = this.auth.getRole();
 
     const isAgent = role === 'agent';
@@ -57,46 +57,43 @@ export class DashboardTicketService {
         next: (data) => {
           this.queueSource.next(data);
         },
-        error: err => { }
+        error: (err) => {},
       });
 
       this.tickets.getMy().subscribe({
         next: (data) => {
           this.mySource.next(data);
         },
-        error: err => { }
+        error: (err) => {},
       });
-
     } else {
-      if(isAdmin) {
+      if (isAdmin) {
         this.tickets.getAll().subscribe({
           next: (data) => {
             this.allSource.next(data);
           },
-          error: err => { }
+          error: (err) => {},
         });
-      }
-      else {
+      } else {
         this.tickets.getMy().subscribe({
           next: (data) => {
             this.mySource.next(data);
           },
-          error: err => { }
+          error: (err) => {},
         });
       }
     }
   }
 
-  filterByStatus(status: string){
+  filterByStatus(status: string) {
     this.statusFilter$.next(status);
   }
 
-  filterByPriority(priority: string){
+  filterByPriority(priority: string) {
     this.priorityFilter$.next(priority);
   }
 
-  filterByType(priority: string){
+  filterByType(priority: string) {
     this.typeFilter$.next(priority);
   }
 }
-

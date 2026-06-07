@@ -9,9 +9,10 @@ import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import {
   ActivityLogDto,
-  CreateTeamRequest, CreateTicketRequest,
+  CreateTeamRequest,
+  CreateTicketRequest,
   TeamSummary,
-  UserDto
+  UserDto,
 } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
@@ -31,11 +32,21 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [IconsModule, TicketDetailsModalComponent, TicketsTabComponent, TeamsTabComponent, UsersTabComponent, LogsTabComponent, CreateTicketModalComponent, CreateTeamModalComponent, TeamDetailsModalComponent],
+  imports: [
+    IconsModule,
+    TicketDetailsModalComponent,
+    TicketsTabComponent,
+    TeamsTabComponent,
+    UsersTabComponent,
+    LogsTabComponent,
+    CreateTicketModalComponent,
+    CreateTeamModalComponent,
+    TeamDetailsModalComponent,
+  ],
   templateUrl: './dashboard-page.component.html',
-  styleUrl: './dashboard-page.component.scss'
+  styleUrl: './dashboard-page.component.scss',
 })
-export class DashboardPageComponent implements  OnInit {
+export class DashboardPageComponent implements OnInit {
   usersSource$ = new BehaviorSubject<UserDto[]>([]);
   users$!: Observable<UserDto[]>;
   filteredUsers$!: Observable<UserDto[]>;
@@ -74,7 +85,7 @@ export class DashboardPageComponent implements  OnInit {
     private ticketsRepository: TicketsService,
     private users: UsersService,
     private teams: TeamsService,
-    private authService : AuthService,
+    private authService: AuthService,
     private logs: ActivityLogService,
     private router: Router,
     public ticketService: DashboardTicketService
@@ -106,7 +117,7 @@ export class DashboardPageComponent implements  OnInit {
 
           this.setRole(roleFromToken);
         },
-        error: () => {}
+        error: () => {},
       });
     }
 
@@ -117,7 +128,7 @@ export class DashboardPageComponent implements  OnInit {
     this.teams$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
   }
 
-   refreshUsers() {
+  refreshUsers() {
     this.users$ = this.usersSource$.asObservable();
     if (this.canViewTab('users')) {
       this.fetchUsers();
@@ -179,7 +190,7 @@ export class DashboardPageComponent implements  OnInit {
     this.isCreateTicketModalOpen = false;
   }
 
-  refreshTickets(){
+  refreshTickets() {
     this.ticketService.loadTickets();
   }
 
@@ -191,12 +202,12 @@ export class DashboardPageComponent implements  OnInit {
       },
       error: (e) => {
         this.error = e?.message || 'Failed to create ticket';
-      }
+      },
     });
   }
 
   openTicket(id: string) {
-    if (!id){
+    if (!id) {
       return;
     }
 
@@ -264,13 +275,12 @@ export class DashboardPageComponent implements  OnInit {
       },
       error: (e) => {
         this.error = e?.error?.detail || 'Failed to create team';
-      }
+      },
     });
   }
 
   viewUser(id: string) {
-    if (!id)
-    {
+    if (!id) {
       return;
     }
 
@@ -278,8 +288,7 @@ export class DashboardPageComponent implements  OnInit {
   }
 
   deleteUser(id: string) {
-    if (!id)
-    {
+    if (!id) {
       return;
     }
 
@@ -287,14 +296,12 @@ export class DashboardPageComponent implements  OnInit {
       next: () => {
         this.fetchUsers();
       },
-      error: () => {}
+      error: () => {},
     });
   }
 
   private fetchUsers() {
-    this.users
-      .getAll()
-      .subscribe((list: UserDto[]) => this.usersSource$.next(list));
+    this.users.getAll().subscribe((list: UserDto[]) => this.usersSource$.next(list));
   }
 
   private updateRoleFlags() {

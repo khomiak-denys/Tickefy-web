@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import {CreateTicketRequest, PostCommentRequest, TicketDetailsDto, TicketSummaryDto} from '../api/dtos';
-import {Observable} from 'rxjs';
+import {
+  CreateTicketRequest,
+  PostCommentRequest,
+  TicketDetailsDto,
+  TicketSummaryDto,
+} from '../api/dtos';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TicketsService {
@@ -24,7 +29,7 @@ export class TicketsService {
     return this.http.get<TicketSummaryDto[]>(`${API_BASE_URL}/api/v1/tickets/queue`);
   }
 
-  getById(ticketId: string) : Observable<TicketDetailsDto | null> {
+  getById(ticketId: string): Observable<TicketDetailsDto | null> {
     return this.http.get<TicketDetailsDto>(`${API_BASE_URL}/api/v1/tickets/${ticketId}`);
   }
 

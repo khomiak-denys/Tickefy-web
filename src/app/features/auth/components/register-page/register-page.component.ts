@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormGroup, ValidationErrors, AbstractControl } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+  FormGroup,
+  ValidationErrors,
+  AbstractControl,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -16,7 +23,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register-page.component.html',
-  styleUrl: './register-page.component.scss'
+  styleUrl: './register-page.component.scss',
 })
 export class RegisterPageComponent {
   loading = false;
@@ -24,14 +31,21 @@ export class RegisterPageComponent {
   form!: FormGroup;
   submitted = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    this.form = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      login: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    }, { validators: passwordsMatch });
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {
+    this.form = this.fb.group(
+      {
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
+        login: ['', Validators.required],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', Validators.required],
+      },
+      { validators: passwordsMatch }
+    );
   }
 
   submit() {
@@ -42,7 +56,12 @@ export class RegisterPageComponent {
     }
     this.loading = true;
     this.error = null;
-    const { firstName, lastName, login, password } = this.form.value as { firstName: string; lastName: string; login: string; password: string };
+    const { firstName, lastName, login, password } = this.form.value as {
+      firstName: string;
+      lastName: string;
+      login: string;
+      password: string;
+    };
     this.auth.register({ firstName, lastName, login, password }).subscribe({
       next: () => {
         this.loading = false;
@@ -75,7 +94,7 @@ export class RegisterPageComponent {
         const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
         this.error = msg || 'Registration failed';
         this.loading = false;
-      }
+      },
     });
   }
 }

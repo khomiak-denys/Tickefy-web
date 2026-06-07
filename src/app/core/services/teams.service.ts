@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import {CreateTeamRequest, TeamDetails, TeamSummary} from '../api/dtos';
+import { CreateTeamRequest, TeamDetails, TeamSummary } from '../api/dtos';
 
 @Injectable({ providedIn: 'root' })
 export class TeamsService {

@@ -1,31 +1,27 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {CreateTicketRequest} from '../../../../core/api/dtos';
-import {FormsModule} from '@angular/forms';
-import {LucideAngularModule} from 'lucide-angular';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { CreateTicketRequest } from '../../../../core/api/dtos';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-create-ticket-modal',
-  imports: [
-    FormsModule,
-    LucideAngularModule
-  ],
+  imports: [FormsModule, LucideAngularModule],
   templateUrl: './create-ticket-modal.component.html',
-  styleUrl: './create-ticket-modal.component.scss'
+  styleUrl: './create-ticket-modal.component.scss',
 })
 export class CreateTicketModalComponent implements OnChanges {
-
   @Input() open = false;
   @Output() closed = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<CreateTicketRequest>();
 
-  createSubmitting= false;
+  createSubmitting = false;
   newTitle = '';
   newDescription = '';
-  newDeadline= '';
+  newDeadline = '';
   error: string | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes['open'].currentValue === false) {
+    if (changes['open'].currentValue === false) {
       this.newTitle = '';
       this.newDescription = '';
       this.newDeadline = '';
@@ -38,9 +34,8 @@ export class CreateTicketModalComponent implements OnChanges {
     this.closed.emit();
   }
 
-  submit(){
-    if (!this.newTitle || !this.newDeadline)
-    {
+  submit() {
+    if (!this.newTitle || !this.newDeadline) {
       this.error = 'Title and deadline are required';
       return;
     }
@@ -49,9 +44,9 @@ export class CreateTicketModalComponent implements OnChanges {
 
     const request: CreateTicketRequest = {
       title: this.newTitle,
-      description : this.newDescription,
+      description: this.newDescription,
       deadline: isoDeadline,
-    }
+    };
     this.createSubmitting = true;
 
     this.submitted.emit(request);

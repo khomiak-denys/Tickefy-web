@@ -1,23 +1,20 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {AsyncPipe} from "@angular/common";
-import {LucideAngularModule} from "lucide-angular";
-import {Observable} from 'rxjs';
-import {TeamSummary} from '../../../../core/api/dtos';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { LucideAngularModule } from 'lucide-angular';
+import { Observable } from 'rxjs';
+import { TeamSummary } from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-teams-tab',
-    imports: [
-        AsyncPipe,
-        LucideAngularModule
-    ],
+  imports: [AsyncPipe, LucideAngularModule],
   templateUrl: './teams-tab.component.html',
-  styleUrl: './teams-tab.component.scss'
+  styleUrl: './teams-tab.component.scss',
 })
 export class TeamsTabComponent {
   @Input() teams$: Observable<TeamSummary[] | null> = new Observable<TeamSummary[] | null>();
   @Output() selectedTeamId = new EventEmitter<string>();
 
-  onTeamClick(id : string) {
+  onTeamClick(id: string) {
     this.selectedTeamId.emit(id);
   }
 }
