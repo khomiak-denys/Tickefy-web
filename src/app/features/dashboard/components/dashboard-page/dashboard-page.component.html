@@ -89,7 +89,7 @@
         @if (activeTab==='queue')
         {
           <app-tickets-tab
-            [filteredTickets$]="filteredQueueTickets$"
+            [filteredTickets$]="this.ticketService.filteredQueueTickets$"
             (selectedTicketId)="openTicket($event)"
           ></app-tickets-tab>
         }
@@ -97,7 +97,7 @@
         @if (activeTab==='my')
         {
           <app-tickets-tab
-            [filteredTickets$]="(isAgent ? filteredMyTickets$ : filteredTickets$)"
+            [filteredTickets$]="this.ticketService.filteredMyTickets$"
             (selectedTicketId)="openTicket($event)"
           ></app-tickets-tab>
         }
@@ -105,7 +105,7 @@
         @if (activeTab==='all')
         {
           <app-tickets-tab
-            [filteredTickets$]="allTickets$"
+            [filteredTickets$]="this.ticketService.filteredAllTickets$"
             (selectedTicketId)="openTicket($event)"
           ></app-tickets-tab>
         }
@@ -161,7 +161,7 @@
 ></app-create-team-modal>
 
 <app-team-details-modal
-  [open]="teamDetailsOpen"
+  [open]="isTeamDetailsOpen"
   [teamId]="selectedTeamId"
   (closed)="closeTeamDetails()"
 ></app-team-details-modal>

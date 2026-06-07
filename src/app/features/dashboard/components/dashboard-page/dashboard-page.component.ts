@@ -1,17 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { UsersService } from '../../../../core/services/users.service';
 import { TeamsService } from '../../../../core/services/teams.service';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import {
   ActivityLogDto,
   CreateTeamRequest, CreateTicketRequest,
   TeamSummary,
-  TicketSummaryDto,
   UserDto
 } from '../../../../core/api/dtos';
 import { map } from 'rxjs/operators';
@@ -19,12 +18,13 @@ import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
 import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
 import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
-import { UsersTabComponent} from '../users-tab/users-tab.component';
-import { LogsTabComponent} from '../logs-tab/logs-tab.component';
-import {AuthService} from '../../../../core/services/auth.service';
+import { UsersTabComponent } from '../users-tab/users-tab.component';
+import { LogsTabComponent } from '../logs-tab/logs-tab.component';
+import { AuthService } from '../../../../core/services/auth.service';
 import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
-import {CreateTeamModalComponent} from '../create-team-modal/create-team-modal.component';
-import {TeamDetailsModalComponent} from '../team-details-modal/team-details-modal.component';
+import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
+import { TeamDetailsModalComponent } from '../team-details-modal/team-details-modal.component';
+import { DashboardTicketService } from '../../services/dashboard-ticket.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -35,14 +35,7 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss'
 })
-export class DashboardPageComponent {
-  tickets$!: Observable<TicketSummaryDto[]>;
-  queueTickets$!: Observable<TicketSummaryDto[]>;
-  myTickets$!: Observable<TicketSummaryDto[]>;
-  filteredTickets$!: Observable<TicketSummaryDto[]>;
-  filteredQueueTickets$!: Observable<TicketSummaryDto[]>;
-  filteredMyTickets$!: Observable<TicketSummaryDto[]>;
-  allTickets$!: Observable<TicketSummaryDto[]>;
+export class DashboardPageComponent implements  OnInit {
   usersSource$ = new BehaviorSubject<UserDto[]>([]);
   users$!: Observable<UserDto[]>;
   filteredUsers$!: Observable<UserDto[]>;
@@ -68,26 +61,23 @@ export class DashboardPageComponent {
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
 
-  teamDetailsOpen = false;
+  isTeamDetailsOpen = false;
   selectedTeamId: string | null = null;
 
   isCreateTicketModalOpen = false;
   isCreateTeamModalOpen = false;
 
-  statusFilter$ = new BehaviorSubject<string>('all');
-  priorityFilter$ = new BehaviorSubject<string>('all');
-  typeFilter$ = new BehaviorSubject<string>('all');
-
   userRoleFilter$ = new BehaviorSubject<string>('all');
   userTeamFilter$ = new BehaviorSubject<string>('all');
 
   constructor(
-    private tickets: TicketsService,
+    private ticketsRepository: TicketsService,
     private users: UsersService,
     private teams: TeamsService,
     private authService : AuthService,
     private logs: ActivityLogService,
-    private router: Router
+    private router: Router,
+    public ticketService: DashboardTicketService
   ) {}
 
   ngOnInit() {
@@ -99,6 +89,7 @@ export class DashboardPageComponent {
     if (this.isAgent) {
       this.activeTab = 'queue';
     }
+
     this.firstName = this.authService.getUserFirstName();
     this.lastName = this.authService.getUserLastName();
 
@@ -113,48 +104,20 @@ export class DashboardPageComponent {
           this.firstName = this.authService.getUserFirstName();
           this.lastName = this.authService.getUserLastName();
 
-          this.setRole(this.authService.getRole());
+          this.setRole(roleFromToken);
         },
         error: () => {}
       });
     }
+
+    this.ticketService.loadTickets();
   }
 
   private refreshTeams() {
     this.teams$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
   }
 
-   refreshTickets() {
-    const makeFiltered = (stream$: Observable<TicketSummaryDto[]>) => combineLatest([
-      stream$,
-      this.statusFilter$,
-      this.priorityFilter$,
-      this.typeFilter$,
-    ]).pipe(
-      map(([list, sF, pF, tF]) => {
-        const norm = (v: string | null) => String(v || '').toLowerCase();
-        return list.filter((t: TicketSummaryDto) => {
-          const sOk = sF === 'all' || norm(t?.status).includes(sF);
-          const pOk = pF === 'all' || norm(t?.priority) === pF;
-          const tOk = tF === 'all' || norm(t?.category).includes(tF) || norm(t?.assignedTeam?.category).includes(tF);
-          return sOk && pOk && tOk;
-        });
-      })
-    );
-
-    if (this.isAgent) {
-      this.queueTickets$ = this.tickets.getQueue();
-      this.myTickets$ = this.tickets.getMy();
-      this.filteredQueueTickets$ = makeFiltered(this.queueTickets$);
-      this.filteredMyTickets$ = makeFiltered(this.myTickets$);
-    } else {
-      this.tickets$ = this.tickets.getMy();
-      this.filteredTickets$ = makeFiltered(this.tickets$);
-    }
-
-    this.allTickets$ = this.canViewTab('all')
-      ? this.tickets.getAll()
-      : of([]);
+   refreshUsers() {
     this.users$ = this.usersSource$.asObservable();
     if (this.canViewTab('users')) {
       this.fetchUsers();
@@ -176,7 +139,9 @@ export class DashboardPageComponent {
         });
       })
     );
-    this.refreshTeams();
+  }
+
+  refreshLogs() {
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
       tap((items: ActivityLogDto[]) => {
@@ -214,8 +179,12 @@ export class DashboardPageComponent {
     this.isCreateTicketModalOpen = false;
   }
 
+  refreshTickets(){
+    this.ticketService.loadTickets();
+  }
+
   createTicket(req: CreateTicketRequest) {
-    this.tickets.create(req).subscribe({
+    this.ticketsRepository.create(req).subscribe({
       next: () => {
         this.isCreateTicketModalOpen = false;
         this.refreshTickets();
@@ -248,17 +217,35 @@ export class DashboardPageComponent {
       return;
     }
     this.activeTab = tab;
+
+    switch (tab) {
+      case 'my':
+      case 'queue':
+      case 'all':
+        this.refreshTickets();
+        break;
+      case 'users':
+        this.refreshUsers();
+        break;
+      case 'logs':
+        this.refreshLogs();
+        break;
+      case 'teams':
+        this.refreshTeams();
+        break;
+    }
   }
+
   openTeam(id: string) {
     if (!id) {
       return;
     }
     this.selectedTeamId = String(id);
-    this.teamDetailsOpen = true;
+    this.isTeamDetailsOpen = true;
   }
 
   closeTeamDetails() {
-    this.teamDetailsOpen = false;
+    this.isTeamDetailsOpen = false;
   }
 
   openCreateTeamModal() {
@@ -327,7 +314,8 @@ export class DashboardPageComponent {
     this.updateRoleFlags();
     this.allowedTabsList = this.computeAllowedTabs();
     this.ensureActiveTabValid();
-    this.refreshTickets();
+
+    this.setTab(this.activeTab);
   }
 
   private computeAllowedTabs(): TabKey[] {
