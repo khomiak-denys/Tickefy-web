@@ -23,7 +23,7 @@ import { TeamDetailsModalComponent } from '../team-details-modal/team-details-mo
 import { DashboardTicketService } from '../../services/dashboard-ticket.service';
 import { DashboardUserService } from '../../services/dashboard-user.service';
 import { DashboardLogsService } from '../../services/dashboard-logs.service';
-import {DashboardTeamsService} from '../../services/dashboard-teams.service';
+import { DashboardTeamsService } from '../../services/dashboard-teams.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -156,8 +156,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.teamsService.teamError$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (error) => {
         this.teamError = error;
-      }
-    })
+      },
+    });
   }
 
   private refreshUsers() {
