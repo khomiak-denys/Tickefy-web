@@ -18,9 +18,7 @@ export class DashboardLogsService {
 
   constructor(private logsRepository: ActivityLogService) {
     this.page$.subscribe({
-      next: (data) => {
-        this.loadLogs();
-      },
+      next: (data) => {},
       error: (error) => {
         this.errors$.next(error);
       },
