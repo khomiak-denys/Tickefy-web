@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TeamsService } from '../../../../core/services/teams.service';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -24,6 +23,7 @@ import { TeamDetailsModalComponent } from '../team-details-modal/team-details-mo
 import { DashboardTicketService } from '../../services/dashboard-ticket.service';
 import { DashboardUserService } from '../../services/dashboard-user.service';
 import { DashboardLogsService } from '../../services/dashboard-logs.service';
+import {DashboardTeamsService} from '../../services/dashboard-teams.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -64,8 +64,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   userError: string | null = null;
   ticketError: string | null = null;
   logError: string | null = null;
+  teamError: string | null = null;
 
-  error: string | null = null;
   isAdmin = false;
   isAgent = false;
   isRequester = false;
@@ -84,7 +84,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   constructor(
     private usersService: DashboardUserService,
     private ticketService: DashboardTicketService,
-    private teams: TeamsService,
+    private teamsService: DashboardTeamsService,
     private authService: AuthService,
     protected logsService: DashboardLogsService,
     private router: Router
@@ -96,6 +96,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.filteredUsers$ = this.usersService.filteredUsers$;
 
     this.logs$ = this.logsService.logs$;
+    this.teams$ = this.teamsService.teams$;
   }
 
   ngOnInit() {
@@ -121,7 +122,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   private refreshTeams() {
-    this.teams$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
+    this.teamsService.loadTeams();
   }
 
   private subscribeToErrors() {
@@ -151,6 +152,12 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
         this.logError = error;
       },
     });
+
+    this.teamsService.teamError$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (error) => {
+        this.teamError = error;
+      }
+    })
   }
 
   private refreshUsers() {
@@ -271,15 +278,9 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   createTeam(req: CreateTeamRequest) {
-    this.teams.create(req).subscribe({
-      next: () => {
-        this.isCreateTeamModalOpen = false;
-        this.refreshTeams();
-      },
-      error: (e) => {
-        this.error = e?.error?.detail || 'Failed to create team';
-      },
-    });
+    this.teamsService.createTeam(req);
+    this.isCreateTeamModalOpen = false;
+    this.refreshTeams();
   }
 
   viewUser(id: string) {
