@@ -88,7 +88,7 @@ export class DashboardTicketService {
     }
   }
 
-  createTicket(req: CreateTicketRequest) : void {
+  createTicket(req: CreateTicketRequest): void {
     this.tickets.create(req).subscribe({
       next: (data) => {
         this.loadTickets();
@@ -96,7 +96,7 @@ export class DashboardTicketService {
       error: (err) => {
         this.errors$.next(err);
       },
-    })
+    });
   }
 
   filterByStatus(status: string): void {

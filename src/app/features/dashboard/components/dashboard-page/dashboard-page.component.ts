@@ -1,10 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TeamsService } from '../../../../core/services/teams.service';
-import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
-import { switchMap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   ActivityLogDto,
   CreateTeamRequest,
@@ -25,6 +23,7 @@ import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal
 import { TeamDetailsModalComponent } from '../team-details-modal/team-details-modal.component';
 import { DashboardTicketService } from '../../services/dashboard-ticket.service';
 import { DashboardUserService } from '../../services/dashboard-user.service';
+import { DashboardLogsService } from '../../services/dashboard-logs.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -53,12 +52,9 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   filteredQueueTickets$ = new Observable<TicketSummaryDto[]>();
 
   filteredUsers$ = new Observable<UserDto[]>();
+  logs$ = new Observable<ActivityLogDto[]>();
+
   teams$!: Observable<TeamSummary[]>;
-  logs$!: Observable<ActivityLogDto[]>;
-  logsPage$ = new BehaviorSubject<number>(1);
-  logsPageSize = 10;
-  hasPrevLogsPage = false;
-  hasNextLogsPage = true;
 
   currentUserId: string | null = null;
   role: string | null = null;
@@ -67,6 +63,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   userError: string | null = null;
   ticketError: string | null = null;
+  logError: string | null = null;
 
   error: string | null = null;
   isAdmin = false;
@@ -89,7 +86,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     private ticketService: DashboardTicketService,
     private teams: TeamsService,
     private authService: AuthService,
-    private logs: ActivityLogService,
+    protected logsService: DashboardLogsService,
     private router: Router
   ) {
     this.filteredAllTickets$ = this.ticketService.filteredAllTickets$;
@@ -97,6 +94,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.filteredQueueTickets$ = this.ticketService.filteredQueueTickets$;
 
     this.filteredUsers$ = this.usersService.filteredUsers$;
+
+    this.logs$ = this.logsService.logs$;
   }
 
   ngOnInit() {
@@ -141,7 +140,16 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.ticketError = error;
-      }
+      },
+    });
+
+    this.logsService.logsError$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (error) => {
+        this.logError = error;
+      },
+      error: (error) => {
+        this.logError = error;
+      },
     });
   }
 
@@ -154,24 +162,23 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   private refreshLogs() {
-    this.logs$ = this.logsPage$.pipe(
-      switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
-      tap((items: ActivityLogDto[]) => {
-        const page = this.logsPage$.value;
-        this.hasPrevLogsPage = page > 1;
-        this.hasNextLogsPage = items.length >= this.logsPageSize;
-      })
-    );
+    this.logsService.loadLogs();
   }
 
   nextLogsPage() {
-    if (!this.hasNextLogsPage) return;
-    this.logsPage$.next(this.logsPage$.value + 1);
+    if (!this.logsService.hasNextPage$.value) {
+      return;
+    }
+
+    this.logsService.nextPage();
   }
+
   prevLogsPage() {
-    if (!this.hasPrevLogsPage) return;
-    const p = this.logsPage$.value - 1;
-    this.logsPage$.next(p > 0 ? p : 1);
+    if (!this.logsService.hasPreviousPage$.value) {
+      return;
+    }
+
+    this.logsService.previousPage();
   }
 
   logout() {
@@ -246,6 +253,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     if (!id) {
       return;
     }
+
     this.selectedTeamId = String(id);
     this.isTeamDetailsOpen = true;
   }
