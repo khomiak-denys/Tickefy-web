@@ -49,6 +49,7 @@ export class LoginPageComponent {
         }
         if (res.token) {
           this.auth.saveToken(res.token);
+          this.auth.saveUserProfile(res.firstName, res.lastName);
           this.router.navigate(['/dashboard']);
         } else {
           this.error = 'No token in response';

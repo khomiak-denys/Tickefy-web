@@ -1,11 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { TicketsService } from '../../../../core/services/tickets.service';
-import { UsersService } from '../../../../core/services/users.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TeamsService } from '../../../../core/services/teams.service';
 import { ActivityLogService } from '../../../../core/services/activity-log.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
 import {
   ActivityLogDto,
@@ -15,7 +13,6 @@ import {
   TicketSummaryDto,
   UserDto,
 } from '../../../../core/api/dtos';
-import { map } from 'rxjs/operators';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
 import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
@@ -27,6 +24,7 @@ import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket
 import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
 import { TeamDetailsModalComponent } from '../team-details-modal/team-details-modal.component';
 import { DashboardTicketService } from '../../services/dashboard-ticket.service';
+import { DashboardUserService } from '../../services/dashboard-user.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -47,14 +45,14 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
 })
-export class DashboardPageComponent implements OnInit {
+export class DashboardPageComponent implements OnInit, OnDestroy {
+  private destroy$: Subject<void> = new Subject<void>();
+
   filteredAllTickets$ = new Observable<TicketSummaryDto[]>();
   filteredMyTickets$ = new Observable<TicketSummaryDto[]>();
   filteredQueueTickets$ = new Observable<TicketSummaryDto[]>();
 
-  usersSource$ = new BehaviorSubject<UserDto[]>([]);
-  users$!: Observable<UserDto[]>;
-  filteredUsers$!: Observable<UserDto[]>;
+  filteredUsers$ = new Observable<UserDto[]>();
   teams$!: Observable<TeamSummary[]>;
   logs$!: Observable<ActivityLogDto[]>;
   logsPage$ = new BehaviorSubject<number>(1);
@@ -67,6 +65,7 @@ export class DashboardPageComponent implements OnInit {
   firstName: string | null = null;
   lastName: string | null = null;
 
+  userError: string | null = null;
   error: string | null = null;
   isAdmin = false;
   isAgent = false;
@@ -83,20 +82,19 @@ export class DashboardPageComponent implements OnInit {
   isCreateTicketModalOpen = false;
   isCreateTeamModalOpen = false;
 
-  userRoleFilter$ = new BehaviorSubject<string>('all');
-  userTeamFilter$ = new BehaviorSubject<string>('all');
-
   constructor(
-    private users: UsersService,
+    private usersService: DashboardUserService,
+    private ticketService: DashboardTicketService,
     private teams: TeamsService,
     private authService: AuthService,
     private logs: ActivityLogService,
-    private router: Router,
-    public ticketService: DashboardTicketService
+    private router: Router
   ) {
     this.filteredAllTickets$ = this.ticketService.filteredAllTickets$;
     this.filteredMyTickets$ = this.ticketService.filteredMyTickets$;
     this.filteredQueueTickets$ = this.ticketService.filteredQueueTickets$;
+
+    this.filteredUsers$ = this.usersService.filteredUsers$;
   }
 
   ngOnInit() {
@@ -112,24 +110,21 @@ export class DashboardPageComponent implements OnInit {
     this.firstName = this.authService.getUserFirstName();
     this.lastName = this.authService.getUserLastName();
 
-    if (!this.firstName || !this.lastName) {
-      this.users.me().subscribe({
-        next: (u: UserDto) => {
-          if (u.id) {
-            this.currentUserId = u.id;
-          }
-
-          this.authService.saveUserFromProfile(u);
-          this.firstName = this.authService.getUserFirstName();
-          this.lastName = this.authService.getUserLastName();
-
-          this.setRole(roleFromToken);
-        },
-        error: () => {},
-      });
-    }
+    this.usersService.userError$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (error) => {
+        this.userError = error;
+      },
+      error: (error) => {
+        this.userError = error;
+      },
+    });
 
     this.ticketService.loadTickets();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private refreshTeams() {
@@ -137,27 +132,11 @@ export class DashboardPageComponent implements OnInit {
   }
 
   refreshUsers() {
-    this.users$ = this.usersSource$.asObservable();
-    if (this.canViewTab('users')) {
-      this.fetchUsers();
-    } else {
-      this.usersSource$.next([]);
+    if (!this.canViewTab('users')) {
+      return;
     }
 
-    this.filteredUsers$ = combineLatest([
-      this.users$,
-      this.userRoleFilter$,
-      this.userTeamFilter$,
-    ]).pipe(
-      map(([list, rF, tF]) => {
-        const norm = (v: string | null) => String(v || '').toLowerCase();
-        return list.filter((u: UserDto) => {
-          const rOk = rF === 'all' || norm(u?.role) === norm(rF);
-          const tOk = tF === 'all' || norm(u?.team?.name) === norm(tF);
-          return rOk && tOk;
-        });
-      })
-    );
+    this.usersService.loadUsers();
   }
 
   refreshLogs() {
@@ -300,16 +279,7 @@ export class DashboardPageComponent implements OnInit {
       return;
     }
 
-    this.users.delete(String(id)).subscribe({
-      next: () => {
-        this.fetchUsers();
-      },
-      error: () => {},
-    });
-  }
-
-  private fetchUsers() {
-    this.users.getAll().subscribe((list: UserDto[]) => this.usersSource$.next(list));
+    this.usersService.deleteUser(id);
   }
 
   private updateRoleFlags() {

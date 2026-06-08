@@ -47,6 +47,9 @@
         <div class="role">{{ role || 'user' }}</div>
       </div>
       <button class="logout" (click)="logout()">Log Out</button>
+      @if (userError) {
+        <div class="error">{{ userError }}</div>
+      }
       @if (error) {
         <div class="error">{{ error }}</div>
       }
