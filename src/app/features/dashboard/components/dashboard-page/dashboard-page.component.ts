@@ -66,6 +66,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   lastName: string | null = null;
 
   userError: string | null = null;
+  ticketError: string | null = null;
+
   error: string | null = null;
   isAdmin = false;
   isAgent = false;
@@ -110,15 +112,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.firstName = this.authService.getUserFirstName();
     this.lastName = this.authService.getUserLastName();
 
-    this.usersService.userError$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (error) => {
-        this.userError = error;
-      },
-      error: (error) => {
-        this.userError = error;
-      },
-    });
-
+    this.subscribeToErrors();
     this.ticketService.loadTickets();
   }
 
@@ -131,7 +125,27 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.teams$ = this.isAdmin ? this.teams.getAll() : this.teams.getMy();
   }
 
-  refreshUsers() {
+  private subscribeToErrors() {
+    this.usersService.userError$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (error) => {
+        this.userError = error;
+      },
+      error: (error) => {
+        this.userError = error;
+      },
+    });
+
+    this.ticketService.ticketError$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (error) => {
+        this.ticketError = error;
+      },
+      error: (error) => {
+        this.ticketError = error;
+      }
+    });
+  }
+
+  private refreshUsers() {
     if (!this.canViewTab('users')) {
       return;
     }
@@ -139,7 +153,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.usersService.loadUsers();
   }
 
-  refreshLogs() {
+  private refreshLogs() {
     this.logs$ = this.logsPage$.pipe(
       switchMap((page: number) => this.logs.getLogs(page, this.logsPageSize)),
       tap((items: ActivityLogDto[]) => {
@@ -182,15 +196,9 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   createTicket(req: CreateTicketRequest) {
-    this.ticketService.createTicket(req).subscribe({
-      next: () => {
-        this.isCreateTicketModalOpen = false;
-        this.refreshTickets();
-      },
-      error: (error) => {
-        this.error = error;
-      },
-    });
+    this.ticketService.createTicket(req);
+    this.isCreateTicketModalOpen = false;
+    this.refreshTickets();
   }
 
   openTicket(id: string) {

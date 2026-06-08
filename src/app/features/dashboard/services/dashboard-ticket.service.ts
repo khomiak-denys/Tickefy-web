@@ -21,6 +21,9 @@ export class DashboardTicketService {
   filteredMyTickets$ = this.filterTickets(this.mySource);
   filteredAllTickets$ = this.filterTickets(this.allSource);
 
+  private errors$ = new BehaviorSubject<string | null>(null);
+  readonly ticketError$ = this.errors$.asObservable();
+
   constructor(
     private auth: AuthService,
     private tickets: TicketsService
@@ -46,7 +49,7 @@ export class DashboardTicketService {
     );
   }
 
-  loadTickets() {
+  loadTickets(): void {
     const role = this.auth.getRole();
 
     const isAgent = role === 'agent';
@@ -85,8 +88,15 @@ export class DashboardTicketService {
     }
   }
 
-  createTicket(req: CreateTicketRequest) {
-    return this.tickets.create(req);
+  createTicket(req: CreateTicketRequest) : void {
+    this.tickets.create(req).subscribe({
+      next: (data) => {
+        this.loadTickets();
+      },
+      error: (err) => {
+        this.errors$.next(err);
+      },
+    })
   }
 
   filterByStatus(status: string): void {
