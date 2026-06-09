@@ -210,9 +210,14 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   createTicket(req: CreateTicketRequest) {
-    this.ticketService.createTicket(req);
-    this.isCreateTicketModalOpen = false;
-    this.refreshTickets();
+    this.ticketService.createTicket(req).subscribe({
+      next: () => {
+        this.isCreateTicketModalOpen = false;
+      },
+      error: (err) => {
+        this.ticketError = err;
+      },
+    });
   }
 
   openTicket(id: string) {
@@ -278,9 +283,14 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   createTeam(req: CreateTeamRequest) {
-    this.teamsService.createTeam(req);
-    this.isCreateTeamModalOpen = false;
-    this.refreshTeams();
+    this.teamsService.createTeam(req).subscribe({
+      next: () => {
+        this.isCreateTeamModalOpen = false;
+      },
+      error: (err) => {
+        this.teamError = err;
+      },
+    });
   }
 
   viewUser(id: string) {

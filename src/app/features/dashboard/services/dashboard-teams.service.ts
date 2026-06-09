@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { TeamsService } from '../../../core/services/teams.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { CreateTeamRequest, TeamSummary } from '../../../core/api/dtos';
 
 @Injectable({
@@ -45,13 +45,6 @@ export class DashboardTeamsService {
   }
 
   createTeam(req: CreateTeamRequest) {
-    this.teams.create(req).subscribe({
-      next: () => {
-        this.loadTeams();
-      },
-      error: (e) => {
-        this.teamError$.next(e?.error?.detail || 'Failed to create team');
-      },
-    });
+    return this.teams.create(req).pipe(tap(() => this.loadTeams()));
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription, tap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { CreateTicketRequest, TicketSummaryDto } from '../../../core/api/dtos';
 import { map } from 'rxjs/operators';
@@ -88,15 +88,8 @@ export class DashboardTicketService {
     }
   }
 
-  createTicket(req: CreateTicketRequest): void {
-    this.tickets.create(req).subscribe({
-      next: (data) => {
-        this.loadTickets();
-      },
-      error: (err) => {
-        this.errors$.next(err);
-      },
-    });
+  createTicket(req: CreateTicketRequest) {
+    return this.tickets.create(req).pipe(tap(() => this.loadTickets()));
   }
 
   filterByStatus(status: string): void {
