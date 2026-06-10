@@ -5,14 +5,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
-import {AuthDto} from '../../../../core/api/dtos/auth.dto';
+import { AuthDto } from '../../../../core/api/dtos/auth.dto';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login-page.component.html',
-  styleUrl: './login-page.component.scss'
+  styleUrl: './login-page.component.scss',
 })
 export class LoginPageComponent {
   loading = false;
@@ -29,7 +29,7 @@ export class LoginPageComponent {
     this.form = this.fb.group({
       login: ['', [Validators.required]],
       password: ['', [Validators.required]],
-      remember: [false]
+      remember: [false],
     });
   }
 
@@ -48,8 +48,8 @@ export class LoginPageComponent {
           return;
         }
         if (res.token) {
-
           this.auth.saveToken(res.token);
+          this.auth.saveUserProfile(res.firstName, res.lastName);
           this.router.navigate(['/dashboard']);
         } else {
           this.error = 'No token in response';
@@ -81,7 +81,7 @@ export class LoginPageComponent {
         const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
         this.error = msg || 'Login failed';
         this.loading = false;
-      }
+      },
     });
   }
 }

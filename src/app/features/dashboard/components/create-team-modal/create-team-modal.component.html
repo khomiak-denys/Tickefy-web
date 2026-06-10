@@ -1,5 +1,4 @@
-@if (open)
-{
+@if (open) {
   <div class="modal-backdrop" (click)="close()"></div>
   <div class="modal">
     <header class="modal-head">
@@ -13,14 +12,17 @@
       </label>
       <label>
         <span>Description</span>
-        <textarea [(ngModel)]="newTeamDescription" rows="4" placeholder="What does this team do?"></textarea>
+        <textarea
+          [(ngModel)]="newTeamDescription"
+          rows="4"
+          placeholder="What does this team do?"
+        ></textarea>
       </label>
       <label>
         <span>Category</span>
         <select [(ngModel)]="newTeamCategory">
           <option [ngValue]="null">Select category</option>
-          @for (c of categoryOptions; track c.value)
-          {
+          @for (c of categoryOptions; track c.value) {
             <option [ngValue]="c.value">{{ c.label }}</option>
           }
         </select>
@@ -28,10 +30,11 @@
     </section>
     <footer class="modal-foot">
       <button class="secondary" [disabled]="createTeamSubmitting" (click)="close()">Cancel</button>
-      <button class="primary" [disabled]="createTeamSubmitting" (click)="submit()">{{ createTeamSubmitting ? 'Creating…' : 'Create Team' }}</button>
+      <button class="primary" [disabled]="createTeamSubmitting" (click)="submit()">
+        {{ createTeamSubmitting ? 'Creating…' : 'Create Team' }}
+      </button>
     </footer>
-    @if (error)
-    {
+    @if (error) {
       <div class="error">{{ error }}</div>
     }
   </div>

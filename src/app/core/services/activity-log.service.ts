@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
-import {ActivityLogDto} from '../api/dtos/activity-log.dto';
+import { ActivityLogDto } from '../api/dtos/activity-log.dto';
 
 @Injectable({ providedIn: 'root' })
 export class ActivityLogService {

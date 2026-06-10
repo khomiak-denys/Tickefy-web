@@ -1,8 +1,20 @@
 /* Global font: San Francisco first everywhere */
-html, body {
-	font-family: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+html,
+body {
+  font-family:
+    'SF Pro Text',
+    'SF Pro Display',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @import './assets/styles/variables';
@@ -11,13 +23,15 @@ html, body {
 @import './assets/styles/tables';
 
 /* Hide caret globally except for text entry surfaces */
-:where(*) { caret-color: transparent; }
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="search"],
+:where(*) {
+  caret-color: transparent;
+}
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='search'],
 textarea,
-[contenteditable="true"],
-[contenteditable]:not([contenteditable="false"]) {
-	caret-color: auto;
+[contenteditable='true'],
+[contenteditable]:not([contenteditable='false']) {
+  caret-color: auto;
 }

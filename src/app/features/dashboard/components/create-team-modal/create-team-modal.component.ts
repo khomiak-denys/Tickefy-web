@@ -1,17 +1,14 @@
-import {Component, Output, Input, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
-import {Category, CreateTeamRequest} from '../../../../core/api/dtos';
-import {FormsModule} from '@angular/forms';
+import { Component, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Category, CreateTeamRequest } from '../../../../core/api/dtos';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-create-team-modal',
-  imports: [
-    FormsModule
-  ],
+  imports: [FormsModule],
   templateUrl: './create-team-modal.component.html',
-  styleUrl: './create-team-modal.component.scss'
+  styleUrl: './create-team-modal.component.scss',
 })
 export class CreateTeamModalComponent implements OnChanges {
-
   @Input() open = false;
   @Output() closed = new EventEmitter();
   @Output() submitted = new EventEmitter<CreateTeamRequest>();
@@ -34,7 +31,7 @@ export class CreateTeamModalComponent implements OnChanges {
   ];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes['open'].currentValue === false) {
+    if (changes['open'].currentValue === false) {
       this.newTeamName = '';
       this.newTeamDescription = '';
       this.newTeamCategory = '';
@@ -58,8 +55,8 @@ export class CreateTeamModalComponent implements OnChanges {
     const request: CreateTeamRequest = {
       name: this.newTeamName,
       description: this.newTeamDescription,
-      category: category
-    }
+      category: category,
+    };
 
     this.createTeamSubmitting = true;
     this.submitted.emit(request);

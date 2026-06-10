@@ -1,27 +1,36 @@
 <section class="tickets logs">
-  @if (logs$ | async; as logs)
-  {
-    @for (l of logs; track l.id)
-    {
+  @if (logs$ | async; as logs) {
+    @for (l of logs; track l.id) {
       <article class="log-item">
         <div class="log-left">
-          <div class="log-icon"><lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon></div>
+          <div class="log-icon">
+            <lucide-icon [name]="logIcon(l?.eventType)" size="20"></lucide-icon>
+          </div>
         </div>
         <div class="log-content">
           <div class="log-top">
             <div class="log-title">{{ l.description || 'Event' }}</div>
-            <span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{ humanizeEvent(l?.eventType) }}</span>
+            <span class="log-badge" [ngClass]="logBadge(l?.eventType)">{{
+              humanizeEvent(l?.eventType)
+            }}</span>
           </div>
           <div class="log-meta">
-            <span><lucide-icon name="user" size="14"></lucide-icon> {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span>
+            <span
+              ><lucide-icon name="user" size="14"></lucide-icon>
+              {{ (l.user?.firstName || '') + ' ' + (l.user?.lastName || '') }}</span
+            >
             <span class="dot">•</span>
-            <span><lucide-icon name="clock" size="14"></lucide-icon> {{ l.created | date:'MM/dd/yyyy, h:mm:ss a' }}</span>
+            <span
+              ><lucide-icon name="clock" size="14"></lucide-icon>
+              {{ l.created | date: 'MM/dd/yyyy, h:mm:ss a' }}</span
+            >
           </div>
-          <div class="log-ticket"><lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}</div>
+          <div class="log-ticket">
+            <lucide-icon name="ticket" size="14"></lucide-icon> Ticket ID: {{ l.ticketId }}
+          </div>
         </div>
       </article>
-    } @empty
-    {
+    } @empty {
       <div class="empty-panel">
         <div class="empty-icon"><lucide-icon name="activity" size="28"></lucide-icon></div>
         <div class="empty-title">No activity yet</div>
@@ -30,11 +39,15 @@
     }
 
     <div class="logs-pagination">
-      <button class="page-btn" (click)="prevLogsPage()" [disabled]="!hasPrevPage"><lucide-icon name="arrow-left" size="16"></lucide-icon> Prev</button>
-      <button class="page-btn primary" (click)="nextLogsPage()" [disabled]="!hasNextPage">Next <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg);"></lucide-icon></button>
+      <button class="page-btn" (click)="prevLogsPage()" [disabled]="!hasPrevPage">
+        <lucide-icon name="arrow-left" size="16"></lucide-icon> Prev
+      </button>
+      <button class="page-btn primary" (click)="nextLogsPage()" [disabled]="!hasNextPage">
+        Next
+        <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg)"></lucide-icon>
+      </button>
     </div>
-  } @else
-  {
+  } @else {
     <p>Loading activity logs…</p>
   }
 </section>

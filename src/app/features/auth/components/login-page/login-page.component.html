@@ -9,21 +9,29 @@
       <div class="input" [class.invalid]="submitted && form.get('login')?.invalid">
         <input formControlName="login" type="text" placeholder="Your login" />
       </div>
-      <div class="field-error" *ngIf="submitted && form.get('login')?.invalid">Login is required</div>
+      <div class="field-error" *ngIf="submitted && form.get('login')?.invalid">
+        Login is required
+      </div>
 
       <label>Password</label>
       <div class="input" [class.invalid]="submitted && form.get('password')?.invalid">
         <input formControlName="password" type="password" placeholder="Enter your password" />
       </div>
-      <div class="field-error" *ngIf="submitted && form.get('password')?.invalid">Password is required</div>
+      <div class="field-error" *ngIf="submitted && form.get('password')?.invalid">
+        Password is required
+      </div>
 
-      <button class="primary" type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign In' }}</button>
+      <button class="primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Signing in…' : 'Sign In' }}
+      </button>
       <div class="error-box" *ngIf="error">
         <div class="error-box__icon">!</div>
         <div class="error-box__text">{{ error }}</div>
       </div>
     </form>
 
-    <p class="foot">Don't have an account? <a class="link" routerLink="/auth/register">Sign up</a></p>
+    <p class="foot">
+      Don't have an account? <a class="link" routerLink="/auth/register">Sign up</a>
+    </p>
   </div>
 </div>

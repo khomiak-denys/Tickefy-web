@@ -1,9 +1,9 @@
-import {Component, OnDestroy} from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {AsyncPipe, DatePipe} from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { UsersService } from '../../../../core/services/users.service';
-import {map, takeUntil} from 'rxjs/operators';
-import {Observable, combineLatest, BehaviorSubject, Subject} from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
+import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserDto } from '../../../../core/api/dtos';
@@ -13,7 +13,7 @@ import { UserDto } from '../../../../core/api/dtos';
   standalone: true,
   imports: [FormsModule, AsyncPipe, DatePipe],
   templateUrl: './profile-page.component.html',
-  styleUrl: './profile-page.component.scss'
+  styleUrl: './profile-page.component.scss',
 })
 export class ProfilePageComponent implements OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
@@ -27,7 +27,7 @@ export class ProfilePageComponent implements OnDestroy {
   editing = false;
   firstName = '';
   lastName = '';
-  userRoleOptions = ['Admin','Manager','Agent','Requester'];
+  userRoleOptions = ['Admin', 'Manager', 'Agent', 'Requester'];
   targetUserId: string | null = null;
 
   constructor(
@@ -45,15 +45,15 @@ export class ProfilePageComponent implements OnDestroy {
     combineLatest([this.me$, this.user$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([me, user]) => {
-      const meId = me.id;
-      const userId = user?.id;
-      const meRole = String(me?.role || '').toLowerCase();
-      this.isOwner = !!meId && !!userId && meId === userId;
-      this.isAdmin = meRole === 'admin';
-      this.canEdit = this.isOwner || this.isAdmin;
-      this.firstName = user?.firstName || '';
-      this.lastName = user?.lastName || '';
-    });
+        const meId = me.id;
+        const userId = user?.id;
+        const meRole = String(me?.role || '').toLowerCase();
+        this.isOwner = !!meId && !!userId && meId === userId;
+        this.isAdmin = meRole === 'admin';
+        this.canEdit = this.isOwner || this.isAdmin;
+        this.firstName = user?.firstName || '';
+        this.lastName = user?.lastName || '';
+      });
   }
 
   ngOnDestroy(): void {
@@ -67,7 +67,9 @@ export class ProfilePageComponent implements OnDestroy {
     }
   }
 
-  cancelEdit() { this.editing = false; }
+  cancelEdit() {
+    this.editing = false;
+  }
   save() {
     if (!this.isOwner) {
       return;
@@ -81,7 +83,7 @@ export class ProfilePageComponent implements OnDestroy {
         this.loadUser();
         this.editing = false;
       },
-      error: () => {}
+      error: () => {},
     });
   }
 
@@ -101,7 +103,7 @@ export class ProfilePageComponent implements OnDestroy {
       return;
     }
 
-    if (this.isOwner && this.isAdmin){
+    if (this.isOwner && this.isAdmin) {
       return;
     }
 
@@ -111,12 +113,12 @@ export class ProfilePageComponent implements OnDestroy {
       next: () => {
         this.loadUser();
       },
-      error: () => {}
+      error: () => {},
     });
   }
 
   private loadUser() {
     const loader$ = this.targetUserId ? this.users.getById(this.targetUserId) : this.users.me();
-    loader$.pipe(map(u => u)).subscribe(u => this.userSubject.next(u));
+    loader$.pipe(map((u) => u)).subscribe((u) => this.userSubject.next(u));
   }
 }

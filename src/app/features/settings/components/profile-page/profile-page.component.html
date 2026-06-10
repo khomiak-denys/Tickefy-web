@@ -1,25 +1,23 @@
 <section class="content profile">
   <header class="head">
-    <h1 (click)="goToMyTickets()" style="cursor:pointer">Tickefy</h1>
+    <h1 (click)="goToMyTickets()" style="cursor: pointer">Tickefy</h1>
     <p>Manage your personal information and settings</p>
   </header>
 
   <div class="grid">
-    @if (me$ | async; as me)
-    {
+    @if (me$ | async; as me) {
       <div class="card left">
-        <div class="avatar big">{{ ((me.firstName || me.lastName || 'U') + '').slice(0,1) }}</div>
+        <div class="avatar big">{{ ((me.firstName || me.lastName || 'U') + '').slice(0, 1) }}</div>
         <div class="name">{{ (me.firstName || '') + ' ' + (me.lastName || '') }}</div>
         <div class="login">{{ '@' + (me.login || '') }}</div>
-        <span class="pill role">{{ (me.role || 'user') }}</span>
+        <span class="pill role">{{ me.role || 'user' }}</span>
         <div class="since">
           <span>Member since</span>
-          <span class="date">{{ (me.created) | date:'dd/MM/yyyy' }}</span>
+          <span class="date">{{ me.created | date: 'dd/MM/yyyy' }}</span>
         </div>
       </div>
     }
-    @if (user$ | async; as user)
-    {
+    @if (user$ | async; as user) {
       <div class="card right">
         <div class="top">
           <h3>Personal Information</h3>
@@ -33,9 +31,17 @@
         <label>
           <span>Role</span>
           <div class="role-row">
-            <select (change)="changeRole($any($event.target).value)" [disabled]="!editing || !canEdit || (isOwner && isAdmin)">
+            <select
+              (change)="changeRole($any($event.target).value)"
+              [disabled]="!editing || !canEdit || (isOwner && isAdmin)"
+            >
               @for (r of userRoleOptions; track r) {
-                <option [value]="r" [selected]="(user.role || '')?.toLowerCase() === r.toLowerCase()">{{ r }}</option>
+                <option
+                  [value]="r"
+                  [selected]="(user.role || '')?.toLowerCase() === r.toLowerCase()"
+                >
+                  {{ r }}
+                </option>
               }
             </select>
           </div>
@@ -43,13 +49,23 @@
         </label>
         <label>
           <span>First Name</span>
-            <input type="text" [(ngModel)]="firstName" [disabled]="!editing || !isOwner" placeholder="First Name" />
+          <input
+            type="text"
+            [(ngModel)]="firstName"
+            [disabled]="!editing || !isOwner"
+            placeholder="First Name"
+          />
         </label>
         <label>
           <span>Last Name</span>
-          <input type="text" [(ngModel)]="lastName" [disabled]="!editing || !isOwner" placeholder="Last Name" />
+          <input
+            type="text"
+            [(ngModel)]="lastName"
+            [disabled]="!editing || !isOwner"
+            placeholder="Last Name"
+          />
         </label>
-        @if (editing){
+        @if (editing) {
           <div class="actions">
             <button class="secondary" (click)="cancelEdit()">Cancel</button>
             <button class="primary" (click)="save()">Save Changes</button>

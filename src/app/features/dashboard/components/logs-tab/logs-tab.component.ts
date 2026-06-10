@@ -1,27 +1,22 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {AsyncPipe, DatePipe, NgClass} from "@angular/common";
-import {LucideAngularModule} from "lucide-angular";
-import {Observable} from 'rxjs';
-import {ActivityLogDto} from '../../../../core/api/dtos';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
+import { LucideAngularModule } from 'lucide-angular';
+import { Observable } from 'rxjs';
+import { ActivityLogDto } from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-logs-tab',
-  imports: [
-    AsyncPipe,
-    DatePipe,
-    LucideAngularModule,
-    NgClass
-  ],
+  imports: [AsyncPipe, DatePipe, LucideAngularModule, NgClass],
   templateUrl: './logs-tab.component.html',
-  styleUrl: './logs-tab.component.scss'
+  styleUrl: './logs-tab.component.scss',
 })
 export class LogsTabComponent {
-  @Input() logs$: Observable<ActivityLogDto[] | null> = new Observable<ActivityLogDto[]>;
-  @Input() hasPrevPage = false
-  @Input() hasNextPage = true
+  @Input() logs$: Observable<ActivityLogDto[] | null> = new Observable<ActivityLogDto[]>();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
 
-  @Output() nextPage = new EventEmitter<void>()
-  @Output() prevPage = new EventEmitter<void>()
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
 
   nextLogsPage() {
     this.nextPage.emit();

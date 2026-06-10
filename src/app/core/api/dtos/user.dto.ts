@@ -1,4 +1,4 @@
-import { TeamSummary } from "./team.dto";
+import { TeamSummary } from './team.dto';
 
 export interface RegisterUserRequest {
   firstName: string | null;
@@ -33,11 +33,11 @@ export interface UserShortDto {
 }
 
 export interface UserDto {
-  id: string,
-  firstName: string | null,
-  lastName: string | null,
-  login: string,
-  role: string,
-  team: TeamSummary,
-  created: string
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  login: string;
+  role: string;
+  team: TeamSummary;
+  created: string;
 }
