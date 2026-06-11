@@ -52,6 +52,8 @@ export class DashboardLogsService {
     let page = this.page$.value;
     this.page$.next(++page);
     this.hasPreviousPage$.next(true);
+
+    this.loadLogs();
   }
 
   previousPage() {
@@ -67,5 +69,7 @@ export class DashboardLogsService {
     this.page$.next(--page);
 
     this.hasNextPage$.next(true);
+
+    this.loadLogs();
   }
 }

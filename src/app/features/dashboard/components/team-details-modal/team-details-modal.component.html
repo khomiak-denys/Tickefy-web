@@ -5,13 +5,13 @@
       <h3>Team Details</h3>
       <button class="close" (click)="close()">×</button>
     </header>
-    @if (teamDetails$ | async; as td) {
+    @if (teamDetails) {
       <section class="modal-body team-modal">
         <div class="team-header">
-          <h2>{{ td?.name || 'Team' }}</h2>
-          <p class="team-desc">{{ td?.description || 'Team description not provided' }}</p>
+          <h2>{{ teamDetails.name || 'Team' }}</h2>
+          <p class="team-desc">{{ teamDetails.description || 'Team description not provided' }}</p>
           <div class="pill type">
-            <lucide-icon name="users" size="14"></lucide-icon> {{ td?.category || 'uncategorized' }}
+            <lucide-icon name="users" size="14"></lucide-icon> {{ teamDetails.category || 'uncategorized' }}
           </div>
         </div>
 
@@ -19,11 +19,11 @@
           <div class="section-title">Team Leader</div>
           <div class="person-card">
             <div class="person-avatar">
-              {{ ((td?.manager?.firstName || td?.manager?.lastName || 'U') + '').slice(0, 1) }}
+              {{ ((teamDetails.manager?.firstName || teamDetails.manager?.lastName || 'U') + '').slice(0, 1) }}
             </div>
             <div class="person-meta">
               <div class="person-name">
-                {{ (td?.manager?.firstName || '') + ' ' + (td?.manager?.lastName || '') }}
+                {{ (teamDetails.manager?.firstName || '') + ' ' + (teamDetails.manager?.lastName || '') }}
               </div>
               <div class="person-role">Team Leader</div>
             </div>
@@ -32,7 +32,7 @@
 
         <div class="team-section members">
           <div class="members-head">
-            <div class="section-title">Members ({{ teamMembers?.length || 0 }})</div>
+            <div class="section-title">Members ({{ teamDetails.members?.length || 0 }})</div>
             <div class="add-member">
               <input
                 type="text"
@@ -55,9 +55,9 @@
             <div class="team-error">{{ error }}</div>
           }
 
-          @if (teamMembers.length) {
+          @if (teamDetails.members.length) {
             <div class="members-list">
-              @for (m of teamMembers; track m.id) {
+              @for (m of teamDetails.members; track m.id) {
                 <div class="person-card muted">
                   <div class="person-avatar light">
                     {{ ((m?.firstName || m?.lastName) + '').slice(0, 1) }}

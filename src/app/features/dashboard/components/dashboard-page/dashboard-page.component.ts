@@ -54,6 +54,9 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   filteredUsers$ = new Observable<UserDto[]>();
   logs$ = new Observable<ActivityLogDto[]>();
 
+  hasNextPage = true;
+  hasPreviousPage = false;
+
   teams$!: Observable<TeamSummary[]>;
 
   currentUserId: string | null = null;
@@ -86,7 +89,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     private ticketService: DashboardTicketService,
     private teamsService: DashboardTeamsService,
     private authService: AuthService,
-    protected logsService: DashboardLogsService,
+    private logsService: DashboardLogsService,
     private router: Router
   ) {
     this.filteredAllTickets$ = this.ticketService.filteredAllTickets$;
@@ -113,7 +116,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.lastName = this.authService.getUserLastName();
 
     this.subscribeToErrors();
-    this.ticketService.loadTickets();
+    this.subscribeToLogsPagination();
+    this.refreshTickets();
   }
 
   ngOnDestroy(): void {
@@ -130,16 +134,10 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       next: (error) => {
         this.userError = error;
       },
-      error: (error) => {
-        this.userError = error;
-      },
     });
 
     this.ticketService.ticketError$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (error) => {
-        this.ticketError = error;
-      },
-      error: (error) => {
         this.ticketError = error;
       },
     });
@@ -148,14 +146,27 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       next: (error) => {
         this.logError = error;
       },
-      error: (error) => {
-        this.logError = error;
-      },
     });
 
     this.teamsService.teamError$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (error) => {
         this.teamError = error;
+      },
+    });
+  }
+
+  private subscribeToLogsPagination() {
+    this.logsService.hasPreviousPage$.pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (value) => {
+        this.hasPreviousPage = value;
+      },
+    });
+
+    this.logsService.hasNextPage$.pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (value) => {
+        this.hasNextPage = value;
       },
     });
   }
@@ -173,7 +184,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   nextLogsPage() {
-    if (!this.logsService.hasNextPage$.value) {
+    if (!this.hasNextPage) {
       return;
     }
 
@@ -181,7 +192,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   prevLogsPage() {
-    if (!this.logsService.hasPreviousPage$.value) {
+    if (!this.hasPreviousPage) {
       return;
     }
 
