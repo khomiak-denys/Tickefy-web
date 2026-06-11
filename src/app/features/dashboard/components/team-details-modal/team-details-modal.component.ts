@@ -1,14 +1,12 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { Observable } from 'rxjs';
 import { TeamDetails, UserShortDto } from '../../../../core/api/dtos';
 import { TeamsService } from '../../../../core/services/teams.service';
 
 @Component({
   selector: 'app-team-details-modal',
-  imports: [AsyncPipe, FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule],
   templateUrl: './team-details-modal.component.html',
   styleUrl: './team-details-modal.component.scss',
 })
@@ -17,11 +15,10 @@ export class TeamDetailsModalComponent implements OnChanges {
   @Input() teamId: string | null = null;
   @Output() closed = new EventEmitter<void>();
 
-  teamDetails$: Observable<TeamDetails> | null = null;
+  teamDetails: TeamDetails | null = null;
   newTeamMemberLogin = '';
   teamDetailsLoading = false;
   error: string | null = null;
-  teamMembers: UserShortDto[] = [];
 
   constructor(private teamsService: TeamsService) {}
 
@@ -33,12 +30,12 @@ export class TeamDetailsModalComponent implements OnChanges {
   }
 
   close() {
-    this.teamDetails$ = null;
+    this.teamDetails = null;
     this.newTeamMemberLogin = '';
-    this.teamMembers = [];
     this.teamDetailsLoading = false;
     this.error = null;
     this.closed.emit();
+
   }
 
   addTeamMember() {
@@ -71,15 +68,14 @@ export class TeamDetailsModalComponent implements OnChanges {
       return;
     }
     this.error = null;
-    this.teamDetails$ = this.teamsService.getById(this.teamId);
-    this.teamDetails$.subscribe({
+    this.teamsService.getById(this.teamId).subscribe({
       next: (team) => {
         if (!team) {
           return;
         }
 
         const list = team.members;
-        this.teamMembers = list
+        team.members = list
           .map((m: UserShortDto) => {
             return {
               id: m?.id,
@@ -88,6 +84,8 @@ export class TeamDetailsModalComponent implements OnChanges {
             };
           })
           .filter((m: UserShortDto) => m && (m.firstName || m.lastName));
+
+        this.teamDetails = team;
       },
       complete: () => (this.teamDetailsLoading = false),
       error: () => {
@@ -107,7 +105,9 @@ export class TeamDetailsModalComponent implements OnChanges {
 
     this.teamDetailsLoading = true;
     this.teamsService.removeMember(this.teamId, member.id).subscribe({
-      next: () => this.fetchTeamDetails(),
+      next: () => {
+        this.fetchTeamDetails();
+      },
       error: () => {
         this.teamDetailsLoading = false;
       },
