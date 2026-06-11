@@ -134,8 +134,8 @@
     @if (activeTab === 'logs') {
       <app-logs-tab
         [logs$]="logs$"
-        [hasPrevPage]="this.logsService.hasPreviousPage$.value"
-        [hasNextPage]="this.logsService.hasNextPage$.value"
+        [hasPrevPage]="hasPreviousPage"
+        [hasNextPage]="hasNextPage"
         (nextPage)="nextLogsPage()"
         (prevPage)="prevLogsPage()"
       ></app-logs-tab>

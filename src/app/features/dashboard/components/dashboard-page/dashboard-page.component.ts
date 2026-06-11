@@ -54,6 +54,9 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   filteredUsers$ = new Observable<UserDto[]>();
   logs$ = new Observable<ActivityLogDto[]>();
 
+  hasNextPage = true;
+  hasPreviousPage = false;
+
   teams$!: Observable<TeamSummary[]>;
 
   currentUserId: string | null = null;
@@ -86,7 +89,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     private ticketService: DashboardTicketService,
     private teamsService: DashboardTeamsService,
     private authService: AuthService,
-    protected logsService: DashboardLogsService,
+    private logsService: DashboardLogsService,
     private router: Router
   ) {
     this.filteredAllTickets$ = this.ticketService.filteredAllTickets$;
@@ -114,6 +117,18 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
     this.subscribeToErrors();
     this.ticketService.loadTickets();
+
+    this.logsService.hasPreviousPage$.subscribe({
+      next: (value) => {
+        this.hasPreviousPage = value;
+      }
+    });
+
+    this.logsService.hasNextPage$.subscribe({
+      next: (value) => {
+        this.hasNextPage = value;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -173,7 +188,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   nextLogsPage() {
-    if (!this.logsService.hasNextPage$.value) {
+    if (!this.hasNextPage) {
       return;
     }
 
@@ -181,7 +196,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   prevLogsPage() {
-    if (!this.logsService.hasPreviousPage$.value) {
+    if (!this.hasPreviousPage) {
       return;
     }
 
