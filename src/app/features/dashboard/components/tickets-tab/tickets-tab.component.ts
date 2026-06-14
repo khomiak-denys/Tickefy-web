@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { AsyncPipe, DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
@@ -7,6 +7,7 @@ import { TicketDetailsDto, TicketSummaryDto } from '../../../../core/api/dtos';
 @Component({
   selector: 'app-tickets-tab',
   imports: [AsyncPipe, DatePipe, LowerCasePipe, LucideAngularModule, NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tickets-tab.component.html',
   styleUrl: './tickets-tab.component.scss',
 })
