@@ -35,7 +35,6 @@ export class TeamDetailsModalComponent implements OnChanges {
     this.teamDetailsLoading = false;
     this.error = null;
     this.closed.emit();
-
   }
 
   addTeamMember() {

@@ -156,15 +156,13 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToLogsPagination() {
-    this.logsService.hasPreviousPage$.pipe(takeUntil(this.destroy$))
-      .subscribe({
+    this.logsService.hasPreviousPage$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (value) => {
         this.hasPreviousPage = value;
       },
     });
 
-    this.logsService.hasNextPage$.pipe(takeUntil(this.destroy$))
-      .subscribe({
+    this.logsService.hasNextPage$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (value) => {
         this.hasNextPage = value;
       },
