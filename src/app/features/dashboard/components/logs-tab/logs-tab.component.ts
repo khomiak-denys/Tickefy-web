@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
@@ -7,6 +7,7 @@ import { ActivityLogDto } from '../../../../core/api/dtos';
 @Component({
   selector: 'app-logs-tab',
   imports: [AsyncPipe, DatePipe, LucideAngularModule, NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './logs-tab.component.html',
   styleUrl: './logs-tab.component.scss',
 })
