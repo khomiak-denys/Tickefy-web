@@ -18,60 +18,61 @@
       </div>
     }
     @if (user$ | async; as user) {
-      <div class="card right">
-        <div class="top">
-          <h3>Personal Information</h3>
-          <button class="edit" (click)="startEdit()" [disabled]="!canEdit">Edit Profile</button>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="card right">
+          <div class="top">
+            <h3>Personal Information</h3>
+            <button class="edit" type="button" (click)="startEdit()" [disabled]="!canEdit">
+              Edit Profile
+            </button>
+          </div>
+          <label>
+            <span>Login</span>
+            <input type="text" [value]="user.login" disabled />
+            <small>Login cannot be changed</small>
+          </label>
+          <label>
+            <span>Role</span>
+            <div class="role-row">
+              <select
+                (change)="changeRole($any($event.target).value)"
+                [disabled]="!editing || !canEdit || (isOwner && isAdmin)"
+              >
+                @for (r of userRoleOptions; track r) {
+                  <option
+                    [value]="r"
+                    [selected]="(user.role || '')?.toLowerCase() === r.toLowerCase()"
+                  >
+                    {{ r }}
+                  </option>
+                }
+              </select>
+            </div>
+            <small>Role can be changed only here (admin only)</small>
+          </label>
+          <label>
+            <span>First Name</span>
+            <input type="text" formControlName="firstName" placeholder="First name" />
+            @if (submitted && form.get('firstName')?.invalid) {
+              <div class="field-error">Invalid name</div>
+            }
+          </label>
+
+          <label>
+            <span>Last Name</span>
+            <input type="text" formControlName="lastName" placeholder="Last name" />
+            @if (submitted && form.get('lastName')?.invalid) {
+              <div class="field-error">Invalid name</div>
+            }
+          </label>
+          @if (editing) {
+            <div class="actions">
+              <button class="secondary" type="button" (click)="cancelEdit()">Cancel</button>
+              <button class="primary" type="submit">Save Changes</button>
+            </div>
+          }
         </div>
-        <label>
-          <span>Login</span>
-          <input type="text" [value]="user.login" disabled />
-          <small>Login cannot be changed</small>
-        </label>
-        <label>
-          <span>Role</span>
-          <div class="role-row">
-            <select
-              (change)="changeRole($any($event.target).value)"
-              [disabled]="!editing || !canEdit || (isOwner && isAdmin)"
-            >
-              @for (r of userRoleOptions; track r) {
-                <option
-                  [value]="r"
-                  [selected]="(user.role || '')?.toLowerCase() === r.toLowerCase()"
-                >
-                  {{ r }}
-                </option>
-              }
-            </select>
-          </div>
-          <small>Role can be changed only here (admin only)</small>
-        </label>
-        <label>
-          <span>First Name</span>
-          <input
-            type="text"
-            [(ngModel)]="firstName"
-            [disabled]="!editing || !isOwner"
-            placeholder="First Name"
-          />
-        </label>
-        <label>
-          <span>Last Name</span>
-          <input
-            type="text"
-            [(ngModel)]="lastName"
-            [disabled]="!editing || !isOwner"
-            placeholder="Last Name"
-          />
-        </label>
-        @if (editing) {
-          <div class="actions">
-            <button class="secondary" (click)="cancelEdit()">Cancel</button>
-            <button class="primary" (click)="save()">Save Changes</button>
-          </div>
-        }
-      </div>
+      </form>
     }
   </div>
 </section>
