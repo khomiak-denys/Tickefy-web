@@ -33,6 +33,7 @@ import {
   Flame,
   Pin,
   X,
+  UserMinus,
 } from 'lucide-angular';
 
 const icons = {
@@ -68,6 +69,7 @@ const icons = {
   Flame,
   Pin,
   X,
+  UserMinus,
 };
 
 @NgModule({
