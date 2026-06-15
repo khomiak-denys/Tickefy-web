@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { AsyncPipe, DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -7,6 +7,7 @@ import { UserDto } from '../../../../core/api/dtos';
 @Component({
   selector: 'app-users-tab',
   imports: [LowerCasePipe, DatePipe, NgClass, AsyncPipe, LucideAngularModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users-tab.component.html',
   styleUrl: './users-tab.component.scss',
 })
