@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { UsersService } from '../../../../core/services/users.service';
 import { map, takeUntil } from 'rxjs/operators';
 import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
