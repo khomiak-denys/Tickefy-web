@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { decodeJwtPayload } from '../../../../shared/helpers/jwt.util';
 import { AuthDto } from '../../../../core/api/dtos/auth.dto';
 
 @Component({

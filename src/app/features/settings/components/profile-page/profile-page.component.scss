@@ -190,6 +190,16 @@
   font-weight: 600;
   box-shadow: 0 8px 18px rgba(91, 83, 255, 0.25);
 }
+.field-error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+/* Field error sits directly under the input and fills reserved gap */
+.input + .field-error {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 
 @media (max-width: 980px) {
   .grid {
