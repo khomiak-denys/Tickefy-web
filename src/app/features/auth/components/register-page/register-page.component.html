@@ -9,33 +9,33 @@
       <div class="input" [class.invalid]="submitted && form.get('firstName')?.invalid">
         <input formControlName="firstName" type="text" placeholder="John" />
       </div>
-      <div class="field-error" *ngIf="submitted && form.get('firstName')?.invalid">
-        First name is required
-      </div>
+      @if (submitted && form.get('firstName')?.invalid) {
+        <div class="field-error">First name is required</div>
+      }
 
       <label>Last Name</label>
       <div class="input" [class.invalid]="submitted && form.get('lastName')?.invalid">
         <input formControlName="lastName" type="text" placeholder="Doe" />
       </div>
-      <div class="field-error" *ngIf="submitted && form.get('lastName')?.invalid">
-        Last name is required
-      </div>
+      @if (submitted && form.get('lastName')?.invalid) {
+        <div class="field-error">Last name is required</div>
+      }
 
       <label>Login</label>
       <div class="input" [class.invalid]="submitted && form.get('login')?.invalid">
         <input formControlName="login" type="text" placeholder="Your login" />
       </div>
-      <div class="field-error" *ngIf="submitted && form.get('login')?.invalid">
-        Login is required
-      </div>
+      @if (submitted && form.get('login')?.invalid) {
+        <div class="field-error">Login is required</div>
+      }
 
       <label>Password</label>
       <div class="input" [class.invalid]="submitted && form.get('password')?.invalid">
         <input formControlName="password" type="password" placeholder="Create a password" />
       </div>
-      <div class="field-error" *ngIf="submitted && form.get('password')?.invalid">
-        Password is required (min 6)
-      </div>
+      @if (submitted && form.get('password')?.invalid) {
+        <div class="field-error">Password is required (min 6)</div>
+      }
 
       <label>Confirm Password</label>
       <div class="input" [class.invalid]="submitted && form.hasError('passwordMismatch')">
@@ -45,17 +45,20 @@
           placeholder="Confirm your password"
         />
       </div>
-      <div class="field-error" *ngIf="submitted && form.hasError('passwordMismatch')">
-        Passwords must match
-      </div>
+      @if (submitted && form.hasError('passwordMismatch')) {
+        <div class="field-error">Passwords must match</div>
+      }
 
       <button class="primary" type="submit" [disabled]="loading">
         {{ loading ? 'Creating…' : 'Create account' }}
       </button>
-      <div class="error-box" *ngIf="error">
-        <div class="error-box__icon">!</div>
-        <div class="error-box__text">{{ error }}</div>
-      </div>
+      @if (error) {
+        <div class="error-box">
+          <div class="error-box__icon">!</div>
+          <div class="error-box__text">{{ error }}</div>
+        </div>
+      }
+      s
     </form>
 
     <p class="foot">
