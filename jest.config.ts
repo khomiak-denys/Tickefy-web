@@ -11,6 +11,9 @@ const config: Config = {
   transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json'],
   collectCoverageFrom: ['src/**/*.ts', '!src/main.ts', '!src/**/*.spec.ts'],
+  moduleNameMapper: {
+    '^.*/import-meta-env$': '<rootDir>/src/app/core/config/import-meta-env.mock.ts',
+  },
 };
 
 export default config;
