@@ -20,6 +20,10 @@ export class AuthService {
     return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
   }
 
+  getAccessToken(): string | null {
+    return localStorage.getItem('access_token');
+  }
+
   getCurrentUser(): JwtPayload | null {
     if (this.currentUser) {
       return this.currentUser;
