@@ -40,8 +40,6 @@ export class ProfilePageComponent implements OnDestroy {
   canEdit = false;
   editing = false;
   submitted = false;
-  firstName = '';
-  lastName = '';
   userRoleOptions = ['Admin', 'Manager', 'Agent', 'Requester'];
   targetUserId: string | null = null;
 
@@ -74,12 +72,10 @@ export class ProfilePageComponent implements OnDestroy {
         this.isOwner = !!meId && !!userId && meId === userId;
         this.isAdmin = meRole === 'admin';
         this.canEdit = this.isOwner || this.isAdmin;
-        this.firstName = user?.firstName || '';
-        this.lastName = user?.lastName || '';
 
         this.form.patchValue({
-          firstName: this.firstName,
-          lastName: this.lastName,
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
         });
       });
   }
@@ -106,8 +102,8 @@ export class ProfilePageComponent implements OnDestroy {
     this.form.get('lastName')?.disable();
 
     this.form.reset({
-      firstName: this.firstName,
-      lastName: this.lastName,
+      firstName: this.userSubject.value?.firstName || '',
+      lastName: this.userSubject.value?.lastName || '',
     });
   }
 
