@@ -108,7 +108,6 @@ export class ProfilePageComponent implements OnDestroy {
   }
 
   save() {
-    console.log('seasd');
     this.submitted = true;
 
     if (!this.isOwner) {
