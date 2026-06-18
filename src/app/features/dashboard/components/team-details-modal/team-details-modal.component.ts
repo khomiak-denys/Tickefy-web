@@ -73,6 +73,10 @@ export class TeamDetailsModalComponent implements OnChanges {
           return;
         }
 
+        if (team.id !== this.teamId) {
+          return;
+        }
+
         const list = team.members;
         team.members = list
           .map((m: UserShortDto) => {
