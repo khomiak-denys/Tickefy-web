@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { UsersService } from '../../../../core/services/users.service';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, shareReplay, takeUntil } from 'rxjs/operators';
 import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -60,7 +60,7 @@ export class ProfilePageComponent implements OnDestroy {
 
   ngOnInit() {
     this.targetUserId = this.route.snapshot.paramMap.get('id');
-    this.me$ = this.users.me();
+    this.me$ = this.users.me().pipe(shareReplay(1));
     this.loadUser();
 
     combineLatest([this.me$, this.user$])
@@ -125,7 +125,7 @@ export class ProfilePageComponent implements OnDestroy {
     this.users.updateProfile({ firstName, lastName }).subscribe({
       next: () => {
         this.authService.saveUserProfile(firstName, lastName);
-        this.me$ = this.users.me();
+        this.me$ = this.users.me().pipe(shareReplay(1));
         this.loadUser();
         this.editing = false;
         this.submitted = false;
@@ -168,7 +168,7 @@ export class ProfilePageComponent implements OnDestroy {
   }
 
   private loadUser() {
-    const loader$ = this.targetUserId ? this.users.getById(this.targetUserId) : this.users.me();
+    const loader$ = this.targetUserId ? this.users.getById(this.targetUserId) : this.me$;
     loader$.pipe(map((u) => u)).subscribe((u) => this.userSubject.next(u));
   }
 }
