@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -29,7 +29,7 @@ function min2Symbols(control: AbstractControl): ValidationErrors | null {
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
 })
-export class ProfilePageComponent implements OnDestroy {
+export class ProfilePageComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
 
   me$!: Observable<UserDto>;

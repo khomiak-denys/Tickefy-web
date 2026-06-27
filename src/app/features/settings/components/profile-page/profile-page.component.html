@@ -5,19 +5,19 @@
   </header>
 
   <div class="grid">
-    @if (me$ | async; as me) {
+    @if (user$ | async; as user) {
       <div class="card left">
-        <div class="avatar big">{{ ((me.firstName || me.lastName || 'U') + '').slice(0, 1) }}</div>
-        <div class="name">{{ (me.firstName || '') + ' ' + (me.lastName || '') }}</div>
-        <div class="login">{{ '@' + (me.login || '') }}</div>
-        <span class="pill role">{{ me.role || 'user' }}</span>
+        <div class="avatar big">
+          {{ ((user.firstName || user.lastName || 'U') + '').slice(0, 1) }}
+        </div>
+        <div class="name">{{ (user.firstName || '') + ' ' + (user.lastName || '') }}</div>
+        <div class="login">{{ '@' + (user.login || '') }}</div>
+        <span class="pill role">{{ user.role || 'user' }}</span>
         <div class="since">
           <span>Member since</span>
-          <span class="date">{{ me.created | date: 'dd/MM/yyyy' }}</span>
+          <span class="date">{{ user.created | date: 'dd/MM/yyyy' }}</span>
         </div>
       </div>
-    }
-    @if (user$ | async; as user) {
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
         <div class="card right">
           <div class="top">
