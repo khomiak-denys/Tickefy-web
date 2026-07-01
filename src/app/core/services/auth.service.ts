@@ -17,11 +17,11 @@ export class AuthService {
   }
 
   login(body: LoginUserRequest) {
-    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body, { withCredentials: true });
   }
 
   refreshToken() {
-    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/refresh`, {})
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/refresh`, {}, { withCredentials: true })
   }
 
   getAccessToken(): string | null {
