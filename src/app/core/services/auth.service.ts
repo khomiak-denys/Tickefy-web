@@ -20,6 +20,10 @@ export class AuthService {
     return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
   }
 
+  refreshToken() {
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/refresh`, {})
+  }
+
   getAccessToken(): string | null {
     return localStorage.getItem('access_token');
   }
