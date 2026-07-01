@@ -8,15 +8,26 @@ export function validateJwtClaims(
 ): { valid: boolean; reason: string | null } {
   const now = Date.now() / 1000;
 
-  if (now > payload.exp) return { valid: false, reason: 'Token expired' };
-  if (now < payload.nbf) return { valid: false, reason: 'Token not valid before specific time' };
+  if (now > payload.exp) {
+    return {valid: false, reason: 'Token expired'};
+  }
 
-  if (options.iss && options.iss !== payload.iss) return { valid: false, reason: 'Invalid issuer' };
-  if (options.aud && options.aud !== payload.aud)
-    return { valid: false, reason: 'Invalid audience' };
+  if (now < payload.nbf) {
+    console.log('Token not valid before');
+    return {valid: false, reason: 'Token not valid before specific time'};
+  }
+
+  if (options.iss && options.iss !== payload.iss) {
+    return {valid: false, reason: 'Invalid issuer'};
+  }
+
+  if (options.aud && options.aud !== payload.aud) {
+    return {valid: false, reason: 'Invalid audience'};
+  }
 
   return { valid: true, reason: null };
 }
+
 export function decodeJwtPayload(token: string): JwtPayload | null {
   try {
     const parts = token.split('.');
