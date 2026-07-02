@@ -32,8 +32,10 @@ import {
   MessageSquare,
   Flame,
   Pin,
+  List,
   X,
   UserMinus,
+
 } from 'lucide-angular';
 
 const icons = {
@@ -69,6 +71,7 @@ const icons = {
   Flame,
   Pin,
   X,
+  List,
   UserMinus,
 };
 
