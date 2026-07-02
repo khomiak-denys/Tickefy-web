@@ -9,20 +9,20 @@ export function validateJwtClaims(
   const now = Date.now() / 1000;
 
   if (now > payload.exp) {
-    return {valid: false, reason: 'Token expired'};
+    return { valid: false, reason: 'Token expired' };
   }
 
   if (now < payload.nbf) {
     console.log('Token not valid before');
-    return {valid: false, reason: 'Token not valid before specific time'};
+    return { valid: false, reason: 'Token not valid before specific time' };
   }
 
   if (options.iss && options.iss !== payload.iss) {
-    return {valid: false, reason: 'Invalid issuer'};
+    return { valid: false, reason: 'Invalid issuer' };
   }
 
   if (options.aud && options.aud !== payload.aud) {
-    return {valid: false, reason: 'Invalid audience'};
+    return { valid: false, reason: 'Invalid audience' };
   }
 
   return { valid: true, reason: null };

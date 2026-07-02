@@ -14,11 +14,11 @@ export class AuthGuard implements CanActivate {
   canActivate(): Observable<boolean | UrlTree> {
     if (!this.authService.isLoggedIn()) {
       return this.authService.refreshToken().pipe(
-        map(result => {
-        this.authService.saveToken(result.token);
-        return true;
-      }),
-        catchError(error => {
+        map((result) => {
+          this.authService.saveToken(result.token);
+          return true;
+        }),
+        catchError((error) => {
           return of(this.router.createUrlTree(['/auth/login']));
         })
       );
