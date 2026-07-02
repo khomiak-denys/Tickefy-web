@@ -7,14 +7,20 @@ import { JwtPayload } from '../../shared/helpers/dto/jwt.payload';
 import { JWT_AUDIENCE, JWT_ISSUER } from '../guards/jwt.config';
 import { AuthDto } from '../api/dtos/auth.dto';
 import { shareReplay, finalize } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.firstName$.next(localStorage.getItem('user_firstName'));
+    this.lastName$.next(localStorage.getItem('user_lastName'));
+  }
 
   private currentUser: JwtPayload | null = null;
   private token$: Observable<AuthDto> | null = null;
+
+  public firstName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  public lastName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   register(body: RegisterUserRequest) {
     return this.http.post(`${API_BASE_URL}/api/v1/auth/register`, body);
@@ -83,21 +89,15 @@ export class AuthService {
     return result.valid;
   }
 
-  getUserFirstName(): string | null {
-    return localStorage.getItem('user_firstName');
-  }
-
-  getUserLastName(): string | null {
-    return localStorage.getItem('user_lastName');
-  }
-
   saveUserProfile(firstName: string | null, lastName: string | null): void {
     if (firstName) {
       localStorage.setItem('user_firstName', firstName);
+      this.firstName$.next(firstName);
     }
 
     if (lastName) {
       localStorage.setItem('user_lastName', lastName);
+      this.lastName$.next(lastName);
     }
   }
 
@@ -106,9 +106,6 @@ export class AuthService {
   }
 
   saveToken(token: string): void {
-    localStorage.removeItem('user_firstName');
-    localStorage.removeItem('user_lastName');
     localStorage.setItem('access_token', token);
-    this.currentUser = null;
   }
 }
