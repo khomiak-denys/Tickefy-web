@@ -38,6 +38,10 @@
         >
       }
     </nav>
+
+    @let firstName = firstName$ | async;
+    @let lastName = lastName$ | async;
+
     <div class="profile">
       <div class="avatar">{{ firstName?.charAt(0) }}</div>
       <div class="who">

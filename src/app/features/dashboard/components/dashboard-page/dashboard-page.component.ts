@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   ActivityLogDto,
@@ -24,6 +24,7 @@ import { DashboardTicketService } from '../../services/dashboard-ticket.service'
 import { DashboardUserService } from '../../services/dashboard-user.service';
 import { DashboardLogsService } from '../../services/dashboard-logs.service';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
+import { AsyncPipe } from '@angular/common';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -40,6 +41,7 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
     CreateTicketModalComponent,
     CreateTeamModalComponent,
     TeamDetailsModalComponent,
+    AsyncPipe,
   ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
@@ -61,8 +63,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   currentUserId: string | null = null;
   role: string | null = null;
-  firstName: string | null = null;
-  lastName: string | null = null;
+  firstName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  lastName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   userError: string | null = null;
   ticketError: string | null = null;
@@ -112,8 +114,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       this.activeTab = 'queue';
     }
 
-    this.firstName = this.authService.getUserFirstName();
-    this.lastName = this.authService.getUserLastName();
+    this.firstName$ = this.authService.firstName$;
+    this.lastName$ = this.authService.lastName$;
 
     this.subscribeToErrors();
     this.subscribeToLogsPagination();
