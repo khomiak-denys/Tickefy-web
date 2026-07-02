@@ -14,6 +14,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return service.refreshToken().pipe(
           switchMap((result) => {
             service.saveToken(result.token);
+            service.saveUserProfile(result.firstName, result.lastName);
             const refreshedReq = req.clone({
               setHeaders: { Authorization: `Bearer ${result.token}` },
             });

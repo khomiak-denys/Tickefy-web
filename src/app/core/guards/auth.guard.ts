@@ -16,6 +16,7 @@ export class AuthGuard implements CanActivate {
       return this.authService.refreshToken().pipe(
         map((result) => {
           this.authService.saveToken(result.token);
+          this.authService.saveUserProfile(result.firstName, result.lastName);
           return true;
         }),
         catchError((error) => {
