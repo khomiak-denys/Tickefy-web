@@ -6,18 +6,39 @@ import { decodeJwtPayload, validateJwtClaims } from '../../shared/helpers/jwt.ut
 import { JwtPayload } from '../../shared/helpers/dto/jwt.payload';
 import { JWT_AUDIENCE, JWT_ISSUER } from '../guards/jwt.config';
 import { AuthDto } from '../api/dtos/auth.dto';
+import { shareReplay, finalize } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentUser: JwtPayload | null = null;
   constructor(private http: HttpClient) {}
+
+  private currentUser: JwtPayload | null = null;
+  private token$: Observable<AuthDto> | null = null;
 
   register(body: RegisterUserRequest) {
     return this.http.post(`${API_BASE_URL}/api/v1/auth/register`, body);
   }
 
   login(body: LoginUserRequest) {
-    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body);
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/login`, body, {
+      withCredentials: true,
+    });
+  }
+
+  refreshToken() {
+    if (!this.token$) {
+      this.token$ = this.http
+        .post<AuthDto>(`${API_BASE_URL}/api/v1/auth/refresh`, {}, { withCredentials: true })
+        .pipe(
+          shareReplay(1),
+          finalize(() => {
+            this.token$ = null;
+          })
+        );
+    }
+
+    return this.token$;
   }
 
   getAccessToken(): string | null {
