@@ -23,7 +23,7 @@ export class AuthService {
   public lastName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   register(body: RegisterUserRequest) {
-    return this.http.post(`${API_BASE_URL}/api/v1/auth/register`, body);
+    return this.http.post<AuthDto>(`${API_BASE_URL}/api/v1/auth/register`, body);
   }
 
   login(body: LoginUserRequest) {

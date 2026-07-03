@@ -62,10 +62,18 @@ export class RegisterPageComponent {
       password: string;
     };
     this.auth.register({ firstName, lastName, login, password }).subscribe({
-      next: () => {
+      next: (res) => {
+        if (!res) {
+          return;
+        }
+        if (res.token) {
+          this.auth.saveToken(res.token);
+          this.auth.saveUserProfile(res.firstName, res.lastName);
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.error = 'No token in response';
+        }
         this.loading = false;
-        // After successful registration, navigate to login
-        this.router.navigate(['/auth/login']);
       },
       error: (e) => {
         // Handle ProblemDetails-like responses and various HTTP errors
