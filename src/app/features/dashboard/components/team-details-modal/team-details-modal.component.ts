@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { TeamDetails, UserShortDto } from '../../../../core/api/dtos';
-import { TeamsService } from '../../../../core/services/teams.service';
+import { DashboardTeamsService } from '../../services/dashboard-teams.service';
 
 @Component({
   selector: 'app-team-details-modal',
@@ -20,7 +20,7 @@ export class TeamDetailsModalComponent implements OnChanges {
   teamDetailsLoading = false;
   error: string | null = null;
 
-  constructor(private teamsService: TeamsService) {}
+  constructor(private teamsService: DashboardTeamsService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((!changes['open'] || !changes['teamId']) && this.open && this.teamId) {
@@ -66,6 +66,7 @@ export class TeamDetailsModalComponent implements OnChanges {
     if (!this.teamId) {
       return;
     }
+
     this.error = null;
     this.teamsService.getById(this.teamId).subscribe({
       next: (team) => {
