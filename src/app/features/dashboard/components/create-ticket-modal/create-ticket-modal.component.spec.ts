@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CreateTicketModalComponent } from './create-ticket-modal.component';
 
 describe('CreateTicketModalComponent', () => {
@@ -9,6 +11,7 @@ describe('CreateTicketModalComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CreateTicketModalComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateTicketModalComponent);

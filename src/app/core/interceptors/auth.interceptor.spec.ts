@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpInterceptorFn, HttpRequest, provideHttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { AuthService } from '../services/auth.service';
@@ -30,7 +31,7 @@ describe('authInterceptor', () => {
 
   it('Token exists', () => {
     const req = new HttpRequest('GET', '/auth');
-    const next = jest.fn();
+    const next = jest.fn().mockReturnValue(of({}));
     interceptor(req, next);
     const clonedRequest = next.mock.calls[0][0];
 
@@ -39,7 +40,7 @@ describe('authInterceptor', () => {
 
   it('Token not exists', () => {
     const req = new HttpRequest('GET', '/auth');
-    const next = jest.fn();
+    const next = jest.fn().mockReturnValue(of({}));
     getTokenSpy.mockReturnValue('');
     interceptor(req, next);
     const clonedRequest = next.mock.calls[0][0];
