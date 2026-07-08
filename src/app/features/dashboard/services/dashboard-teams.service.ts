@@ -12,39 +12,39 @@ export class DashboardTeamsService {
   teams$ = new BehaviorSubject<TeamSummary[]>([]);
   teamError$ = new BehaviorSubject<string | null>(null);
 
+  private _teamsListCache: Observable<TeamSummary[]> | null = null;
+
   constructor(
     private auth: AuthService,
     private teams: TeamsService
   ) {}
 
-  private _cache: Map<string, Observable<TeamDetails>> = new Map();
+  private _teamDetailsCache: Map<string, Observable<TeamDetails>> = new Map();
 
   loadTeams() {
-    const role = this.auth.getRole();
+    if (!this._teamsListCache) {
+      const role = this.auth.getRole();
 
-    if (!role) {
-      return;
+      if (!role) {
+        return;
+      }
+
+      let request = role === 'admin' ? this.teams.getAll() : this.teams.getMy();
+
+      this._teamsListCache = request.pipe(
+        tap({
+          next: (data) => {
+            this.teams$.next(data);
+          },
+          error: (error) => {
+            this.teamError$.next(error);
+          }
+        }),
+        shareReplay(1),
+      );
     }
 
-    if (role === 'admin') {
-      this.teams.getAll().subscribe({
-        next: (data) => {
-          this.teams$.next(data);
-        },
-        error: (err) => {
-          this.teamError$.next(err);
-        },
-      });
-    } else {
-      this.teams.getMy().subscribe({
-        next: (data) => {
-          this.teams$.next(data);
-        },
-        error: (err) => {
-          this.teamError$.next(err);
-        },
-      });
-    }
+    this._teamsListCache.subscribe();
   }
 
   createTeam(req: CreateTeamRequest) {
@@ -52,11 +52,11 @@ export class DashboardTeamsService {
   }
 
   getById(id: string) {
-    const observable = this._cache.get(id);
+    const observable = this._teamDetailsCache.get(id);
 
     if (!observable) {
       const request = this.teams.getById(id).pipe(shareReplay(1));
-      this._cache.set(id, request);
+      this._teamDetailsCache.set(id, request);
       return request;
     }
 
@@ -76,6 +76,6 @@ export class DashboardTeamsService {
   }
 
   private invalidateTeamDetails(teamId: string) {
-    this._cache.delete(teamId);
+    this._teamDetailsCache.delete(teamId);
   }
 }
