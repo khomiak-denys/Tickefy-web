@@ -78,4 +78,8 @@ export class DashboardTeamsService {
   private invalidateTeamDetails(teamId: string) {
     this._teamDetailsCache.delete(teamId);
   }
+
+  invalidateTeamsListCache() {
+    this._teamsListCache = null;
+  }
 }
