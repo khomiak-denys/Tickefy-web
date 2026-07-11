@@ -38,11 +38,12 @@ export class DashboardUserService {
   }
 
   loadUsers() {
-    if (!this._usersListCache) {
-      if (!this.authService.getRole()?.includes('admin')) {
-        return;
-      }
+    if (!this.authService.getRole()?.includes('admin')) {
+      this.invalidateUsersListCache();
+      return;
+    }
 
+    if (!this._usersListCache) {
       this._usersListCache = this.usersRepository.getAll().pipe(
         tap({
           next: (data) => {

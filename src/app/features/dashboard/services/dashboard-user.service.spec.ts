@@ -54,7 +54,7 @@ describe('DashboardUserService', () => {
       mockAuth.getRole.mockReturnValue('user');
       service.loadUsers();
 
-      expect(mockAuth.getRole).toHaveBeenCalledTimes(1);
+      expect(mockAuth.getRole).toHaveBeenCalledTimes(2);
     });
 
     it('getAll should be called after cache invalidation', () => {
