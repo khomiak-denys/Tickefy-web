@@ -16,7 +16,7 @@ export class UsersService {
   }
 
   delete(userId: string) {
-    return this.http.delete(`${API_BASE_URL}/api/v1/users/${userId}`);
+    return this.http.delete<void>(`${API_BASE_URL}/api/v1/users/${userId}`);
   }
 
   setRole(userId: string, body: SetUserRoleRequest) {

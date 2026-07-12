@@ -202,6 +202,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.clearCurrentUser();
     this.teamsService.invalidateTeamsListCache();
+    this.usersService.invalidateUsersListCache();
     this.router.navigate(['/auth/login']);
   }
 
