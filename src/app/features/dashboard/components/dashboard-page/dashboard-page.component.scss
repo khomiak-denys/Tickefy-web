@@ -35,7 +35,7 @@
   border-radius: 10px;
   color: #374151;
   text-decoration: none;
-  cursor: default;
+  cursor: pointer;
 }
 
 .sidebar nav a.active,
@@ -48,6 +48,16 @@
   font-weight: 700;
   color: #5b53ff;
   font-size: 22px;
+}
+
+.create {
+  background: #5b53ff;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(91, 83, 255, 0.25);
 }
 
 .profile {
