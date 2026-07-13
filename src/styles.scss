@@ -1,3 +1,6 @@
+@use "sass:meta";
+@use 'assets/styles/variables';
+
 /* Global font: San Francisco first everywhere */
 html,
 body {
@@ -17,10 +20,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-@import './assets/styles/variables';
-@import './assets/styles/mixins';
-@import './assets/styles/animations';
-@import './assets/styles/tables';
+@include meta.load-css('assets/styles/mixins');
+@include meta.load-css('assets/styles/animations');
+@include meta.load-css('assets/styles/tables');
 
 /* Hide caret globally except for text entry surfaces */
 :where(*) {
