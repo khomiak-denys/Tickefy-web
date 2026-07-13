@@ -19,6 +19,7 @@ export class TeamDetailsModalComponent implements OnChanges {
   newTeamMemberLogin = '';
   teamDetailsLoading = false;
   error: string | null = null;
+  a = 'A';
 
   constructor(private teamsService: DashboardTeamsService) {}
 
