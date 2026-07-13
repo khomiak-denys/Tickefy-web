@@ -35,7 +35,6 @@ import {
   List,
   X,
   UserMinus,
-
 } from 'lucide-angular';
 
 const icons = {

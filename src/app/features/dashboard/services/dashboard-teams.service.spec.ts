@@ -24,7 +24,10 @@ describe('DashboardTeamsService', () => {
   let service: DashboardTeamsService;
   let mockAuth: jest.Mocked<Pick<AuthService, 'getRole'>>;
   let mockTeams: jest.Mocked<
-    Pick<TeamsService, 'getAll' | 'getMy' | 'getById' | 'create' | 'addMemberByLogin' | 'removeMember'>
+    Pick<
+      TeamsService,
+      'getAll' | 'getMy' | 'getById' | 'create' | 'addMemberByLogin' | 'removeMember'
+    >
   >;
 
   beforeEach(() => {
