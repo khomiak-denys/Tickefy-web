@@ -41,7 +41,7 @@
 
         <div class="team-section members">
           <div class="members-head">
-            <div class="section-title">Members ({{ teamDetails.members?.length || 0 }})</div>
+            <div class="section-title">Members ({{ teamDetails.members.length || 0 }})</div>
             <div class="add-member">
               <input
                 type="text"
@@ -53,7 +53,7 @@
                 class="ghost"
                 type="button"
                 (click)="addTeamMember()"
-                [disabled]="teamDetailsLoading || !newTeamMemberLogin?.trim()"
+                [disabled]="teamDetailsLoading || !newTeamMemberLogin.trim()"
               >
                 <lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
               </button>

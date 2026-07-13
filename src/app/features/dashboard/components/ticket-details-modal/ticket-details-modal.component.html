@@ -49,7 +49,7 @@
               ><lucide-icon name="alert-circle" size="14"></lucide-icon>
               {{ d.priority ? d.priority : 'medium' }}</span
             >
-            <span class="pill type">{{ d.category || d.assignedTeam?.category || 'none' }}</span>
+            <span class="pill type">{{ d.category || d.assignedTeam.category || 'none' }}</span>
           </div>
         </div>
         <div class="ticket-meta-row">
@@ -116,7 +116,7 @@
           <button
             class="send"
             (click)="addComment(d.id, newCommentText)"
-            [disabled]="!newCommentText?.trim()"
+            [disabled]="!newCommentText.trim()"
             aria-label="Send comment"
           >
             <lucide-icon name="send" size="18"></lucide-icon>

@@ -24,7 +24,7 @@
                 u.role || 'user' | lowercase
               }}</span>
             </div>
-            <div class="team-cell">{{ u.team?.name || '-' }}</div>
+            <div class="team-cell">{{ u.team.name || '-' }}</div>
             <div class="joined-cell">{{ u.created | date: 'dd/MM/yyyy' }}</div>
             <div class="actions-cell">
               <button class="icon" (click)="viewUser(u.id)" title="View details">

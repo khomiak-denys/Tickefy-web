@@ -40,7 +40,7 @@
                 @for (r of userRoleOptions; track r) {
                   <option
                     [value]="r"
-                    [selected]="(user.role || '')?.toLowerCase() === r.toLowerCase()"
+                    [selected]="(user.role || '').toLowerCase() === r.toLowerCase()"
                   >
                     {{ r }}
                   </option>
