@@ -38,9 +38,9 @@ export class DashboardTeamsService {
           },
           error: (error) => {
             this.teamError$.next(error);
-          }
+          },
         }),
-        shareReplay(1),
+        shareReplay(1)
       );
     }
 

@@ -53,7 +53,7 @@ export class DashboardUserService {
             this.errors$.next(error);
           },
         }),
-        shareReplay(1),
+        shareReplay(1)
       );
     }
 
