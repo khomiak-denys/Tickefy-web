@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, Subscription, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, tap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { CreateTicketRequest, TicketSummaryDto } from '../../../core/api/dtos';
 import { map } from 'rxjs/operators';
@@ -60,14 +60,14 @@ export class DashboardTicketService {
         next: (data) => {
           this.queueSource.next(data);
         },
-        error: (err) => {},
+        error: () => {},
       });
 
       this.tickets.getMy().subscribe({
         next: (data) => {
           this.mySource.next(data);
         },
-        error: (err) => {},
+        error: () => {},
       });
     } else {
       if (isAdmin) {
@@ -75,14 +75,14 @@ export class DashboardTicketService {
           next: (data) => {
             this.allSource.next(data);
           },
-          error: (err) => {},
+          error: () => {},
         });
       } else {
         this.tickets.getMy().subscribe({
           next: (data) => {
             this.mySource.next(data);
           },
-          error: (err) => {},
+          error: () => {},
         });
       }
     }

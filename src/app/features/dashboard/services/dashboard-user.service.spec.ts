@@ -99,7 +99,7 @@ describe('DashboardUserService', () => {
       mockUsers.getAll.mockReturnValue(of(MOCK_USERS));
 
       let users: UserDto[] | null = null;
-      const sub = service.filteredUsers$.subscribe((data) => {
+      service.filteredUsers$.subscribe((data) => {
         users = data;
       });
 
@@ -113,7 +113,7 @@ describe('DashboardUserService', () => {
       mockUsers.getAll.mockReturnValue(throwError(() => NETWORK_ERROR));
 
       let errorValue: string | null = null;
-      const sub = service.userError$.subscribe((err) => {
+      service.userError$.subscribe((err) => {
         errorValue = err;
       });
 
@@ -145,7 +145,7 @@ describe('DashboardUserService', () => {
       mockUsers.delete.mockReturnValue(throwError(() => NETWORK_ERROR));
 
       let errorValue: string | null = null;
-      const sub = service.userError$.subscribe((err) => {
+      service.userError$.subscribe((err) => {
         errorValue = err;
       });
 

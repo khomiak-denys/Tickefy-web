@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
           this.authService.saveUserProfile(result.firstName, result.lastName);
           return true;
         }),
-        catchError((error) => {
+        catchError(() => {
           return of(this.router.createUrlTree(['/auth/login']));
         })
       );

@@ -26,7 +26,7 @@ describe('authInterceptor', () => {
     });
 
     authService = TestBed.inject(AuthService);
-    getTokenSpy = jest.spyOn(authService, 'getAccessToken').mockReturnValue('fake-token');
+    const getTokenSpy = jest.spyOn(authService, 'getAccessToken').mockReturnValue('fake-token');
   });
 
   it('Token exists', () => {
