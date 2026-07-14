@@ -19,9 +19,9 @@ export interface TicketSummaryDto {
     manager: UserShortDto | null;
   };
   assignedAgent: UserShortDto | null;
-  category: string | null;
-  priority: string | null;
-  status: string | null;
+  category: string;
+  priority: string;
+  status: string;
   created: string; // ISO date
   deadline: string; // ISO date
 }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { TicketDetailsDto, TicketSummaryDto } from '../../../../core/api/dtos';
+import { TicketDetailsDto } from '../../../../core/api/dtos';
 import { catchError, Observable, of } from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
@@ -61,7 +61,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  statusClass(status: any) {
+  statusClass(status: string) {
     const s = String(status || 'open').toLowerCase();
     return {
       badge: true,

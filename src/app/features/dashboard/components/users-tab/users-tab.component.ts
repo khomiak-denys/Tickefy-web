@@ -24,7 +24,7 @@ export class UsersTabComponent {
     this.selectedUserId.emit(id);
   }
 
-  roleClass(role: any) {
+  roleClass(role: string) {
     const r = String(role || 'user').toLowerCase();
     return {
       admin: r === 'admin',

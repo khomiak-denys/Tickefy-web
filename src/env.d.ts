@@ -5,7 +5,7 @@ declare interface Env {
   readonly NG_APP_JWT_ISSUER: string;
   readonly NG_APP_JWT_AUDIENCE: string;
   readonly NG_APP_API_BASE_URL: string;
-  [key: string]: any;
+  [key: string]: string;
 }
 
 // Choose how to access the environment variables.
@@ -22,8 +22,3 @@ declare interface ImportMeta {
 //  define: '_NGX_ENV_',
 // }
 declare const _NGX_ENV_: Env;
-
-// 3. Use process.env.YOUR_ENV_VAR in your code. (deprecated)
-declare namespace NodeJS {
-  export interface ProcessEnv extends Env {}
-}

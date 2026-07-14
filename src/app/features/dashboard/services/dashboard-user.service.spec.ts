@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { DashboardUserService } from './dashboard-user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsersService } from '../../../core/services/users.service';
@@ -20,7 +21,15 @@ describe('DashboardUserService', () => {
       delete: jest.fn(),
     };
 
-    service = new DashboardUserService(mockAuth as any, mockUsers as any);
+    TestBed.configureTestingModule({
+      providers: [
+        DashboardUserService,
+        { provide: AuthService, useValue: mockAuth },
+        { provide: UsersService, useValue: mockUsers },
+      ],
+    });
+
+    service = TestBed.inject(DashboardUserService);
   });
 
   describe('loadUsers()', () => {
@@ -99,7 +108,7 @@ describe('DashboardUserService', () => {
       mockUsers.getAll.mockReturnValue(of(MOCK_USERS));
 
       let users: UserDto[] | null = null;
-      const sub = service.filteredUsers$.subscribe((data) => {
+      service.filteredUsers$.subscribe((data) => {
         users = data;
       });
 
@@ -113,7 +122,7 @@ describe('DashboardUserService', () => {
       mockUsers.getAll.mockReturnValue(throwError(() => NETWORK_ERROR));
 
       let errorValue: string | null = null;
-      const sub = service.userError$.subscribe((err) => {
+      service.userError$.subscribe((err) => {
         errorValue = err;
       });
 
@@ -125,7 +134,7 @@ describe('DashboardUserService', () => {
 
   describe('deleteUser()', () => {
     it('delete should not be called when id is null', () => {
-      service.deleteUser(null as any);
+      service.deleteUser('');
 
       expect(mockUsers.delete).not.toHaveBeenCalled();
     });
@@ -145,7 +154,7 @@ describe('DashboardUserService', () => {
       mockUsers.delete.mockReturnValue(throwError(() => NETWORK_ERROR));
 
       let errorValue: string | null = null;
-      const sub = service.userError$.subscribe((err) => {
+      service.userError$.subscribe((err) => {
         errorValue = err;
       });
 

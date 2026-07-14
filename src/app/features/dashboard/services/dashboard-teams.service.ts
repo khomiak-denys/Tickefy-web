@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { TeamsService } from '../../../core/services/teams.service';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { CreateTeamRequest, TeamDetails, TeamSummary } from '../../../core/api/dtos';
 import { shareReplay } from 'rxjs/operators';
 
@@ -29,7 +29,7 @@ export class DashboardTeamsService {
         return;
       }
 
-      let request = role === 'admin' ? this.teams.getAll() : this.teams.getMy();
+      const request = role === 'admin' ? this.teams.getAll() : this.teams.getMy();
 
       this._teamsListCache = request.pipe(
         tap({

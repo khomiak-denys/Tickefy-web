@@ -18,7 +18,7 @@ describe('authInterceptor', () => {
     TestBed.runInInjectionContext(() => authInterceptor(req, next));
 
   let authService: AuthService;
-  let getTokenSpy: any;
+  let getTokenSpy: jest.SpyInstance;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

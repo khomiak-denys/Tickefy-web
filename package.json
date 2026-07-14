@@ -48,6 +48,7 @@
     "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "baseline-browser-mapping": "^2.10.43",
     "eslint": "^9.0.0",
     "husky": "^9.0.11",
     "jest": "^29.7.0",
