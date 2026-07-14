@@ -61,7 +61,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  statusClass(status: any) {
+  statusClass(status: string) {
     const s = String(status || 'open').toLowerCase();
     return {
       badge: true,

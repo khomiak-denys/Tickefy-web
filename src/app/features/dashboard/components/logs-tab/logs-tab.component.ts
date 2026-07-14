@@ -27,14 +27,14 @@ export class LogsTabComponent {
     this.prevPage.emit();
   }
 
-  humanizeEvent(eventType: any) {
+  humanizeEvent(eventType: string) {
     const raw = String(eventType || '').trim();
     if (!raw) return '';
     const withSpaces = raw.replace(/([A-Z])/g, ' $1').trim();
     return withSpaces.toLowerCase();
   }
 
-  logBadge(eventType: any) {
+  logBadge(eventType: string) {
     const t = String(eventType || '').toLowerCase();
     return {
       badge: true,
@@ -49,7 +49,7 @@ export class LogsTabComponent {
     };
   }
 
-  logIcon(eventType: any) {
+  logIcon(eventType: string) {
     const t = String(eventType || '').toLowerCase();
     if (t.includes('requestcreated')) return 'file-text';
     if (t.includes('commentadded')) return 'message-square';

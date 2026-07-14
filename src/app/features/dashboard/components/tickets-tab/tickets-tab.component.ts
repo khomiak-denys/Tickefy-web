@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { AsyncPipe, DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TicketDetailsDto, TicketSummaryDto } from '../../../../core/api/dtos';
+import { TicketSummaryDto } from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-tickets-tab',
@@ -21,7 +21,7 @@ export class TicketsTabComponent {
     this.selectedTicketId.emit(id);
   }
 
-  statusClass(status: any) {
+  statusClass(status: string) {
     const s = String(status || 'open').toLowerCase();
     return {
       badge: true,
@@ -35,7 +35,7 @@ export class TicketsTabComponent {
     };
   }
 
-  priorityClass(p: any) {
+  priorityClass(p: string) {
     const v = String(p || '').toLowerCase();
     return { pr: true, low: v === 'low', medium: v === 'medium', high: v === 'high' };
   }

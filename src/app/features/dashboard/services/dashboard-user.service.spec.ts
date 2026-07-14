@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { DashboardUserService } from './dashboard-user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsersService } from '../../../core/services/users.service';
@@ -20,7 +21,15 @@ describe('DashboardUserService', () => {
       delete: jest.fn(),
     };
 
-    service = new DashboardUserService(mockAuth as any, mockUsers as any);
+    TestBed.configureTestingModule({
+      providers: [
+        DashboardUserService,
+        { provide: AuthService, useValue: mockAuth },
+        { provide: UsersService, useValue: mockUsers },
+      ],
+    });
+
+    service = TestBed.inject(DashboardUserService);
   });
 
   describe('loadUsers()', () => {
@@ -125,7 +134,7 @@ describe('DashboardUserService', () => {
 
   describe('deleteUser()', () => {
     it('delete should not be called when id is null', () => {
-      service.deleteUser(null as any);
+      service.deleteUser('');
 
       expect(mockUsers.delete).not.toHaveBeenCalled();
     });

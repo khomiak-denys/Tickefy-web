@@ -1,130 +1,110 @@
 @if (open) {
-  <div class="modal-backdrop" (click)="closeDetails()"></div>
-  <div class="modal">
-    <header class="modal-head">
-      <h3>Ticket details</h3>
-      <button class="close" (click)="closeDetails()">×</button>
-    </header>
-    @if (ticketDetails$ | async; as d) {
-      <section class="modal-body">
-        <div class="ticket-head">
-          <h2 class="ticket-title">{{ d.title || 'Ticket #' + (d.id || '') }}</h2>
-          <div class="ticket-actions">
-            @if (canTake(d)) {
-              <button
-                class="act primary"
-                (click)="takeTicket(d.id)"
-                [disabled]="ticketActionLoading"
-              >
-                <lucide-icon name="plus-circle" size="16"></lucide-icon> Take
-              </button>
-            }
+<div class="modal-backdrop" (click)="closeDetails()"></div>
+<div class="modal">
+  <header class="modal-head">
+    <h3>Ticket details</h3>
+    <button class="close" (click)="closeDetails()">×</button>
+  </header>
+  @if (ticketDetails$ | async; as d) {
+  <section class="modal-body">
+    <div class="ticket-head">
+      <h2 class="ticket-title">{{ d.title || 'Ticket #' + (d.id || '') }}</h2>
+      <div class="ticket-actions">
+        @if (canTake(d)) {
+        <button class="act primary" (click)="takeTicket(d.id)" [disabled]="ticketActionLoading">
+          <lucide-icon name="plus-circle" size="16"></lucide-icon> Take
+        </button>
+        }
 
-            @if (canCancel(d)) {
-              <button
-                class="act cancel"
-                (click)="cancelTicket(d.id)"
-                [disabled]="ticketActionLoading"
-              >
-                <lucide-icon name="x-circle" size="16"></lucide-icon> Cancel
-              </button>
-            }
+        @if (canCancel(d)) {
+        <button class="act cancel" (click)="cancelTicket(d.id)" [disabled]="ticketActionLoading">
+          <lucide-icon name="x-circle" size="16"></lucide-icon> Cancel
+        </button>
+        }
 
-            @if (canComplete(d)) {
-              <button
-                class="act complete"
-                (click)="completeTicket(d.id)"
-                [disabled]="ticketActionLoading"
-              >
-                <lucide-icon name="check-circle" size="16"></lucide-icon> Complete
-              </button>
-            }
-          </div>
-          <div class="ticket-tags">
-            <span class="pill status" [ngClass]="statusClass(d?.status)"
-              ><lucide-icon name="clock" size="14"></lucide-icon>
-              {{ d.status || 'in progress' }}</span
-            >
-            <span class="pill priority"
-              ><lucide-icon name="alert-circle" size="14"></lucide-icon>
-              {{ d.priority ? d.priority : 'medium' }}</span
-            >
-            <span class="pill type">{{ d.category || d.assignedTeam.category || 'none' }}</span>
+        @if (canComplete(d)) {
+        <button class="act complete" (click)="completeTicket(d.id)" [disabled]="ticketActionLoading">
+          <lucide-icon name="check-circle" size="16"></lucide-icon> Complete
+        </button>
+        }
+      </div>
+      <div class="ticket-tags">
+        <span class="pill status" [ngClass]="statusClass(d.status)"><lucide-icon name="clock" size="14"></lucide-icon>
+          {{ d.status || 'in progress' }}</span>
+        <span class="pill priority"><lucide-icon name="alert-circle" size="14"></lucide-icon>
+          {{ d.priority ? d.priority : 'medium' }}</span>
+        <span class="pill type">{{ d.category || d.assignedTeam.category || 'none' }}</span>
+      </div>
+    </div>
+    <div class="ticket-meta-row">
+      <div class="meta-block">
+        <lucide-icon name="user" size="16"></lucide-icon>
+        <div>
+          <div class="meta-label">Created by</div>
+          <div class="meta-value">
+            {{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}
           </div>
         </div>
-        <div class="ticket-meta-row">
-          <div class="meta-block">
-            <lucide-icon name="user" size="16"></lucide-icon>
-            <div>
-              <div class="meta-label">Created by</div>
-              <div class="meta-value">
-                {{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}
-              </div>
-            </div>
+      </div>
+      <div class="meta-block">
+        <lucide-icon name="clock" size="16"></lucide-icon>
+        <div>
+          <div class="meta-label">Created</div>
+          <div class="meta-value">{{ d.created | date: 'dd/MM/yyyy' }}</div>
+        </div>
+      </div>
+      <div class="meta-block">
+        <lucide-icon name="calendar" size="16"></lucide-icon>
+        <div>
+          <div class="meta-label">Deadline</div>
+          <div class="meta-value">{{ d.deadline | date: 'dd/MM/yyyy' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="section-title">Description</h3>
+    <p class="modal-desc">{{ d.description }}</p>
+
+    <h3 class="section-title">Comments ({{ d.comments?.length || 0 }})</h3>
+    <ul class="comments">
+      @for (c of d.comments || []; track c.id) {
+      <li class="comment-item">
+        <div class="comment-head">
+          <div class="avatar small">
+            {{
+            (
+            (c.user?.firstName || '') +
+            (c.user?.lastName ? ' ' + c.user?.lastName : '') || 'U'
+            ).slice(0, 1)
+            }}
           </div>
-          <div class="meta-block">
-            <lucide-icon name="clock" size="16"></lucide-icon>
-            <div>
-              <div class="meta-label">Created</div>
-              <div class="meta-value">{{ d.created | date: 'dd/MM/yyyy' }}</div>
+          <div class="who-time">
+            <div class="who">
+              {{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}
             </div>
-          </div>
-          <div class="meta-block">
-            <lucide-icon name="calendar" size="16"></lucide-icon>
-            <div>
-              <div class="meta-label">Deadline</div>
-              <div class="meta-value">{{ d.deadline | date: 'dd/MM/yyyy' }}</div>
+            <div class="time">
+              <lucide-icon name="clock" size="14"></lucide-icon>
+              {{ c.created | date: 'MM/dd/yyyy, hh:mm:ss a' }}
             </div>
           </div>
         </div>
+        <div class="c-text">{{ c.content }}</div>
+      </li>
+      } @empty {
+      <li class="no-comments">No comments.</li>
+      }
+    </ul>
 
-        <h3 class="section-title">Description</h3>
-        <p class="modal-desc">{{ d.description }}</p>
-
-        <h3 class="section-title">Comments ({{ d.comments?.length || 0 }})</h3>
-        <ul class="comments">
-          @for (c of d.comments || []; track c.id) {
-            <li class="comment-item">
-              <div class="comment-head">
-                <div class="avatar small">
-                  {{
-                    (
-                      (c.user?.firstName || '') +
-                        (c.user?.lastName ? ' ' + c.user?.lastName : '') || 'U'
-                    ).slice(0, 1)
-                  }}
-                </div>
-                <div class="who-time">
-                  <div class="who">
-                    {{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}
-                  </div>
-                  <div class="time">
-                    <lucide-icon name="clock" size="14"></lucide-icon>
-                    {{ c.created | date: 'MM/dd/yyyy, hh:mm:ss a' }}
-                  </div>
-                </div>
-              </div>
-              <div class="c-text">{{ c.content }}</div>
-            </li>
-          } @empty {
-            <li class="no-comments">No comments.</li>
-          }
-        </ul>
-
-        <div class="comment-input">
-          <input type="text" placeholder="Add a comment..." [(ngModel)]="newCommentText" />
-          <button
-            class="send"
-            (click)="addComment(d.id, newCommentText)"
-            [disabled]="!newCommentText.trim()"
-            aria-label="Send comment"
-          >
-            <lucide-icon name="send" size="18"></lucide-icon>
-          </button>
-        </div>
-      </section>
-    } @else {
-      <div class="modal-loading">Loading details…</div>
-    }
-  </div>
+    <div class="comment-input">
+      <input type="text" placeholder="Add a comment..." [(ngModel)]="newCommentText" />
+      <button class="send" (click)="addComment(d.id, newCommentText)" [disabled]="!newCommentText.trim()"
+        aria-label="Send comment">
+        <lucide-icon name="send" size="18"></lucide-icon>
+      </button>
+    </div>
+  </section>
+  } @else {
+  <div class="modal-loading">Loading details…</div>
+  }
+</div>
 }

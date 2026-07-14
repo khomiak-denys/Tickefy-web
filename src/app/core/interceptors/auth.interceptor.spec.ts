@@ -18,7 +18,7 @@ describe('authInterceptor', () => {
     TestBed.runInInjectionContext(() => authInterceptor(req, next));
 
   let authService: AuthService;
-  let getTokenSpy: any;
+  let getTokenSpy: jest.SpyInstance;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -26,7 +26,7 @@ describe('authInterceptor', () => {
     });
 
     authService = TestBed.inject(AuthService);
-    const getTokenSpy = jest.spyOn(authService, 'getAccessToken').mockReturnValue('fake-token');
+    getTokenSpy = jest.spyOn(authService, 'getAccessToken').mockReturnValue('fake-token');
   });
 
   it('Token exists', () => {

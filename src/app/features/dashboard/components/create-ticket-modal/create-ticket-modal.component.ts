@@ -52,11 +52,7 @@ export class CreateTicketModalComponent implements OnChanges {
     this.submitted.emit(request);
   }
 
-  private formatDate(date: any): string {
-    try {
-      return new Date(date).toISOString();
-    } catch {
-      return date;
-    }
+  private formatDate(date: string): string {
+    return new Date(date).toISOString();
   }
 }

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { TeamDetails, UserShortDto } from '../../../../core/api/dtos';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
+import { ProblemDetails } from '../../../../core/api/dtos/error.dto';
 
 @Component({
   selector: 'app-team-details-modal',
@@ -51,12 +52,12 @@ export class TeamDetailsModalComponent implements OnChanges {
         this.fetchTeamDetails();
         this.teamDetailsLoading = false;
       },
-      error: (error: any) => {
+      error: (error: ProblemDetails) => {
         this.teamDetailsLoading = false;
         if (error.status === 404) {
           this.error = 'User not found';
         } else if (error.status === 400) {
-          this.error = error?.error?.detail;
+          this.error = error.errors?.['MemberLogin']?.[0] ?? 'Failed to add member';
         } else this.error = 'Failed to add member';
       },
     });
