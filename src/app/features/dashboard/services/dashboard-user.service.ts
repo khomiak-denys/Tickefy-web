@@ -27,7 +27,7 @@ export class DashboardUserService {
   private filterUsers(stream$: Observable<UserDto[]>) {
     return combineLatest([stream$, this.userRoleFilter$, this.userTeamFilter$]).pipe(
       map(([list, roleFilter, teamFilter]) => {
-        const norm = (v: string | null) => String(v || '').toLowerCase();
+        const norm = (v: string | null | undefined) => String(v || '').toLowerCase();
         return list.filter((user: UserDto) => {
           const roleOk = roleFilter === 'all' || norm(user.role) === roleFilter;
           const teamOk = teamFilter === 'all' || norm(user.team?.name) === teamFilter;
