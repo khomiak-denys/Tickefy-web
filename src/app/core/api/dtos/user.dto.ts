@@ -38,6 +38,6 @@ export interface UserDto {
   lastName: string | null;
   login: string;
   role: string;
-  team: TeamSummary;
+  team: TeamSummary | null;
   created: string;
 }
