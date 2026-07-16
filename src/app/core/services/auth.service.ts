@@ -32,6 +32,10 @@ export class AuthService {
     });
   }
 
+  logout() {
+    return this.http.post(`${API_BASE_URL}/api/v1/auth/logout`, {}, { withCredentials: true });
+  }
+
   refreshToken() {
     if (!this.token$) {
       this.token$ = this.http
