@@ -13,7 +13,6 @@ export function validateJwtClaims(
   }
 
   if (now < payload.nbf) {
-    console.log('Token not valid before');
     return { valid: false, reason: 'Token not valid before specific time' };
   }
 
