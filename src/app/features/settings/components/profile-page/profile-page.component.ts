@@ -129,7 +129,6 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
         this.loadUser();
         this.editing = false;
         this.submitted = false;
-        console.log(this.submitted);
         this.form.get('firstName')?.disable();
         this.form.get('lastName')?.disable();
       },
