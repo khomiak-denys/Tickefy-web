@@ -108,18 +108,21 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     const payload = this.authService.getCurrentUser();
     const roleFromToken = this.authService.getRole();
     this.currentUserId = payload?.nameid ?? null;
-    this.setRole(roleFromToken || null);
+
+    this.setRole(roleFromToken);
+    this.setTab(this.activeTab);
 
     if (this.isAgent) {
       this.activeTab = 'queue';
     }
+
+    this.setTab(this.activeTab);
 
     this.firstName$ = this.authService.firstName$;
     this.lastName$ = this.authService.lastName$;
 
     this.subscribeToErrors();
     this.subscribeToLogsPagination();
-    this.refreshTickets();
   }
 
   ngOnDestroy(): void {
@@ -255,8 +258,12 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       this.activeTab = allowed[0];
       return;
     }
-    this.activeTab = tab;
 
+    this.activeTab = tab;
+    this.loadDataForTab(this.activeTab);
+  }
+
+  loadDataForTab(tab: string) {
     switch (tab) {
       case 'my':
       case 'queue':
@@ -339,9 +346,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.role = role;
     this.updateRoleFlags();
     this.allowedTabsList = this.computeAllowedTabs();
-    this.ensureActiveTabValid();
-
-    this.setTab(this.activeTab);
   }
 
   private computeAllowedTabs(): TabKey[] {
@@ -354,12 +358,5 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   canViewTab(tab: TabKey) {
     return this.allowedTabsList.includes(tab);
-  }
-
-  private ensureActiveTabValid() {
-    const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
-    if (!allowed.includes(this.activeTab)) {
-      this.activeTab = allowed[0];
-    }
   }
 }
