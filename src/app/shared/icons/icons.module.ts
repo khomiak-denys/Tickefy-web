@@ -35,6 +35,8 @@ import {
   List,
   X,
   UserMinus,
+  RefreshCcw,
+  Check,
 } from 'lucide-angular';
 
 const icons = {
@@ -72,6 +74,8 @@ const icons = {
   X,
   List,
   UserMinus,
+  RefreshCcw,
+  Check,
 };
 
 @NgModule({
