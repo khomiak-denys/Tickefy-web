@@ -41,8 +41,10 @@ export class TicketsService {
     return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/complete`, {});
   }
 
-  reopen(ticketId: string) {
-    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/reopen`, {});
+  reopen(ticketId: string, reason: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/reopen`, {
+      reason: reason,
+    });
   }
 
   fail(ticketId: string, reason: string) {
