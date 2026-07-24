@@ -54,7 +54,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     Complete: {
       label: 'Complete',
       icon: 'check-circle',
-      style: 'primary',
+      style: 'success',
       handler: this.completeTicket.bind(this),
       requireReason: false,
     },
@@ -75,7 +75,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     Accept: {
       label: 'Accept',
       icon: 'check',
-      style: 'primary',
+      style: 'success',
       handler: this.acceptTicket.bind(this),
       requireReason: false,
     },
@@ -87,6 +87,16 @@ export class TicketDetailsModalComponent implements OnChanges {
       requireReason: false,
     },
   };
+
+  getActionConfig(key: string): ActionConfig | null {
+    if (this.ticketActions[key]) {
+      return this.ticketActions[key];
+    }
+    const foundKey = Object.keys(this.ticketActions).find(
+      (k) => k.toLowerCase() === key.toLowerCase()
+    );
+    return foundKey ? this.ticketActions[foundKey] : null;
+  }
 
   constructor(private tickets: TicketsService) {}
 
@@ -156,13 +166,18 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  reopenTicket(ticketId: string) {
-    if (this.ticketActionLoading) {
+  reopenTicket(ticketId: string, reason: string | null) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    if (!reason) {
+      this.ticketActionError = 'Please provide a reason';
       return;
     }
 
     this.setLoadingModalState();
-    this.tickets.reopen(String(ticketId)).subscribe({
+    this.tickets.reopen(String(ticketId), reason).subscribe({
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);

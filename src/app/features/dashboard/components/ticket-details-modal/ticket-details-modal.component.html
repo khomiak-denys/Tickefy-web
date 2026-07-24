@@ -11,14 +11,16 @@
           <h2 class="ticket-title">{{ d.title || 'Ticket #' + (d.id || '') }}</h2>
           <div class="ticket-actions">
             @for (action of d.availableActions; track action.key) {
-              <button
-                class="act {{ ticketActions[action.key].style }}"
-                (click)="onActionClick(ticketActions[action.key])"
-                [disabled]="ticketActionLoading"
-              >
-                <lucide-icon [name]="ticketActions[action.key].icon" size="16"></lucide-icon>
-                {{ ticketActions[action.key].label }}
-              </button>
+              @if (getActionConfig(action.key); as config) {
+                <button
+                  class="act {{ config.style }}"
+                  (click)="onActionClick(config)"
+                  [disabled]="ticketActionLoading"
+                >
+                  <lucide-icon [name]="config.icon" size="16"></lucide-icon>
+                  {{ config.label }}
+                </button>
+              }
             }
           </div>
           <div class="ticket-tags">
