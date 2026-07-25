@@ -14,7 +14,7 @@
               @if (getActionConfig(action.key); as config) {
                 <button
                   class="act {{ config.style }}"
-                  (click)="onActionClick(config)"
+                  (click)="onActionClick(action.requireReason, config)"
                   [disabled]="ticketActionLoading"
                 >
                   <lucide-icon [name]="config.icon" size="16"></lucide-icon>
@@ -115,7 +115,7 @@
 <app-reason-modal
   [open]="reasonModalOpened"
   [actionName]="reasonActionName"
-  (closed)="onReasonModalClose($event)"
-  (cancelled)="reasonModalOpened = false"
+  (submitted)="onReasonModalSubmit($event)"
+  (cancelled)="onReasonModalClose()"
 >
 </app-reason-modal>

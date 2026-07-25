@@ -1,12 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { TicketDetailsDto } from '../../../../core/api/dtos';
 import { catchError, Observable, of } from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
@@ -31,7 +23,7 @@ export class TicketDetailsModalComponent implements OnChanges {
   ticketActionLoading = false;
   newCommentText = '';
   ticketActionError: string | null = null;
-  pendingAction: ActionConfig | null = null;
+  private pendingAction: ActionConfig | null = null;
 
   reasonModalOpened: boolean = false;
   reasonActionName: string = '';
@@ -42,49 +34,42 @@ export class TicketDetailsModalComponent implements OnChanges {
       icon: 'plus-circle',
       style: 'primary',
       handler: this.takeTicket.bind(this),
-      requireReason: false,
     },
     Reopen: {
       label: 'Reopen',
       icon: 'refresh-ccw',
       style: 'warning',
       handler: this.reopenTicket.bind(this),
-      requireReason: true,
     },
     Complete: {
       label: 'Complete',
       icon: 'check-circle',
       style: 'success',
       handler: this.completeTicket.bind(this),
-      requireReason: false,
     },
     Cancel: {
       label: 'Cancel',
       icon: 'x-circle',
       style: 'danger',
       handler: this.cancelTicket.bind(this),
-      requireReason: true,
     },
     Fail: {
       label: 'Fail',
       icon: 'x-circle',
       style: 'danger',
       handler: this.failTicket.bind(this),
-      requireReason: true,
     },
     Accept: {
       label: 'Accept',
       icon: 'check',
       style: 'success',
       handler: this.acceptTicket.bind(this),
-      requireReason: false,
     },
     StartWork: {
       label: 'Start work',
       icon: 'play-circle',
       style: 'primary',
       handler: this.startWorkTicket.bind(this),
-      requireReason: false,
     },
   };
 
@@ -106,7 +91,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     }
   }
 
-  loadDetails(ticketId: string): void {
+  private loadDetails(ticketId: string): void {
     this.ticketDetails$ = this.tickets.getById(ticketId).pipe(catchError(() => of(null)));
   }
 
@@ -114,7 +99,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     this.closed.emit();
   }
 
-  addComment(ticketId: string | undefined, text: string | undefined) {
+  addComment(ticketId: string, text: string | undefined) {
     const content = (text || '').trim();
     if (!ticketId || !content) return;
     // Optimistically clear input for UX
@@ -150,7 +135,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     };
   }
 
-  completeTicket(ticketId: string | null) {
+  private completeTicket(ticketId: string) {
     if (!ticketId || this.ticketActionLoading) {
       return;
     }
@@ -166,7 +151,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  reopenTicket(ticketId: string, reason: string | null) {
+  private reopenTicket(ticketId: string, reason: string | null) {
     if (!ticketId || this.ticketActionLoading) {
       return;
     }
@@ -187,7 +172,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  cancelTicket(ticketId: string | null, reason: string | null) {
+  private cancelTicket(ticketId: string | null, reason: string | null) {
     if (!ticketId || this.ticketActionLoading) {
       return;
     }
@@ -208,7 +193,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  takeTicket(ticketId: string | undefined) {
+  private takeTicket(ticketId: string | undefined) {
     if (!ticketId || this.ticketActionLoading) {
       return;
     }
@@ -224,7 +209,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  failTicket(ticketId: string | null, reason: string | null) {
+  private failTicket(ticketId: string, reason: string | null) {
     if (!ticketId || !reason) {
       this.ticketActionError = 'Please provide a reason';
       return;
@@ -245,7 +230,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  acceptTicket(ticketId: string) {
+  private acceptTicket(ticketId: string) {
     if (!ticketId || this.ticketActionLoading) {
       return;
     }
@@ -261,7 +246,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  startWorkTicket(ticketId: string) {
+  private startWorkTicket(ticketId: string) {
     if (!ticketId || this.ticketActionLoading) {
       return;
     }
@@ -277,10 +262,10 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  onActionClick(action: ActionConfig) {
+  onActionClick(requireReason: boolean, action: ActionConfig) {
     this.pendingAction = action;
 
-    if (action.requireReason) {
+    if (requireReason) {
       this.openReasonModal(action.label);
     } else {
       this.executeAction(null);
@@ -292,11 +277,16 @@ export class TicketDetailsModalComponent implements OnChanges {
     this.reasonModalOpened = true;
   }
 
-  onReasonModalClose(reason: string | null) {
+  onReasonModalSubmit(reason: string | null) {
     this.reasonModalOpened = false;
     if (this.pendingAction) {
       this.executeAction(reason);
     }
+  }
+
+  onReasonModalClose() {
+    this.reasonModalOpened = false;
+    this.pendingAction = null;
   }
 
   private executeAction(reason: string | null) {
@@ -318,6 +308,5 @@ interface ActionConfig {
   label: string;
   icon: string;
   style: string;
-  requireReason: boolean;
   handler: (ticketId: string, reason: string | null) => void;
 }
