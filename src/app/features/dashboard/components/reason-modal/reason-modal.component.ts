@@ -8,17 +8,11 @@ import { SimpleChanges } from '@angular/core';
   templateUrl: './reason-modal.component.html',
   styleUrl: './reason-modal.component.scss',
 })
-export class ReasonModalComponent implements OnChanges {
+export class ReasonModalComponent {
   @Input() open: boolean = false;
   @Input() actionName: string = '';
-  @Output() closed = new EventEmitter<string>();
+  @Output() submitted = new EventEmitter<string>();
   @Output() cancelled = new EventEmitter<void>();
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['open'].currentValue === false) {
-      this.reset();
-    }
-  }
 
   error: string | null = null;
   reasonText: string = '';
@@ -34,7 +28,7 @@ export class ReasonModalComponent implements OnChanges {
       this.error = 'Reason is required';
       return;
     }
-    this.closed.emit(this.reasonText);
+    this.submitted.emit(this.reasonText);
     this.reset();
   }
 
