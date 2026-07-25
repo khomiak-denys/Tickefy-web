@@ -5,11 +5,12 @@ import { IconsModule } from '../../../../shared/icons/icons.module';
 import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
+import { ReasonModalComponent } from '../reason-modal/reason-modal.component';
 
 @Component({
   selector: 'app-ticket-details-modal',
   standalone: true,
-  imports: [IconsModule, NgClass, DatePipe, FormsModule, AsyncPipe],
+  imports: [IconsModule, NgClass, DatePipe, FormsModule, AsyncPipe, ReasonModalComponent],
   templateUrl: './ticket-details-modal.component.html',
   styleUrl: './ticket-details-modal.component.scss',
 })
@@ -22,6 +23,65 @@ export class TicketDetailsModalComponent implements OnChanges {
   ticketActionLoading = false;
   newCommentText = '';
   ticketActionError: string | null = null;
+  private pendingAction: ActionConfig | null = null;
+
+  reasonModalOpened: boolean = false;
+  reasonActionName: string = '';
+
+  ticketActions: Record<string, ActionConfig> = {
+    Take: {
+      label: 'Take',
+      icon: 'plus-circle',
+      style: 'primary',
+      handler: this.takeTicket.bind(this),
+    },
+    Reopen: {
+      label: 'Reopen',
+      icon: 'refresh-ccw',
+      style: 'warning',
+      handler: this.reopenTicket.bind(this),
+    },
+    Complete: {
+      label: 'Complete',
+      icon: 'check-circle',
+      style: 'success',
+      handler: this.completeTicket.bind(this),
+    },
+    Cancel: {
+      label: 'Cancel',
+      icon: 'x-circle',
+      style: 'danger',
+      handler: this.cancelTicket.bind(this),
+    },
+    Fail: {
+      label: 'Fail',
+      icon: 'x-circle',
+      style: 'danger',
+      handler: this.failTicket.bind(this),
+    },
+    Accept: {
+      label: 'Accept',
+      icon: 'check',
+      style: 'success',
+      handler: this.acceptTicket.bind(this),
+    },
+    StartWork: {
+      label: 'Start work',
+      icon: 'play-circle',
+      style: 'primary',
+      handler: this.startWorkTicket.bind(this),
+    },
+  };
+
+  getActionConfig(key: string): ActionConfig | null {
+    if (this.ticketActions[key]) {
+      return this.ticketActions[key];
+    }
+    const foundKey = Object.keys(this.ticketActions).find(
+      (k) => k.toLowerCase() === key.toLowerCase()
+    );
+    return foundKey ? this.ticketActions[foundKey] : null;
+  }
 
   constructor(private tickets: TicketsService) {}
 
@@ -31,7 +91,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     }
   }
 
-  loadDetails(ticketId: string): void {
+  private loadDetails(ticketId: string): void {
     this.ticketDetails$ = this.tickets.getById(ticketId).pipe(catchError(() => of(null)));
   }
 
@@ -39,7 +99,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     this.closed.emit();
   }
 
-  addComment(ticketId: string | undefined, text: string | undefined) {
+  addComment(ticketId: string, text: string | undefined) {
     const content = (text || '').trim();
     if (!ticketId || !content) return;
     // Optimistically clear input for UX
@@ -75,10 +135,12 @@ export class TicketDetailsModalComponent implements OnChanges {
     };
   }
 
-  completeTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
+  private completeTicket(ticketId: string) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    this.setLoadingModalState();
     this.tickets.complete(String(ticketId)).subscribe({
       next: () => {
         this.loadDetails(ticketId);
@@ -89,11 +151,18 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  reviseTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
-    this.tickets.revise(String(ticketId)).subscribe({
+  private reopenTicket(ticketId: string, reason: string | null) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    if (!reason) {
+      this.ticketActionError = 'Please provide a reason';
+      return;
+    }
+
+    this.setLoadingModalState();
+    this.tickets.reopen(String(ticketId), reason).subscribe({
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
@@ -103,11 +172,18 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  cancelTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
-    this.tickets.cancel(String(ticketId)).subscribe({
+  private cancelTicket(ticketId: string | null, reason: string | null) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    if (!reason) {
+      this.ticketActionError = 'Please provide a reason';
+      return;
+    }
+
+    this.setLoadingModalState();
+    this.tickets.cancel(ticketId, reason).subscribe({
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
@@ -117,10 +193,12 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  takeTicket(ticketId: string | undefined) {
-    if (!ticketId || this.ticketActionLoading) return;
-    this.ticketActionLoading = true;
-    this.ticketActionError = null;
+  private takeTicket(ticketId: string | undefined) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    this.setLoadingModalState();
     this.tickets.take(String(ticketId)).subscribe({
       next: () => {
         this.updated.emit();
@@ -131,15 +209,104 @@ export class TicketDetailsModalComponent implements OnChanges {
     });
   }
 
-  canTake(ticket: TicketDetailsDto) {
-    return ticket.availableActions?.some((a) => a.key === 'Take') ?? false;
+  private failTicket(ticketId: string, reason: string | null) {
+    if (!ticketId || !reason) {
+      this.ticketActionError = 'Please provide a reason';
+      return;
+    }
+
+    if (this.ticketActionLoading) {
+      return;
+    }
+
+    this.setLoadingModalState();
+    this.tickets.fail(ticketId, reason).subscribe({
+      next: () => {
+        this.updated.emit();
+        this.loadDetails(ticketId);
+      },
+      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      complete: () => (this.ticketActionLoading = false),
+    });
   }
 
-  canComplete(ticket: TicketDetailsDto) {
-    return ticket.availableActions?.some((a) => a.key === 'Complete') ?? false;
+  private acceptTicket(ticketId: string) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    this.setLoadingModalState();
+    this.tickets.accept(String(ticketId)).subscribe({
+      next: () => {
+        this.updated.emit();
+        this.loadDetails(ticketId);
+      },
+      error: () => (this.ticketActionError = 'Failed to aceept ticket'),
+      complete: () => (this.ticketActionLoading = false),
+    });
   }
 
-  canCancel(ticket: TicketDetailsDto) {
-    return ticket.availableActions?.some((a) => a.key === 'Cancel') ?? false;
+  private startWorkTicket(ticketId: string) {
+    if (!ticketId || this.ticketActionLoading) {
+      return;
+    }
+
+    this.setLoadingModalState();
+    this.tickets.startWork(ticketId).subscribe({
+      next: () => {
+        this.updated.emit();
+        this.loadDetails(ticketId);
+      },
+      error: () => (this.ticketActionError = 'Failed to start work on ticket'),
+      complete: () => (this.ticketActionLoading = false),
+    });
   }
+
+  onActionClick(requireReason: boolean, action: ActionConfig) {
+    this.pendingAction = action;
+
+    if (requireReason) {
+      this.openReasonModal(action.label);
+    } else {
+      this.executeAction(null);
+    }
+  }
+
+  openReasonModal(actionName: string) {
+    this.reasonActionName = actionName;
+    this.reasonModalOpened = true;
+  }
+
+  onReasonModalSubmit(reason: string | null) {
+    this.reasonModalOpened = false;
+    if (this.pendingAction) {
+      this.executeAction(reason);
+    }
+  }
+
+  onReasonModalClose() {
+    this.reasonModalOpened = false;
+    this.pendingAction = null;
+  }
+
+  private executeAction(reason: string | null) {
+    if (!this.pendingAction || !this.ticketId) {
+      return;
+    }
+
+    this.pendingAction.handler(this.ticketId, reason);
+    this.pendingAction = null;
+  }
+
+  private setLoadingModalState() {
+    this.ticketActionLoading = true;
+    this.ticketActionError = null;
+  }
+}
+
+interface ActionConfig {
+  label: string;
+  icon: string;
+  style: string;
+  handler: (ticketId: string, reason: string | null) => void;
 }

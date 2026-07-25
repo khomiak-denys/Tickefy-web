@@ -41,15 +41,33 @@ export class TicketsService {
     return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/complete`, {});
   }
 
-  revise(ticketId: string) {
-    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/revise`, {});
+  reopen(ticketId: string, reason: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/reopen`, {
+      reason: reason,
+    });
   }
 
-  cancel(ticketId: string) {
-    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/cancel`, {});
+  fail(ticketId: string, reason: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/fail`, {
+      reason: reason,
+    });
+  }
+
+  cancel(ticketId: string, reason: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/cancel`, {
+      reason: reason,
+    });
   }
 
   take(ticketId: string) {
     return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/take`, {});
+  }
+
+  accept(ticketId: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/accept`, {});
+  }
+
+  startWork(ticketId: string) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/start-work`, {});
   }
 }
