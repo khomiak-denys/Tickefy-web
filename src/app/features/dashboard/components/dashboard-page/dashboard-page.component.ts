@@ -110,7 +110,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.currentUserId = payload?.nameid ?? null;
 
     this.setRole(roleFromToken);
-    this.setTab(this.activeTab);
 
     if (this.isAgent) {
       this.activeTab = 'queue';
