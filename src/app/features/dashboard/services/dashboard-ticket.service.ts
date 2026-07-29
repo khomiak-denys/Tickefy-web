@@ -80,6 +80,10 @@ export class DashboardTicketService {
     return this.tickets.create(req).pipe(tap(() => this.loadTickets('my')));
   }
 
+  taketTicket(id: string) {
+    return this.tickets.take(id).pipe(tap(() => this.loadTickets('queue')));
+  }
+
   filterByStatus(status: string): void {
     this.statusFilter$.next(status);
   }
