@@ -20,7 +20,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
 import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
 import { TeamDetailsModalComponent } from '../team-details-modal/team-details-modal.component';
-import { DashboardTicketService } from '../../services/dashboard-ticket.service';
+import { DashboardTicketService, TicketTabKeys } from '../../services/dashboard-ticket.service';
 import { DashboardUserService } from '../../services/dashboard-user.service';
 import { DashboardLogsService } from '../../services/dashboard-logs.service';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
@@ -222,8 +222,14 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.isCreateTicketModalOpen = false;
   }
 
-  refreshTickets() {
-    this.ticketService.loadTickets();
+  refreshTickets(tabKey: TabKey) {
+    if (this.isTicketTabKey(tabKey)) {
+      this.ticketService.loadTickets(tabKey);
+    }
+  }
+
+  isTicketTabKey(tabKey: TabKey): tabKey is TicketTabKeys {
+    return tabKey === 'my' || tabKey === 'queue' || tabKey === 'all';
   }
 
   createTicket(req: CreateTicketRequest) {
@@ -263,12 +269,12 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.loadDataForTab(this.activeTab);
   }
 
-  loadDataForTab(tab: string) {
+  loadDataForTab(tab: TabKey) {
     switch (tab) {
       case 'my':
       case 'queue':
       case 'all':
-        this.refreshTickets();
+        this.refreshTickets(tab);
         break;
       case 'users':
         this.refreshUsers();
