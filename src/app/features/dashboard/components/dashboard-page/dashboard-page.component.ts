@@ -13,6 +13,7 @@ import {
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { TicketDetailsModalComponent } from '../ticket-details-modal/ticket-details-modal.component';
 import { TicketsTabComponent } from '../tickets-tab/tickets-tab.component';
+import { QueueTabComponent } from '../queue-tab/queue-tab.component';
 import { TeamsTabComponent } from '../teams-tab/teams-tab.component';
 import { UsersTabComponent } from '../users-tab/users-tab.component';
 import { LogsTabComponent } from '../logs-tab/logs-tab.component';
@@ -20,7 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
 import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
 import { TeamDetailsModalComponent } from '../team-details-modal/team-details-modal.component';
-import { DashboardTicketService } from '../../services/dashboard-ticket.service';
+import { DashboardTicketService, TicketTabKeys } from '../../services/dashboard-ticket.service';
 import { DashboardUserService } from '../../services/dashboard-user.service';
 import { DashboardLogsService } from '../../services/dashboard-logs.service';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
@@ -42,6 +43,7 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
     CreateTeamModalComponent,
     TeamDetailsModalComponent,
     AsyncPipe,
+    QueueTabComponent,
   ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
@@ -52,6 +54,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   filteredAllTickets$ = new Observable<TicketSummaryDto[]>();
   filteredMyTickets$ = new Observable<TicketSummaryDto[]>();
   filteredQueueTickets$ = new Observable<TicketSummaryDto[]>();
+
+  activeTab: TabKey = 'my';
 
   filteredUsers$ = new Observable<UserDto[]>();
   logs$ = new Observable<ActivityLogDto[]>();
@@ -110,10 +114,13 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.currentUserId = payload?.nameid ?? null;
 
     this.setRole(roleFromToken);
-    this.setTab(this.activeTab);
 
     if (this.isAgent) {
       this.activeTab = 'queue';
+    } else if (this.isAdmin) {
+      this.activeTab = 'all';
+    } else {
+      this.activeTab = 'my';
     }
 
     this.setTab(this.activeTab);
@@ -222,8 +229,14 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.isCreateTicketModalOpen = false;
   }
 
-  refreshTickets() {
-    this.ticketService.loadTickets();
+  refreshTickets(tabKey: TabKey) {
+    if (this.isTicketTabKey(tabKey)) {
+      this.ticketService.loadTickets(tabKey);
+    }
+  }
+
+  isTicketTabKey(tabKey: TabKey): tabKey is TicketTabKeys {
+    return tabKey === 'my' || tabKey === 'queue' || tabKey === 'all';
   }
 
   createTicket(req: CreateTicketRequest) {
@@ -246,12 +259,20 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.selectedTicketId = String(id);
   }
 
+  takeTicket(id: string) {
+    this.ticketService.taketTicket(id).subscribe({
+      next: () => {},
+      error: (err: string) => {
+        this.ticketError = err;
+      },
+    });
+  }
+
   closeTicketModal() {
     this.isTicketModalOpen = false;
     this.selectedTicketId = null;
   }
 
-  activeTab: TabKey = 'my';
   setTab(tab: TabKey) {
     const allowed = this.allowedTabsList.length ? this.allowedTabsList : this.computeAllowedTabs();
     if (!allowed.includes(tab)) {
@@ -263,12 +284,12 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.loadDataForTab(this.activeTab);
   }
 
-  loadDataForTab(tab: string) {
+  loadDataForTab(tab: TabKey) {
     switch (tab) {
       case 'my':
       case 'queue':
       case 'all':
-        this.refreshTickets();
+        this.refreshTickets(tab);
         break;
       case 'users':
         this.refreshUsers();

@@ -104,10 +104,10 @@
     </header>
 
     @if (activeTab === 'queue') {
-      <app-tickets-tab
+      <app-queue-tab
         [filteredTickets$]="filteredQueueTickets$"
-        (selectedTicketId)="openTicket($event)"
-      ></app-tickets-tab>
+        (acceptedTicketId)="takeTicket($event)"
+      ></app-queue-tab>
     }
 
     @if (activeTab === 'my') {
@@ -151,7 +151,7 @@
   [open]="isTicketModalOpen"
   [ticketId]="selectedTicketId"
   (closed)="closeTicketModal()"
-  (updated)="refreshTickets()"
+  (updated)="refreshTickets(this.activeTab)"
 ></app-ticket-details-modal>
 
 <app-create-ticket-modal
