@@ -8,7 +8,7 @@
             class="top-right"
             style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px"
           >
-            <span class="pill status" [ngClass]="statusClass(t.status)"
+            <span class="pill status" [ngClass]="t.status | statusClass"
               ><lucide-icon name="clock" size="14"></lucide-icon>
               {{ t.status || 'open' | lowercase }}</span
             >
@@ -20,7 +20,7 @@
             ><lucide-icon name="user" size="14"></lucide-icon>
             {{ (t.requester?.firstName || '') + ' ' + (t.requester?.lastName || '') }}</span
           >
-          <span class="pill priority" [ngClass]="priorityClass(t.priority)"
+          <span class="pill priority" [ngClass]="t.priority | priorityClass"
             ><lucide-icon name="alert-circle" size="14"></lucide-icon>
             {{ t.priority || 'medium' }}</span
           >
