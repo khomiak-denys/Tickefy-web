@@ -60,7 +60,7 @@
     "typescript": "~5.7.2"
   },
   "lint-staged": {
-    "src/**/*.{ts,html.css}": "prettier --write",
-    "src/**/*.ts,html": "npx eslint"
+    "src/**/*.{ts,html,css,scss}": "prettier --write",
+    "src/**/*.{ts,html}": "npx eslint"
   }
 }

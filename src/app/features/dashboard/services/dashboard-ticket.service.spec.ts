@@ -119,7 +119,7 @@ describe('DashboardTicketService', () => {
         description: 'Description',
         deadline: '2026-02-01',
       };
-      mockTickets.create.mockReturnValue(of({} as any));
+      mockTickets.create.mockReturnValue(of({}));
       mockTickets.getMy.mockReturnValue(of(MOCK_TICKETS));
 
       service.createTicket(createReq).subscribe(() => {
