@@ -5,7 +5,7 @@
         <div class="card-top">
           <h3>{{ t.title }}</h3>
           <div class="top-right">
-            <span class="pill status" [ngClass]="statusClass(t.status)"
+            <span class="pill status" [ngClass]="t.status | statusClass"
               ><lucide-icon name="clock" size="14"></lucide-icon>
               {{ t.status || 'open' | lowercase }}</span
             >
@@ -13,13 +13,13 @@
         </div>
         <p class="desc">{{ t.description }}</p>
         <div class="card-meta">
-          <span class="pill priority" [ngClass]="priorityClass(t.priority)"
+          <span class="pill priority" [ngClass]="t.priority | priorityClass"
             ><lucide-icon name="alert-circle" size="14"></lucide-icon>
             {{ t.priority || 'medium' }}</span
           >
           <span class="pill type"
             ><lucide-icon name="ticket" size="14"></lucide-icon>
-            {{ t.category || t.assignedTeam?.category }}</span
+            {{ t.category || t.assignedTeam.category }}</span
           >
           <span class="pill deadline"
             ><lucide-icon name="calendar" size="14"></lucide-icon>
