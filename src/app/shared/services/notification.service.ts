@@ -50,6 +50,6 @@ export class NotificationService {
   private activateNotification(notification: Notification) {
     setTimeout(() => {
       this.remove(notification.id);
-    }, 5000);
+    }, 3000);
   }
 }

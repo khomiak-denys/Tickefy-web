@@ -105,7 +105,7 @@ describe('NotificationServiceService', () => {
     expect(result[0].message).toBe('one');
 
     //Act 2
-    jest.advanceTimersByTime(5000);
+    jest.advanceTimersByTime(3000);
 
     //Assert 2
     expect(result.length).toBe(0);
