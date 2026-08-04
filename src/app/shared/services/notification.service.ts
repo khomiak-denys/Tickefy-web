@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Notification } from '../helpers/dto/notification.dto';
 import { BehaviorSubject } from 'rxjs';
-import { randomUUID } from 'crypto';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +25,7 @@ export class NotificationService {
   }
 
   private createNotification(message: string, type: 'info' | 'error') {
-    const notification: Notification = { id: randomUUID(), message, type };
+    const notification: Notification = { id: crypto.randomUUID(), message, type };
 
     if (this._notifications.value.length < 3) {
       this._notifications.next([...this._notifications.value, notification]);
