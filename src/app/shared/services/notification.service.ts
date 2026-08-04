@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 @Injectable({
   providedIn: 'root',
 })
-export class NotificationServiceService {
+export class NotificationService {
   private _notificationsQueue: Notification[] = [];
   private _notifications: BehaviorSubject<Notification[]> = new BehaviorSubject<Notification[]>([]);
   readonly notifications$ = this._notifications.asObservable();

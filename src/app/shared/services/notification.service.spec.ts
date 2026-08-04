@@ -1,12 +1,12 @@
 import { Notification } from '../helpers/dto/notification.dto';
-import { NotificationServiceService } from './notification-service.service';
+import { NotificationService } from './notification.service';
 
 describe('NotificationServiceService', () => {
-  let service: NotificationServiceService;
+  let service: NotificationService;
 
   beforeEach(() => {
     jest.useFakeTimers();
-    service = new NotificationServiceService();
+    service = new NotificationService();
   });
 
   afterEach(() => {
@@ -21,7 +21,7 @@ describe('NotificationServiceService', () => {
 
     //Act
     let result: Notification[] = [];
-    service.notifications$.subscribe((v) => (result = v));
+    service.notifications$.subscribe((v: Notification[]) => (result = v));
 
     //Assert
     expect(result.length).toBe(3);
@@ -43,7 +43,7 @@ describe('NotificationServiceService', () => {
 
     //Act
     let result: Notification[] = [];
-    service.notifications$.subscribe((v) => (result = v));
+    service.notifications$.subscribe((v: Notification[]) => (result = v));
 
     //Assert
     expect(result.length).toBe(3);
@@ -65,7 +65,7 @@ describe('NotificationServiceService', () => {
 
     //Act 1
     let result: Notification[] = [];
-    service.notifications$.subscribe((v) => (result = v));
+    service.notifications$.subscribe((v: Notification[]) => (result = v));
 
     //Assert 1
     expect(result.length).toBe(3);
@@ -97,7 +97,7 @@ describe('NotificationServiceService', () => {
 
     //Act 1
     let result: Notification[] = [];
-    service.notifications$.subscribe((v) => (result = v));
+    service.notifications$.subscribe((v: Notification[]) => (result = v));
 
     //Assert 1
     expect(result.length).toBe(1);
