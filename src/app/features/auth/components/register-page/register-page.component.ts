@@ -10,6 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   const pass = group.get('password')?.value;
@@ -26,14 +27,14 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 })
 export class RegisterPageComponent {
   loading = false;
-  error: string | null = null;
   form!: FormGroup;
   submitted = false;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.form = this.fb.group(
       {
@@ -54,7 +55,6 @@ export class RegisterPageComponent {
       return;
     }
     this.loading = true;
-    this.error = null;
     const { firstName, lastName, login, password } = this.form.value as {
       firstName: string;
       lastName: string;
@@ -69,9 +69,10 @@ export class RegisterPageComponent {
         if (res.token) {
           this.auth.saveToken(res.token);
           this.auth.saveUserProfile(res.firstName, res.lastName);
+          this.notificationService.info('Registration successful');
           this.router.navigate(['/dashboard']);
         } else {
-          this.error = 'No token in response';
+          this.notificationService.error('No token in response');
         }
         this.loading = false;
       },
@@ -99,7 +100,7 @@ export class RegisterPageComponent {
 
         const base = title || (status ? `HTTP ${status}` : 'Request failed');
         const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
-        this.error = msg || 'Registration failed';
+        this.notificationService.error(msg || 'Registration failed');
         this.loading = false;
       },
     });

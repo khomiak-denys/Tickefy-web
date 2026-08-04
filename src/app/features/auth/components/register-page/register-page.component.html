@@ -52,12 +52,6 @@
       <button class="primary" type="submit" [disabled]="loading">
         {{ loading ? 'Creating…' : 'Create account' }}
       </button>
-      @if (error) {
-        <div class="error-box">
-          <div class="error-box__icon">!</div>
-          <div class="error-box__text">{{ error }}</div>
-        </div>
-      }
     </form>
 
     <p class="foot">
