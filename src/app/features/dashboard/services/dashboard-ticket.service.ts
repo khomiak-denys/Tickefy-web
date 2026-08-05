@@ -12,9 +12,9 @@ export type TicketTabKeys = 'queue' | 'my' | 'all';
   providedIn: 'root',
 })
 export class DashboardTicketService {
-  private queueSource = new BehaviorSubject<TicketSummaryDto[]>([]);
-  private mySource = new BehaviorSubject<TicketSummaryDto[]>([]);
-  private allSource = new BehaviorSubject<TicketSummaryDto[]>([]);
+  private queueSource = new BehaviorSubject<TicketSummaryDto[] | null>(null);
+  private mySource = new BehaviorSubject<TicketSummaryDto[] | null>(null);
+  private allSource = new BehaviorSubject<TicketSummaryDto[] | null>(null);
 
   private statusFilter$ = new BehaviorSubject<string>('all');
   private priorityFilter$ = new BehaviorSubject<string>('all');
@@ -46,7 +46,7 @@ export class DashboardTicketService {
     private notificationService: NotificationService
   ) {}
 
-  private filterTickets(stream$: Observable<TicketSummaryDto[]>) {
+  private filterTickets(stream$: Observable<TicketSummaryDto[] | null>) {
     return combineLatest([
       stream$,
       this.statusFilter$,
@@ -54,6 +54,7 @@ export class DashboardTicketService {
       this.priorityFilter$,
     ]).pipe(
       map(([source, statusFilter, typeFilter, priorityFilter]) => {
+        if (!source) return null;
         const norm = (v: string | null) => String(v || '').toLowerCase();
         return source.filter((ticket: TicketSummaryDto) => {
           const statusOk = statusFilter === 'all' || norm(ticket.status).includes(statusFilter);

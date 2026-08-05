@@ -11,7 +11,7 @@ import { PaginationResponse } from '../../../core/api/dtos/pagination-response.d
   providedIn: 'root',
 })
 export class DashboardUserService {
-  private usersSource$ = new BehaviorSubject<UserDto[]>([]);
+  private usersSource$ = new BehaviorSubject<UserDto[] | null>(null);
   private userTeamFilter$ = new BehaviorSubject<string>('all');
   private userRoleFilter$ = new BehaviorSubject<string>('all');
 
@@ -30,9 +30,10 @@ export class DashboardUserService {
     private notificationService: NotificationService
   ) {}
 
-  private filterUsers(stream$: Observable<UserDto[]>) {
+  private filterUsers(stream$: Observable<UserDto[] | null>) {
     return combineLatest([stream$, this.userRoleFilter$, this.userTeamFilter$]).pipe(
       map(([list, roleFilter, teamFilter]) => {
+        if (!list) return null;
         const norm = (v: string | null | undefined) => String(v || '').toLowerCase();
         return list.filter((user: UserDto) => {
           const roleOk = roleFilter === 'all' || norm(user.role) === roleFilter;
