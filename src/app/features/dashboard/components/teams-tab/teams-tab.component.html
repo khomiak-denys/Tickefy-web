@@ -29,15 +29,12 @@
       </div>
     }
 
-    <div class="logs-pagination">
-      <button class="page-btn" (click)="prevPageClick()" [disabled]="!hasPrevPage">
-        <lucide-icon name="arrow-left" size="16"></lucide-icon> Prev
-      </button>
-      <button class="page-btn primary" (click)="nextPageClick()" [disabled]="!hasNextPage">
-        Next
-        <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg)"></lucide-icon>
-      </button>
-    </div>
+    <app-pagination
+      [hasPrev]="hasPrevPage"
+      [hasNext]="hasNextPage"
+      (previousPage)="prevPageClick()"
+      (nextPage)="nextPageClick()"
+    ></app-pagination>
   } @else {
     <div class="empty-panel">
       <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>

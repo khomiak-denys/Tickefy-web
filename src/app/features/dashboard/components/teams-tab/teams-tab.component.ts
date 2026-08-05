@@ -3,10 +3,11 @@ import { AsyncPipe } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { TeamSummary } from '../../../../core/api/dtos';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-teams-tab',
-  imports: [AsyncPipe, LucideAngularModule],
+  imports: [AsyncPipe, LucideAngularModule, PaginationComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './teams-tab.component.html',
   styleUrl: './teams-tab.component.scss',

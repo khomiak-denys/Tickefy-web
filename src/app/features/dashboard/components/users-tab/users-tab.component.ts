@@ -3,10 +3,11 @@ import { AsyncPipe, DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserDto } from '../../../../core/api/dtos';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-users-tab',
-  imports: [LowerCasePipe, DatePipe, NgClass, AsyncPipe, LucideAngularModule],
+  imports: [LowerCasePipe, DatePipe, NgClass, AsyncPipe, LucideAngularModule, PaginationComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users-tab.component.html',
   styleUrl: './users-tab.component.scss',

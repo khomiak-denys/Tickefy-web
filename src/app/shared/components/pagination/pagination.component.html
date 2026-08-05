@@ -1,0 +1,9 @@
+<div class="pagination">
+  <button class="page-btn" (click)="onPrev()" [disabled]="!hasPrev">
+    <lucide-icon name="arrow-left" size="16"></lucide-icon> Prev
+  </button>
+  <button class="page-btn primary" (click)="onNext()" [disabled]="!hasNext">
+    Next
+    <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg)"></lucide-icon>
+  </button>
+</div>
