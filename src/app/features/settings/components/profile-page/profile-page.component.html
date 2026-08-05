@@ -71,6 +71,57 @@
           }
         </div>
       </form>
+    } @else {
+      <div
+        class="card left"
+        style="display: flex; flex-direction: column; align-items: center; gap: 12px"
+      >
+        <app-skeleton width="96px" height="96px" borderRadius="50%"></app-skeleton>
+        <app-skeleton
+          width="150px"
+          height="24px"
+          borderRadius="4px"
+          style="margin-top: 8px"
+        ></app-skeleton>
+        <app-skeleton width="100px" height="18px" borderRadius="4px"></app-skeleton>
+        <app-skeleton width="80px" height="28px" borderRadius="14px"></app-skeleton>
+        <app-skeleton
+          width="180px"
+          height="18px"
+          borderRadius="4px"
+          style="margin-top: 24px"
+        ></app-skeleton>
+      </div>
+      <div class="card right" style="display: flex; flex-direction: column; gap: 16px">
+        <div
+          class="top"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <app-skeleton width="200px" height="28px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="100px" height="36px" borderRadius="8px"></app-skeleton>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px">
+          <app-skeleton width="60px" height="16px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="100%" height="44px" borderRadius="8px"></app-skeleton>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px">
+          <app-skeleton width="60px" height="16px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="100%" height="44px" borderRadius="8px"></app-skeleton>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px">
+          <app-skeleton width="100px" height="16px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="100%" height="44px" borderRadius="8px"></app-skeleton>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px">
+          <app-skeleton width="100px" height="16px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="100%" height="44px" borderRadius="8px"></app-skeleton>
+        </div>
+      </div>
     }
   </div>
 </section>

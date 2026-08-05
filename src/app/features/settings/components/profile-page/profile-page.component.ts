@@ -23,10 +23,12 @@ function min2Symbols(control: AbstractControl): ValidationErrors | null {
   return firstName.length < 2 || !matches ? { invalidName: true } : null;
 }
 
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, ReactiveFormsModule],
+  imports: [AsyncPipe, DatePipe, ReactiveFormsModule, SkeletonComponent],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
 })
