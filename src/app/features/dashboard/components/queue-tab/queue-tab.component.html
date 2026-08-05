@@ -38,6 +38,13 @@
         <p class="empty-text">Create a ticket to see it here.</p>
       </div>
     }
+
+    <app-pagination
+      [hasPrev]="hasPrevPage"
+      [hasNext]="hasNextPage"
+      (previousPage)="prevPageClick()"
+      (nextPage)="nextPageClick()"
+    ></app-pagination>
   } @else {
     <p>Loading your tickets…</p>
   }

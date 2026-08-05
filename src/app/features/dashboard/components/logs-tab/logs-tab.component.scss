@@ -95,32 +95,6 @@
   margin-top: 6px;
   color: #6b7280;
 }
-.logs-pagination {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 12px 0 4px;
-}
-.page-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 10px 16px;
-  background: #fff;
-  color: #0f172a;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-}
-.page-btn.primary {
-  background: #5b53ff;
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 10px 22px rgba(91, 83, 255, 0.25);
-}
-
 .empty-panel {
   display: flex;
   flex-direction: column;
@@ -153,9 +127,4 @@
 .empty-text {
   margin: 0;
   color: #6b7280;
-}
-
-.page-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }

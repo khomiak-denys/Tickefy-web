@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
 import { CreateTeamRequest, TeamDetails, TeamSummary } from '../api/dtos';
+
+import { PaginationResponse } from '../api/dtos/pagination-response.dto';
 
 @Injectable({ providedIn: 'root' })
 export class TeamsService {
@@ -11,8 +13,11 @@ export class TeamsService {
     return this.http.post(`${API_BASE_URL}/api/v1/teams`, body);
   }
 
-  getAll() {
-    return this.http.get<TeamSummary[]>(`${API_BASE_URL}/api/v1/teams`);
+  getAll(page: number = 1, pageSize: number = 10) {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginationResponse<TeamSummary>>(`${API_BASE_URL}/api/v1/teams`, {
+      params,
+    });
   }
 
   getById(teamId: string) {
@@ -36,7 +41,10 @@ export class TeamsService {
     return this.http.delete(`${API_BASE_URL}/api/v1/teams/${teamId}/members/${memberId}`);
   }
 
-  getMy() {
-    return this.http.get<TeamSummary[]>(`${API_BASE_URL}/api/v1/teams/my`);
+  getMy(page: number = 1, pageSize: number = 10) {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginationResponse<TeamSummary>>(`${API_BASE_URL}/api/v1/teams/my`, {
+      params,
+    });
   }
 }

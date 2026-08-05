@@ -42,7 +42,7 @@ describe('DashboardUserService', () => {
 
     it('getAll should be called once', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockUsers.getAll.mockReturnValue(of([]));
+      mockUsers.getAll.mockReturnValue(of({ items: [], page: 1, pageSize: 10, totalCount: 0 }));
 
       service.loadUsers();
       service.loadUsers();
@@ -52,7 +52,7 @@ describe('DashboardUserService', () => {
 
     it('role changed after cache populated', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockUsers.getAll.mockReturnValue(of([]));
+      mockUsers.getAll.mockReturnValue(of({ items: [], page: 1, pageSize: 10, totalCount: 0 }));
 
       service.loadUsers();
 
@@ -64,7 +64,7 @@ describe('DashboardUserService', () => {
 
     it('getAll should be called after cache invalidation', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockUsers.getAll.mockReturnValue(of([]));
+      mockUsers.getAll.mockReturnValue(of({ items: [], page: 1, pageSize: 10, totalCount: 0 }));
 
       service.loadUsers();
       service.invalidateUsersListCache();
@@ -103,7 +103,9 @@ describe('DashboardUserService', () => {
       ];
 
       mockAuth.getRole.mockReturnValue('admin');
-      mockUsers.getAll.mockReturnValue(of(MOCK_USERS));
+      mockUsers.getAll.mockReturnValue(
+        of({ items: MOCK_USERS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       let users: UserDto[] | null = null;
       service.filteredUsers$.subscribe((data) => {
@@ -134,7 +136,7 @@ describe('DashboardUserService', () => {
 
     it('should invalidate cache on successful delete', () => {
       mockUsers.delete.mockReturnValue(of(void 0));
-      mockUsers.getAll.mockReturnValue(of([]));
+      mockUsers.getAll.mockReturnValue(of({ items: [], page: 1, pageSize: 10, totalCount: 0 }));
       mockAuth.getRole.mockReturnValue('admin');
 
       service.deleteUser('1');

@@ -97,40 +97,63 @@
     @if (activeTab === 'queue') {
       <app-queue-tab
         [filteredTickets$]="filteredQueueTickets$"
+        [hasNextPage]="(hasNextQueue$ | async) ?? false"
+        [hasPrevPage]="(hasPrevQueue$ | async) ?? false"
         (acceptedTicketId)="takeTicket($event)"
+        (nextPage)="nextTicketsPage('queue')"
+        (prevPage)="prevTicketsPage('queue')"
       ></app-queue-tab>
     }
 
     @if (activeTab === 'my') {
       <app-tickets-tab
         [filteredTickets$]="filteredMyTickets$"
+        [hasNextPage]="(hasNextMy$ | async) ?? false"
+        [hasPrevPage]="(hasPrevMy$ | async) ?? false"
         (selectedTicketId)="openTicket($event)"
+        (nextPage)="nextTicketsPage('my')"
+        (prevPage)="prevTicketsPage('my')"
       ></app-tickets-tab>
     }
 
     @if (activeTab === 'all') {
       <app-tickets-tab
         [filteredTickets$]="filteredAllTickets$"
+        [hasNextPage]="(hasNextAll$ | async) ?? false"
+        [hasPrevPage]="(hasPrevAll$ | async) ?? false"
         (selectedTicketId)="openTicket($event)"
+        (nextPage)="nextTicketsPage('all')"
+        (prevPage)="prevTicketsPage('all')"
       ></app-tickets-tab>
     }
     @if (activeTab === 'teams') {
-      <app-teams-tab [teams$]="teams$" (selectedTeamId)="openTeam($event)"></app-teams-tab>
+      <app-teams-tab
+        [teams$]="teams$"
+        [hasNextPage]="(hasNextTeams$ | async) ?? false"
+        [hasPrevPage]="(hasPrevTeams$ | async) ?? false"
+        (selectedTeamId)="openTeam($event)"
+        (nextPage)="nextTeamsPage()"
+        (prevPage)="prevTeamsPage()"
+      ></app-teams-tab>
     }
 
     @if (activeTab === 'users') {
       <app-users-tab
         [filteredUsers$]="filteredUsers$"
+        [hasNextPage]="(hasNextUsers$ | async) ?? false"
+        [hasPrevPage]="(hasPrevUsers$ | async) ?? false"
         (selectedUserId)="viewUser($event)"
         (deletedUserId)="deleteUser($event)"
+        (nextPage)="nextUsersPage()"
+        (prevPage)="prevUsersPage()"
       ></app-users-tab>
     }
 
     @if (activeTab === 'logs') {
       <app-logs-tab
         [logs$]="logs$"
-        [hasPrevPage]="hasPreviousPage"
-        [hasNextPage]="hasNextPage"
+        [hasPrevPage]="(hasPrevLogs$ | async) ?? false"
+        [hasNextPage]="(hasNextLogs$ | async) ?? false"
         (nextPage)="nextLogsPage()"
         (prevPage)="prevLogsPage()"
       ></app-logs-tab>

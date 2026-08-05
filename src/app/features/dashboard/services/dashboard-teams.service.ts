@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { CreateTeamRequest, TeamDetails, TeamSummary } from '../../../core/api/dtos';
 import { shareReplay } from 'rxjs/operators';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { PaginationResponse } from '../../../core/api/dtos/pagination-response.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,12 @@ import { NotificationService } from '../../../shared/services/notification.servi
 export class DashboardTeamsService {
   teams$ = new BehaviorSubject<TeamSummary[]>([]);
 
-  private _teamsListCache: Observable<TeamSummary[]> | null = null;
+  page$ = new BehaviorSubject<number>(1);
+  hasNextPage$ = new BehaviorSubject<boolean>(true);
+  hasPrevPage$ = new BehaviorSubject<boolean>(false);
+  private pageSize = 10;
+
+  private _teamsListCache: Observable<PaginationResponse<TeamSummary>> | null = null;
 
   constructor(
     private auth: AuthService,
@@ -22,7 +28,11 @@ export class DashboardTeamsService {
 
   private _teamDetailsCache: Map<string, Observable<TeamDetails>> = new Map();
 
-  loadTeams() {
+  loadTeams(force = false) {
+    if (force) {
+      this.invalidateTeamsListCache();
+    }
+
     if (!this._teamsListCache) {
       const role = this.auth.getRole();
 
@@ -30,12 +40,17 @@ export class DashboardTeamsService {
         return;
       }
 
-      const request = role === 'admin' ? this.teams.getAll() : this.teams.getMy();
+      const request =
+        role === 'admin'
+          ? this.teams.getAll(this.page$.value, this.pageSize)
+          : this.teams.getMy(this.page$.value, this.pageSize);
 
       this._teamsListCache = request.pipe(
         tap({
           next: (data) => {
-            this.teams$.next(data);
+            this.teams$.next(data.items);
+            this.hasNextPage$.next(data.page * data.pageSize < data.totalCount);
+            this.hasPrevPage$.next(data.page > 1);
           },
           error: () => {
             this.notificationService.error('Failed to load teams');
@@ -48,8 +63,24 @@ export class DashboardTeamsService {
     this._teamsListCache.subscribe();
   }
 
+  nextPage() {
+    if (!this.hasNextPage$.value) return;
+    let page = this.page$.value;
+    this.page$.next(++page);
+    this.loadTeams(true);
+  }
+
+  previousPage() {
+    if (!this.hasPrevPage$.value) return;
+    let page = this.page$.value;
+    if (page > 1) {
+      this.page$.next(--page);
+      this.loadTeams(true);
+    }
+  }
+
   createTeam(req: CreateTeamRequest) {
-    return this.teams.create(req).pipe(tap(() => this.loadTeams()));
+    return this.teams.create(req).pipe(tap(() => this.loadTeams(true)));
   }
 
   getById(id: string) {

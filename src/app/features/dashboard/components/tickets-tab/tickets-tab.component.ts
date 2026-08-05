@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { TicketSummaryDto } from '../../../../core/api/dtos';
 import { StatusClassPipe } from '../../../../shared/pipes/status-class.pipe';
 import { PriorityClassPipe } from '../../../../shared/pipes/priority-class.pipe';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-tickets-tab',
@@ -16,6 +17,7 @@ import { PriorityClassPipe } from '../../../../shared/pipes/priority-class.pipe'
     NgClass,
     StatusClassPipe,
     PriorityClassPipe,
+    PaginationComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tickets-tab.component.html',
@@ -25,7 +27,20 @@ export class TicketsTabComponent {
   @Input() filteredTickets$: Observable<TicketSummaryDto[] | null> = new Observable<
     TicketSummaryDto[] | null
   >();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
+
   @Output() selectedTicketId = new EventEmitter<string>();
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
+
+  nextPageClick() {
+    this.nextPage.emit();
+  }
+
+  prevPageClick() {
+    this.prevPage.emit();
+  }
 
   onTicketClick(id: string) {
     this.selectedTicketId.emit(id);

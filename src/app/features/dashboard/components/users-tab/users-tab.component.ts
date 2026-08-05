@@ -3,18 +3,32 @@ import { AsyncPipe, DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserDto } from '../../../../core/api/dtos';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-users-tab',
-  imports: [LowerCasePipe, DatePipe, NgClass, AsyncPipe, LucideAngularModule],
+  imports: [LowerCasePipe, DatePipe, NgClass, AsyncPipe, LucideAngularModule, PaginationComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users-tab.component.html',
   styleUrl: './users-tab.component.scss',
 })
 export class UsersTabComponent {
   @Input() filteredUsers$: Observable<UserDto[] | null> = new Observable<UserDto[] | null>();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
+
   @Output() selectedUserId = new EventEmitter<string>();
   @Output() deletedUserId = new EventEmitter<string>();
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
+
+  nextPageClick() {
+    this.nextPage.emit();
+  }
+
+  prevPageClick() {
+    this.prevPage.emit();
+  }
 
   deleteUser(id: string) {
     this.deletedUserId.emit(id);

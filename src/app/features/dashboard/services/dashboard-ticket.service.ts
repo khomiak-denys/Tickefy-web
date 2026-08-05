@@ -4,6 +4,7 @@ import { CreateTicketRequest, TicketSummaryDto } from '../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { TicketsService } from '../../../core/services/tickets.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { PaginationResponse } from '../../../core/api/dtos/pagination-response.dto';
 
 export type TicketTabKeys = 'queue' | 'my' | 'all';
 
@@ -22,6 +23,23 @@ export class DashboardTicketService {
   filteredQueueTickets$ = this.filterTickets(this.queueSource);
   filteredMyTickets$ = this.filterTickets(this.mySource);
   filteredAllTickets$ = this.filterTickets(this.allSource);
+
+  private pages = {
+    queue: new BehaviorSubject<number>(1),
+    my: new BehaviorSubject<number>(1),
+    all: new BehaviorSubject<number>(1),
+  };
+
+  hasNextQueue$ = new BehaviorSubject<boolean>(true);
+  hasPrevQueue$ = new BehaviorSubject<boolean>(false);
+
+  hasNextMy$ = new BehaviorSubject<boolean>(true);
+  hasPrevMy$ = new BehaviorSubject<boolean>(false);
+
+  hasNextAll$ = new BehaviorSubject<boolean>(true);
+  hasPrevAll$ = new BehaviorSubject<boolean>(false);
+
+  private pageSize = 10;
 
   constructor(
     private tickets: TicketsService,
@@ -48,12 +66,35 @@ export class DashboardTicketService {
     );
   }
 
-  loadTickets(tabKey: TicketTabKeys): void {
+  private handlePagination(data: PaginationResponse<TicketSummaryDto>, tabKey: TicketTabKeys) {
+    const hasNext = data.page * data.pageSize < data.totalCount;
+    const hasPrev = data.page > 1;
+
     switch (tabKey) {
       case 'queue':
-        this.tickets.getQueue().subscribe({
+        this.hasNextQueue$.next(hasNext);
+        this.hasPrevQueue$.next(hasPrev);
+        break;
+      case 'my':
+        this.hasNextMy$.next(hasNext);
+        this.hasPrevMy$.next(hasPrev);
+        break;
+      case 'all':
+        this.hasNextAll$.next(hasNext);
+        this.hasPrevAll$.next(hasPrev);
+        break;
+    }
+  }
+
+  loadTickets(tabKey: TicketTabKeys): void {
+    const page = this.pages[tabKey].value;
+
+    switch (tabKey) {
+      case 'queue':
+        this.tickets.getQueue(page, this.pageSize).subscribe({
           next: (data) => {
-            this.queueSource.next(data);
+            this.queueSource.next(data.items);
+            this.handlePagination(data, tabKey);
           },
           error: () => {
             this.notificationService.error('Failed to load queue');
@@ -61,9 +102,10 @@ export class DashboardTicketService {
         });
         break;
       case 'my':
-        this.tickets.getMy().subscribe({
+        this.tickets.getMy(page, this.pageSize).subscribe({
           next: (data) => {
-            this.mySource.next(data);
+            this.mySource.next(data.items);
+            this.handlePagination(data, tabKey);
           },
           error: () => {
             this.notificationService.error('Failed to load tickets');
@@ -71,15 +113,48 @@ export class DashboardTicketService {
         });
         break;
       case 'all':
-        this.tickets.getAll().subscribe({
+        this.tickets.getAll(page, this.pageSize).subscribe({
           next: (data) => {
-            this.allSource.next(data);
+            this.allSource.next(data.items);
+            this.handlePagination(data, tabKey);
           },
           error: () => {
             this.notificationService.error('Failed to load tickets');
           },
         });
         break;
+    }
+  }
+
+  nextPage(tabKey: TicketTabKeys) {
+    const hasNext =
+      tabKey === 'queue'
+        ? this.hasNextQueue$.value
+        : tabKey === 'my'
+          ? this.hasNextMy$.value
+          : this.hasNextAll$.value;
+
+    if (!hasNext) return;
+
+    let page = this.pages[tabKey].value;
+    this.pages[tabKey].next(++page);
+    this.loadTickets(tabKey);
+  }
+
+  previousPage(tabKey: TicketTabKeys) {
+    const hasPrev =
+      tabKey === 'queue'
+        ? this.hasPrevQueue$.value
+        : tabKey === 'my'
+          ? this.hasPrevMy$.value
+          : this.hasPrevAll$.value;
+
+    if (!hasPrev) return;
+
+    let page = this.pages[tabKey].value;
+    if (page > 1) {
+      this.pages[tabKey].next(--page);
+      this.loadTickets(tabKey);
     }
   }
 

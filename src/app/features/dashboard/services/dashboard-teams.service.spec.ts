@@ -63,7 +63,9 @@ describe('DashboardTeamsService', () => {
   describe('loadTeams()', () => {
     it('should call getAll() when role is admin', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockTeams.getAll.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTeams();
 
@@ -73,7 +75,9 @@ describe('DashboardTeamsService', () => {
 
     it('should call getMy() when role is non-admin (e.g. manager)', () => {
       mockAuth.getRole.mockReturnValue('manager');
-      mockTeams.getMy.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getMy.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTeams();
 
@@ -92,7 +96,9 @@ describe('DashboardTeamsService', () => {
 
     it('should push data into teams$ on success', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockTeams.getAll.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTeams();
 
@@ -110,7 +116,9 @@ describe('DashboardTeamsService', () => {
 
     it('should reuse cached observable on second call (not fetch again)', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockTeams.getAll.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTeams();
       service.loadTeams();
@@ -120,7 +128,9 @@ describe('DashboardTeamsService', () => {
 
     it('should fetch fresh data after invalidateTeamsListCache()', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockTeams.getAll.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
       service.loadTeams();
       expect(mockTeams.getAll).toHaveBeenCalledTimes(1);
 
@@ -129,7 +139,9 @@ describe('DashboardTeamsService', () => {
       const freshTeams: TeamSummary[] = [
         { id: '3', name: 'Gamma', category: 'Marketing', manager: null },
       ];
-      mockTeams.getAll.mockReturnValue(of(freshTeams));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: freshTeams, page: 1, pageSize: 10, totalCount: 1 })
+      );
       service.loadTeams();
 
       expect(mockTeams.getAll).toHaveBeenCalledTimes(2);
@@ -162,7 +174,9 @@ describe('DashboardTeamsService', () => {
       const createReq = { name: 'New Team', description: 'Desc', category: null };
       mockTeams.create.mockReturnValue(of({}));
       mockAuth.getRole.mockReturnValue('admin');
-      mockTeams.getAll.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.createTeam(createReq).subscribe();
 
@@ -204,7 +218,9 @@ describe('DashboardTeamsService', () => {
   describe('invalidateTeamsListCache()', () => {
     it('should reset cache so next loadTeams() fetches fresh data', () => {
       mockAuth.getRole.mockReturnValue('admin');
-      mockTeams.getAll.mockReturnValue(of(MOCK_TEAMS));
+      mockTeams.getAll.mockReturnValue(
+        of({ items: MOCK_TEAMS, page: 1, pageSize: 10, totalCount: 2 })
+      );
       service.loadTeams();
 
       service.loadTeams();

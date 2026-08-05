@@ -22,14 +22,18 @@ export class DashboardLogsService {
   loadLogs() {
     this.logsRepository.getLogs(this.page$.value, this.logsPageSize).subscribe({
       next: (data) => {
-        this.logs$.next(data);
+        this.logs$.next(data.items);
 
-        if (data.length < this.logsPageSize) {
+        if (data.page * data.pageSize >= data.totalCount) {
           this.hasNextPage$.next(false);
+        } else {
+          this.hasNextPage$.next(true);
         }
 
         if (this.page$.value <= 1) {
           this.hasPreviousPage$.next(false);
+        } else {
+          this.hasPreviousPage$.next(true);
         }
       },
       error: () => {

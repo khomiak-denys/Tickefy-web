@@ -63,7 +63,9 @@ describe('DashboardTicketService', () => {
 
   describe('loadTickets()', () => {
     it('should call getQueue() when tabKey is "queue" and update queue tickets stream', (done) => {
-      mockTickets.getQueue.mockReturnValue(of(MOCK_TICKETS));
+      mockTickets.getQueue.mockReturnValue(
+        of({ items: MOCK_TICKETS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTickets('queue');
 
@@ -75,7 +77,9 @@ describe('DashboardTicketService', () => {
     });
 
     it('should call getMy() when tabKey is "my" and update my tickets stream', (done) => {
-      mockTickets.getMy.mockReturnValue(of(MOCK_TICKETS));
+      mockTickets.getMy.mockReturnValue(
+        of({ items: MOCK_TICKETS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTickets('my');
 
@@ -87,7 +91,9 @@ describe('DashboardTicketService', () => {
     });
 
     it('should call getAll() when tabKey is "all" and update all tickets stream', (done) => {
-      mockTickets.getAll.mockReturnValue(of(MOCK_TICKETS));
+      mockTickets.getAll.mockReturnValue(
+        of({ items: MOCK_TICKETS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.loadTickets('all');
 
@@ -125,7 +131,9 @@ describe('DashboardTicketService', () => {
         deadline: '2026-02-01',
       };
       mockTickets.create.mockReturnValue(of({}));
-      mockTickets.getMy.mockReturnValue(of(MOCK_TICKETS));
+      mockTickets.getMy.mockReturnValue(
+        of({ items: MOCK_TICKETS, page: 1, pageSize: 10, totalCount: 2 })
+      );
 
       service.createTicket(createReq).subscribe(() => {
         expect(mockTickets.create).toHaveBeenCalledWith(createReq);
@@ -137,7 +145,9 @@ describe('DashboardTicketService', () => {
 
   describe('filtering', () => {
     beforeEach(() => {
-      mockTickets.getAll.mockReturnValue(of(MOCK_TICKETS));
+      mockTickets.getAll.mockReturnValue(
+        of({ items: MOCK_TICKETS, page: 1, pageSize: 10, totalCount: 2 })
+      );
       service.loadTickets('all');
     });
 
