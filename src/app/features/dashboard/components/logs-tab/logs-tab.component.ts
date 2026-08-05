@@ -4,10 +4,18 @@ import { LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { ActivityLogDto } from '../../../../core/api/dtos';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-logs-tab',
-  imports: [AsyncPipe, DatePipe, LucideAngularModule, NgClass, PaginationComponent],
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    LucideAngularModule,
+    NgClass,
+    PaginationComponent,
+    SkeletonComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './logs-tab.component.html',
   styleUrl: './logs-tab.component.scss',

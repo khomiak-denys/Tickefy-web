@@ -52,6 +52,22 @@
       (nextPage)="nextPageClick()"
     ></app-pagination>
   } @else {
-    <p>Loading users…</p>
+    <div class="users-table" style="margin-top: 12px">
+      <div class="users-header">
+        <div><app-skeleton width="60px" height="18px" borderRadius="4px"></app-skeleton></div>
+        <div><app-skeleton width="60px" height="18px" borderRadius="4px"></app-skeleton></div>
+        <div><app-skeleton width="60px" height="18px" borderRadius="4px"></app-skeleton></div>
+        <div><app-skeleton width="60px" height="18px" borderRadius="4px"></app-skeleton></div>
+        <div><app-skeleton width="60px" height="18px" borderRadius="4px"></app-skeleton></div>
+        <div><app-skeleton width="60px" height="18px" borderRadius="4px"></app-skeleton></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+        <app-skeleton width="100%" height="48px" borderRadius="8px"></app-skeleton>
+        <app-skeleton width="100%" height="48px" borderRadius="8px"></app-skeleton>
+        <app-skeleton width="100%" height="48px" borderRadius="8px"></app-skeleton>
+        <app-skeleton width="100%" height="48px" borderRadius="8px"></app-skeleton>
+        <app-skeleton width="100%" height="48px" borderRadius="8px"></app-skeleton>
+      </div>
+    </div>
   }
 </section>
