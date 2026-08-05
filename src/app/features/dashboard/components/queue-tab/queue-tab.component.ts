@@ -25,7 +25,20 @@ export class QueueTabComponent {
   @Input() filteredTickets$: Observable<TicketSummaryDto[] | null> = new Observable<
     TicketSummaryDto[] | null
   >();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
+
   @Output() acceptedTicketId = new EventEmitter<string>();
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
+
+  nextPageClick() {
+    this.nextPage.emit();
+  }
+
+  prevPageClick() {
+    this.prevPage.emit();
+  }
 
   onAcceptClick(id: string) {
     this.acceptedTicketId.emit(id);

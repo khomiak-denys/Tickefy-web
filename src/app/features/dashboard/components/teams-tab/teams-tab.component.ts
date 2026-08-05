@@ -13,7 +13,20 @@ import { TeamSummary } from '../../../../core/api/dtos';
 })
 export class TeamsTabComponent {
   @Input() teams$: Observable<TeamSummary[] | null> = new Observable<TeamSummary[] | null>();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
+
   @Output() selectedTeamId = new EventEmitter<string>();
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
+
+  nextPageClick() {
+    this.nextPage.emit();
+  }
+
+  prevPageClick() {
+    this.prevPage.emit();
+  }
 
   onTeamClick(id: string) {
     this.selectedTeamId.emit(id);

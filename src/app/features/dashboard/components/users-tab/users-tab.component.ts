@@ -13,8 +13,21 @@ import { UserDto } from '../../../../core/api/dtos';
 })
 export class UsersTabComponent {
   @Input() filteredUsers$: Observable<UserDto[] | null> = new Observable<UserDto[] | null>();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
+
   @Output() selectedUserId = new EventEmitter<string>();
   @Output() deletedUserId = new EventEmitter<string>();
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
+
+  nextPageClick() {
+    this.nextPage.emit();
+  }
+
+  prevPageClick() {
+    this.prevPage.emit();
+  }
 
   deleteUser(id: string) {
     this.deletedUserId.emit(id);

@@ -38,6 +38,16 @@
         <p class="empty-text">Create a ticket to see it here.</p>
       </div>
     }
+
+    <div class="logs-pagination">
+      <button class="page-btn" (click)="prevPageClick()" [disabled]="!hasPrevPage">
+        <lucide-icon name="arrow-left" size="16"></lucide-icon> Prev
+      </button>
+      <button class="page-btn primary" (click)="nextPageClick()" [disabled]="!hasNextPage">
+        Next
+        <lucide-icon name="arrow-left" size="16" style="transform: rotate(180deg)"></lucide-icon>
+      </button>
+    </div>
   } @else {
     <p>Loading your tickets…</p>
   }

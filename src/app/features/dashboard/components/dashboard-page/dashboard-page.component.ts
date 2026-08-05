@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import {
   ActivityLogDto,
   CreateTeamRequest,
@@ -61,8 +60,23 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   filteredUsers$ = new Observable<UserDto[]>();
   logs$ = new Observable<ActivityLogDto[]>();
 
-  hasNextPage = true;
-  hasPreviousPage = false;
+  hasNextLogs$ = new Observable<boolean>();
+  hasPrevLogs$ = new Observable<boolean>();
+
+  hasNextUsers$ = new Observable<boolean>();
+  hasPrevUsers$ = new Observable<boolean>();
+
+  hasNextTeams$ = new Observable<boolean>();
+  hasPrevTeams$ = new Observable<boolean>();
+
+  hasNextQueue$ = new Observable<boolean>();
+  hasPrevQueue$ = new Observable<boolean>();
+
+  hasNextMy$ = new Observable<boolean>();
+  hasPrevMy$ = new Observable<boolean>();
+
+  hasNextAll$ = new Observable<boolean>();
+  hasPrevAll$ = new Observable<boolean>();
 
   teams$!: Observable<TeamSummary[]>;
 
@@ -103,6 +117,24 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
     this.logs$ = this.logsService.logs$;
     this.teams$ = this.teamsService.teams$;
+
+    this.hasNextLogs$ = this.logsService.hasNextPage$;
+    this.hasPrevLogs$ = this.logsService.hasPreviousPage$;
+
+    this.hasNextUsers$ = this.usersService.hasNextPage$;
+    this.hasPrevUsers$ = this.usersService.hasPrevPage$;
+
+    this.hasNextTeams$ = this.teamsService.hasNextPage$;
+    this.hasPrevTeams$ = this.teamsService.hasPrevPage$;
+
+    this.hasNextQueue$ = this.ticketService.hasNextQueue$;
+    this.hasPrevQueue$ = this.ticketService.hasPrevQueue$;
+
+    this.hasNextMy$ = this.ticketService.hasNextMy$;
+    this.hasPrevMy$ = this.ticketService.hasPrevMy$;
+
+    this.hasNextAll$ = this.ticketService.hasNextAll$;
+    this.hasPrevAll$ = this.ticketService.hasPrevAll$;
   }
 
   ngOnInit() {
@@ -138,17 +170,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToLogsPagination() {
-    this.logsService.hasPreviousPage$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (value) => {
-        this.hasPreviousPage = value;
-      },
-    });
-
-    this.logsService.hasNextPage$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (value) => {
-        this.hasNextPage = value;
-      },
-    });
+    // We can remove this as we will use async pipes directly
   }
 
   private refreshUsers() {
@@ -164,19 +186,35 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   nextLogsPage() {
-    if (!this.hasNextPage) {
-      return;
-    }
-
     this.logsService.nextPage();
   }
 
   prevLogsPage() {
-    if (!this.hasPreviousPage) {
-      return;
-    }
-
     this.logsService.previousPage();
+  }
+
+  nextUsersPage() {
+    this.usersService.nextPage();
+  }
+
+  prevUsersPage() {
+    this.usersService.previousPage();
+  }
+
+  nextTeamsPage() {
+    this.teamsService.nextPage();
+  }
+
+  prevTeamsPage() {
+    this.teamsService.previousPage();
+  }
+
+  nextTicketsPage(tabKey: TicketTabKeys) {
+    this.ticketService.nextPage(tabKey);
+  }
+
+  prevTicketsPage(tabKey: TicketTabKeys) {
+    this.ticketService.previousPage(tabKey);
   }
 
   logout() {

@@ -25,7 +25,20 @@ export class TicketsTabComponent {
   @Input() filteredTickets$: Observable<TicketSummaryDto[] | null> = new Observable<
     TicketSummaryDto[] | null
   >();
+  @Input() hasPrevPage = false;
+  @Input() hasNextPage = true;
+
   @Output() selectedTicketId = new EventEmitter<string>();
+  @Output() nextPage = new EventEmitter<void>();
+  @Output() prevPage = new EventEmitter<void>();
+
+  nextPageClick() {
+    this.nextPage.emit();
+  }
+
+  prevPageClick() {
+    this.prevPage.emit();
+  }
 
   onTicketClick(id: string) {
     this.selectedTicketId.emit(id);
