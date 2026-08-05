@@ -60,10 +60,6 @@
             </div>
           </div>
 
-          @if (error) {
-            <div class="team-error">{{ error }}</div>
-          }
-
           @if (teamDetails.members.length) {
             <div class="members-list">
               @for (m of teamDetails.members; track m.id) {

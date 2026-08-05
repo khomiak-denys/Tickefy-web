@@ -6,6 +6,7 @@ import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { ReasonModalComponent } from '../reason-modal/reason-modal.component';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-ticket-details-modal',
@@ -22,7 +23,6 @@ export class TicketDetailsModalComponent implements OnChanges {
   @Output() updated = new EventEmitter<void>();
   ticketActionLoading = false;
   newCommentText = '';
-  ticketActionError: string | null = null;
   private pendingAction: ActionConfig | null = null;
 
   reasonModalOpened: boolean = false;
@@ -83,7 +83,10 @@ export class TicketDetailsModalComponent implements OnChanges {
     return foundKey ? this.ticketActions[foundKey] : null;
   }
 
-  constructor(private tickets: TicketsService) {}
+  constructor(
+    private tickets: TicketsService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['ticketId'] || changes['open']) && this.open && this.ticketId) {
@@ -113,7 +116,7 @@ export class TicketDetailsModalComponent implements OnChanges {
       },
       error: () => {
         this.newCommentText = '';
-        this.ticketActionError = 'Failed to add comment';
+        this.notificationService.error('Failed to add comment');
       },
       complete: () => {
         this.newCommentText = '';
@@ -145,8 +148,11 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.loadDetails(ticketId);
         this.updated.emit();
+        this.notificationService.info('Ticket completed');
       },
-      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      error: () => {
+        this.notificationService.error('Failed to complete ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
@@ -157,7 +163,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     }
 
     if (!reason) {
-      this.ticketActionError = 'Please provide a reason';
+      this.notificationService.error('Please provide a reason');
       return;
     }
 
@@ -166,8 +172,11 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
+        this.notificationService.info('Ticket reopened');
       },
-      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      error: () => {
+        this.notificationService.error('Failed to reopen ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
@@ -178,7 +187,7 @@ export class TicketDetailsModalComponent implements OnChanges {
     }
 
     if (!reason) {
-      this.ticketActionError = 'Please provide a reason';
+      this.notificationService.error('Please provide a reason');
       return;
     }
 
@@ -187,8 +196,11 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
+        this.notificationService.info('Ticket cancelled');
       },
-      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      error: () => {
+        this.notificationService.error('Failed to cancel ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
@@ -203,15 +215,18 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
+        this.notificationService.info('Ticket taken');
       },
-      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      error: () => {
+        this.notificationService.error('Failed to take ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
 
   private failTicket(ticketId: string, reason: string | null) {
     if (!ticketId || !reason) {
-      this.ticketActionError = 'Please provide a reason';
+      this.notificationService.error('Please provide a reason');
       return;
     }
 
@@ -224,8 +239,11 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
+        this.notificationService.info('Ticket marked as failed');
       },
-      error: () => (this.ticketActionError = 'Failed to take ticket'),
+      error: () => {
+        this.notificationService.error('Failed to fail ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
@@ -240,8 +258,11 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
+        this.notificationService.info('Ticket accepted');
       },
-      error: () => (this.ticketActionError = 'Failed to aceept ticket'),
+      error: () => {
+        this.notificationService.error('Failed to accept ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
@@ -256,8 +277,11 @@ export class TicketDetailsModalComponent implements OnChanges {
       next: () => {
         this.updated.emit();
         this.loadDetails(ticketId);
+        this.notificationService.info('Work started on ticket');
       },
-      error: () => (this.ticketActionError = 'Failed to start work on ticket'),
+      error: () => {
+        this.notificationService.error('Failed to start work on ticket');
+      },
       complete: () => (this.ticketActionLoading = false),
     });
   }
@@ -300,7 +324,6 @@ export class TicketDetailsModalComponent implements OnChanges {
 
   private setLoadingModalState() {
     this.ticketActionLoading = true;
-    this.ticketActionError = null;
   }
 }
 
