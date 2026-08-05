@@ -3,3 +3,4 @@ export * from './user.dto';
 export * from './team.dto';
 export * from './ticket.dto';
 export * from './activity-log.dto';
+export * from './pagination-response.dto';

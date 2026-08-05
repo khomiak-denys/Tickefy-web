@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { API_BASE_URL } from '../api/api.config';
 import { SetUserRoleRequest, UpdateProfileRequest, UserDto } from '../api/dtos';
+import { PaginationResponse } from '../api/dtos/pagination-response.dto';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   constructor(private http: HttpClient) {}
 
-  getAll() {
-    return this.http.get<UserDto[]>(`${API_BASE_URL}/api/v1/users`);
+  getAll(page: number = 1, pageSize: number = 10) {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginationResponse<UserDto>>(`${API_BASE_URL}/api/v1/users`, { params });
   }
 
   getById(userId: string) {

@@ -8,6 +8,8 @@ import {
   TicketSummaryDto,
 } from '../api/dtos';
 import { Observable } from 'rxjs';
+import { PaginationResponse } from '../api/dtos/pagination-response.dto';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class TicketsService {
@@ -17,16 +19,33 @@ export class TicketsService {
     return this.http.post(`${API_BASE_URL}/api/v1/tickets`, body);
   }
 
-  getAll(): Observable<TicketSummaryDto[]> {
-    return this.http.get<TicketSummaryDto[]>(`${API_BASE_URL}/api/v1/tickets`);
+  getAll(
+    page: number = 1,
+    pageSize: number = 10
+  ): Observable<PaginationResponse<TicketSummaryDto>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginationResponse<TicketSummaryDto>>(`${API_BASE_URL}/api/v1/tickets`, {
+      params,
+    });
   }
 
-  getMy() {
-    return this.http.get<TicketSummaryDto[]>(`${API_BASE_URL}/api/v1/tickets/my`);
+  getMy(page: number = 1, pageSize: number = 10): Observable<PaginationResponse<TicketSummaryDto>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginationResponse<TicketSummaryDto>>(
+      `${API_BASE_URL}/api/v1/tickets/my`,
+      { params }
+    );
   }
 
-  getQueue() {
-    return this.http.get<TicketSummaryDto[]>(`${API_BASE_URL}/api/v1/tickets/queue`);
+  getQueue(
+    page: number = 1,
+    pageSize: number = 10
+  ): Observable<PaginationResponse<TicketSummaryDto>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<PaginationResponse<TicketSummaryDto>>(
+      `${API_BASE_URL}/api/v1/tickets/queue`,
+      { params }
+    );
   }
 
   getById(ticketId: string): Observable<TicketDetailsDto | null> {
