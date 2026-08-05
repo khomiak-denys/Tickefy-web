@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AuthDto } from '../../../../core/api/dtos/auth.dto';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-login-page',
@@ -14,7 +15,6 @@ import { AuthDto } from '../../../../core/api/dtos/auth.dto';
 })
 export class LoginPageComponent {
   loading = false;
-  error: string | null = null;
   submitted = false;
 
   form!: FormGroup;
@@ -22,7 +22,8 @@ export class LoginPageComponent {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.form = this.fb.group({
       login: ['', [Validators.required]],
@@ -38,7 +39,6 @@ export class LoginPageComponent {
       return;
     }
     this.loading = true;
-    this.error = null;
     const { login, password } = this.form.value as { login: string; password: string };
     this.auth.login({ login, password }).subscribe({
       next: (res: AuthDto) => {
@@ -48,9 +48,10 @@ export class LoginPageComponent {
         if (res.token) {
           this.auth.saveToken(res.token);
           this.auth.saveUserProfile(res.firstName, res.lastName);
+          this.notificationService.info('Login successful');
           this.router.navigate(['/dashboard']);
         } else {
-          this.error = 'No token in response';
+          this.notificationService.error('No token in response');
         }
         this.loading = false;
       },
@@ -77,7 +78,7 @@ export class LoginPageComponent {
 
         const base = title || (status ? `HTTP ${status}` : 'Request failed');
         const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
-        this.error = msg || 'Login failed';
+        this.notificationService.error(msg || 'Login failed');
         this.loading = false;
       },
     });

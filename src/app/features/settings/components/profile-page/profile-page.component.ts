@@ -14,6 +14,7 @@ import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserDto } from '../../../../core/api/dtos';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 function min2Symbols(control: AbstractControl): ValidationErrors | null {
   const firstName: string = control.value;
@@ -50,7 +51,8 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private notificationService: NotificationService
   ) {
     this.form = this.formBuilder.group({
       firstName: [{ value: '', disabled: true }, [Validators.required, min2Symbols]],
@@ -131,8 +133,11 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
         this.submitted = false;
         this.form.get('firstName')?.disable();
         this.form.get('lastName')?.disable();
+        this.notificationService.info('Profile updated successfully');
       },
-      error: () => {},
+      error: () => {
+        this.notificationService.error('Failed to update profile');
+      },
     });
   }
 
@@ -161,8 +166,11 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     this.users.setRole(String(id), { role }).subscribe({
       next: () => {
         this.loadUser();
+        this.notificationService.info('Role updated successfully');
       },
-      error: () => {},
+      error: () => {
+        this.notificationService.error('Failed to update role');
+      },
     });
   }
 

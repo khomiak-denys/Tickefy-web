@@ -4,6 +4,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TeamDetails, UserShortDto } from '../../../../core/api/dtos';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
 import { ProblemDetails } from '../../../../core/api/dtos/error.dto';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-team-details-modal',
@@ -19,9 +20,11 @@ export class TeamDetailsModalComponent implements OnChanges {
   teamDetails: TeamDetails | null = null;
   newTeamMemberLogin = '';
   teamDetailsLoading = false;
-  error: string | null = null;
 
-  constructor(private teamsService: DashboardTeamsService) {}
+  constructor(
+    private teamsService: DashboardTeamsService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((!changes['open'] || !changes['teamId']) && this.open && this.teamId) {
@@ -34,7 +37,6 @@ export class TeamDetailsModalComponent implements OnChanges {
     this.teamDetails = null;
     this.newTeamMemberLogin = '';
     this.teamDetailsLoading = false;
-    this.error = null;
     this.closed.emit();
   }
 
@@ -51,14 +53,19 @@ export class TeamDetailsModalComponent implements OnChanges {
         this.newTeamMemberLogin = '';
         this.fetchTeamDetails();
         this.teamDetailsLoading = false;
+        this.notificationService.info('Member added');
       },
       error: (error: ProblemDetails) => {
         this.teamDetailsLoading = false;
         if (error.status === 404) {
-          this.error = 'User not found';
+          this.notificationService.error('User not found');
         } else if (error.status === 400) {
-          this.error = error.errors?.['MemberLogin']?.[0] ?? 'Failed to add member';
-        } else this.error = 'Failed to add member';
+          this.notificationService.error(
+            error.errors?.['MemberLogin']?.[0] ?? 'Failed to add member'
+          );
+        } else {
+          this.notificationService.error('Failed to add member');
+        }
       },
     });
   }
@@ -68,7 +75,6 @@ export class TeamDetailsModalComponent implements OnChanges {
       return;
     }
 
-    this.error = null;
     this.teamsService.getById(this.teamId).subscribe({
       next: (team) => {
         if (!team) {
@@ -112,9 +118,11 @@ export class TeamDetailsModalComponent implements OnChanges {
     this.teamsService.removeMember(this.teamId, member.id).subscribe({
       next: () => {
         this.fetchTeamDetails();
+        this.notificationService.info('Member removed');
       },
       error: () => {
         this.teamDetailsLoading = false;
+        this.notificationService.error('Failed to remove member');
       },
     });
   }

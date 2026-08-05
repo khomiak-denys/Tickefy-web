@@ -4,6 +4,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { UserDto } from '../../../core/api/dtos';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsersService } from '../../../core/services/users.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,14 +15,13 @@ export class DashboardUserService {
   private userRoleFilter$ = new BehaviorSubject<string>('all');
 
   filteredUsers$ = this.filterUsers(this.usersSource$);
-  private errors$ = new BehaviorSubject<string | null>(null);
-  readonly userError$ = this.errors$.asObservable();
 
   private _usersListCache: Observable<UserDto[]> | null = null;
 
   constructor(
     private authService: AuthService,
-    private usersRepository: UsersService
+    private usersRepository: UsersService,
+    private notificationService: NotificationService
   ) {}
 
   private filterUsers(stream$: Observable<UserDto[]>) {
@@ -49,8 +49,8 @@ export class DashboardUserService {
           next: (data) => {
             this.usersSource$.next(data);
           },
-          error: (error) => {
-            this.errors$.next(error);
+          error: () => {
+            this.notificationService.error('Failed to load users');
           },
         }),
         shareReplay(1)
@@ -65,14 +65,13 @@ export class DashboardUserService {
       return;
     }
 
-    this.errors$.next(null);
     this.usersRepository.delete(String(id)).subscribe({
       next: () => {
         this.invalidateUsersListCache();
         this.loadUsers();
       },
-      error: (error) => {
-        this.errors$.next(error);
+      error: () => {
+        this.notificationService.error('Failed to delete user');
       },
     });
   }

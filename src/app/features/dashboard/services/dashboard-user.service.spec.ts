@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { DashboardUserService } from './dashboard-user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsersService } from '../../../core/services/users.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { of, throwError } from 'rxjs';
 import { TeamSummary, UserDto } from '../../../core/api/dtos';
 
@@ -10,22 +11,19 @@ describe('DashboardUserService', () => {
   let service: DashboardUserService;
   let mockAuth: jest.Mocked<Pick<AuthService, 'getRole'>>;
   let mockUsers: jest.Mocked<Pick<UsersService, 'getAll' | 'delete'>>;
+  let mockNotification: jest.Mocked<Pick<NotificationService, 'error' | 'info'>>;
 
   beforeEach(() => {
-    mockAuth = {
-      getRole: jest.fn(),
-    };
-
-    mockUsers = {
-      getAll: jest.fn(),
-      delete: jest.fn(),
-    };
+    mockAuth = { getRole: jest.fn() };
+    mockUsers = { getAll: jest.fn(), delete: jest.fn() };
+    mockNotification = { error: jest.fn(), info: jest.fn() };
 
     TestBed.configureTestingModule({
       providers: [
         DashboardUserService,
         { provide: AuthService, useValue: mockAuth },
         { provide: UsersService, useValue: mockUsers },
+        { provide: NotificationService, useValue: mockNotification },
       ],
     });
 
@@ -117,18 +115,13 @@ describe('DashboardUserService', () => {
       expect(users).toEqual(MOCK_USERS);
     });
 
-    it('error$ should get value on http failure', () => {
+    it('should call notificationService.error on http failure', () => {
       mockAuth.getRole.mockReturnValue('admin');
       mockUsers.getAll.mockReturnValue(throwError(() => NETWORK_ERROR));
 
-      let errorValue: string | null = null;
-      service.userError$.subscribe((err) => {
-        errorValue = err;
-      });
-
       service.loadUsers();
 
-      expect(errorValue).toBe(NETWORK_ERROR);
+      expect(mockNotification.error).toHaveBeenCalledWith('Failed to load users');
     });
   });
 
@@ -150,17 +143,12 @@ describe('DashboardUserService', () => {
       expect(mockUsers.getAll).toHaveBeenCalledTimes(1);
     });
 
-    it('should push error to stream on http failure', () => {
+    it('should call notificationService.error on http failure', () => {
       mockUsers.delete.mockReturnValue(throwError(() => NETWORK_ERROR));
-
-      let errorValue: string | null = null;
-      service.userError$.subscribe((err) => {
-        errorValue = err;
-      });
 
       service.deleteUser('1');
 
-      expect(errorValue).toBe(NETWORK_ERROR);
+      expect(mockNotification.error).toHaveBeenCalledWith('Failed to delete user');
     });
   });
 });

@@ -26,6 +26,7 @@ import { DashboardUserService } from '../../services/dashboard-user.service';
 import { DashboardLogsService } from '../../services/dashboard-logs.service';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
 import { AsyncPipe } from '@angular/common';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 
@@ -70,11 +71,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   firstName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   lastName$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-  userError: string | null = null;
-  ticketError: string | null = null;
-  logError: string | null = null;
-  teamError: string | null = null;
-
   isAdmin = false;
   isAgent = false;
   isRequester = false;
@@ -96,7 +92,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     private teamsService: DashboardTeamsService,
     private authService: AuthService,
     private logsService: DashboardLogsService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.filteredAllTickets$ = this.ticketService.filteredAllTickets$;
     this.filteredMyTickets$ = this.ticketService.filteredMyTickets$;
@@ -128,7 +125,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.firstName$ = this.authService.firstName$;
     this.lastName$ = this.authService.lastName$;
 
-    this.subscribeToErrors();
     this.subscribeToLogsPagination();
   }
 
@@ -139,32 +135,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   private refreshTeams() {
     this.teamsService.loadTeams();
-  }
-
-  private subscribeToErrors() {
-    this.usersService.userError$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (error) => {
-        this.userError = error;
-      },
-    });
-
-    this.ticketService.ticketError$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (error) => {
-        this.ticketError = error;
-      },
-    });
-
-    this.logsService.logsError$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (error) => {
-        this.logError = error;
-      },
-    });
-
-    this.teamsService.teamError$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (error) => {
-        this.teamError = error;
-      },
-    });
   }
 
   private subscribeToLogsPagination() {
@@ -243,9 +213,10 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.ticketService.createTicket(req).subscribe({
       next: () => {
         this.isCreateTicketModalOpen = false;
+        this.notificationService.info('Ticket created successfully');
       },
-      error: (err) => {
-        this.ticketError = err;
+      error: () => {
+        this.notificationService.error('Failed to create ticket');
       },
     });
   }
@@ -261,9 +232,11 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   takeTicket(id: string) {
     this.ticketService.taketTicket(id).subscribe({
-      next: () => {},
-      error: (err: string) => {
-        this.ticketError = err;
+      next: () => {
+        this.notificationService.info('Ticket taken successfully');
+      },
+      error: () => {
+        this.notificationService.error('Failed to take ticket');
       },
     });
   }
@@ -328,9 +301,10 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     this.teamsService.createTeam(req).subscribe({
       next: () => {
         this.isCreateTeamModalOpen = false;
+        this.notificationService.info('Team created successfully');
       },
-      error: (err) => {
-        this.teamError = err;
+      error: () => {
+        this.notificationService.error('Failed to create team');
       },
     });
   }

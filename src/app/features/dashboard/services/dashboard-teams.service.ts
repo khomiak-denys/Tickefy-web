@@ -4,19 +4,20 @@ import { TeamsService } from '../../../core/services/teams.service';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { CreateTeamRequest, TeamDetails, TeamSummary } from '../../../core/api/dtos';
 import { shareReplay } from 'rxjs/operators';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardTeamsService {
   teams$ = new BehaviorSubject<TeamSummary[]>([]);
-  teamError$ = new BehaviorSubject<string | null>(null);
 
   private _teamsListCache: Observable<TeamSummary[]> | null = null;
 
   constructor(
     private auth: AuthService,
-    private teams: TeamsService
+    private teams: TeamsService,
+    private notificationService: NotificationService
   ) {}
 
   private _teamDetailsCache: Map<string, Observable<TeamDetails>> = new Map();
@@ -36,8 +37,8 @@ export class DashboardTeamsService {
           next: (data) => {
             this.teams$.next(data);
           },
-          error: (error) => {
-            this.teamError$.next(error);
+          error: () => {
+            this.notificationService.error('Failed to load teams');
           },
         }),
         shareReplay(1)

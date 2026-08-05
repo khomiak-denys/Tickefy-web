@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { DashboardTicketService } from './dashboard-ticket.service';
 import { TicketsService } from '../../../core/services/tickets.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { CreateTicketRequest, TicketSummaryDto } from '../../../core/api/dtos';
 
 const MOCK_TICKETS: TicketSummaryDto[] = [
@@ -46,7 +47,11 @@ describe('DashboardTicketService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [DashboardTicketService, { provide: TicketsService, useValue: mockTickets }],
+      providers: [
+        DashboardTicketService,
+        { provide: TicketsService, useValue: mockTickets },
+        { provide: NotificationService, useValue: { error: jest.fn(), info: jest.fn() } },
+      ],
     });
 
     service = TestBed.inject(DashboardTicketService);
