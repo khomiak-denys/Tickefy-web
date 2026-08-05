@@ -7,11 +7,20 @@ import { FormsModule } from '@angular/forms';
 import { TicketsService } from '../../../../core/services/tickets.service';
 import { ReasonModalComponent } from '../reason-modal/reason-modal.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-ticket-details-modal',
   standalone: true,
-  imports: [IconsModule, NgClass, DatePipe, FormsModule, AsyncPipe, ReasonModalComponent],
+  imports: [
+    IconsModule,
+    NgClass,
+    DatePipe,
+    FormsModule,
+    AsyncPipe,
+    ReasonModalComponent,
+    SkeletonComponent,
+  ],
   templateUrl: './ticket-details-modal.component.html',
   styleUrl: './ticket-details-modal.component.scss',
 })

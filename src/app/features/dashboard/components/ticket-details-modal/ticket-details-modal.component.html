@@ -107,7 +107,37 @@
         </div>
       </section>
     } @else {
-      <div class="modal-loading">Loading details…</div>
+      <section class="modal-body">
+        <div class="ticket-head">
+          <app-skeleton width="65%" height="24px" borderRadius="6px"></app-skeleton>
+          <div class="ticket-tags" style="margin-top: 10px; display: flex; gap: 8px">
+            <app-skeleton width="80px" height="24px" borderRadius="999px"></app-skeleton>
+            <app-skeleton width="70px" height="24px" borderRadius="999px"></app-skeleton>
+            <app-skeleton width="90px" height="24px" borderRadius="999px"></app-skeleton>
+          </div>
+        </div>
+        <div class="ticket-meta-row">
+          <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+          <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+          <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+        </div>
+
+        <div style="margin: 18px 0 10px">
+          <app-skeleton width="110px" height="18px" borderRadius="4px"></app-skeleton>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <app-skeleton width="100%" height="14px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="85%" height="14px" borderRadius="4px"></app-skeleton>
+        </div>
+
+        <div style="margin: 22px 0 12px">
+          <app-skeleton width="130px" height="18px" borderRadius="4px"></app-skeleton>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <app-skeleton width="100%" height="64px" borderRadius="16px"></app-skeleton>
+          <app-skeleton width="100%" height="64px" borderRadius="16px"></app-skeleton>
+        </div>
+      </section>
     }
   </div>
 }

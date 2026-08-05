@@ -5,10 +5,11 @@ import { TeamDetails, UserShortDto } from '../../../../core/api/dtos';
 import { DashboardTeamsService } from '../../services/dashboard-teams.service';
 import { ProblemDetails } from '../../../../core/api/dtos/error.dto';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-team-details-modal',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule, SkeletonComponent],
   templateUrl: './team-details-modal.component.html',
   styleUrl: './team-details-modal.component.scss',
 })
