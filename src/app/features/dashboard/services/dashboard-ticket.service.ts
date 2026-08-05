@@ -3,6 +3,7 @@ import { BehaviorSubject, combineLatest, Observable, tap } from 'rxjs';
 import { CreateTicketRequest, TicketSummaryDto } from '../../../core/api/dtos';
 import { map } from 'rxjs/operators';
 import { TicketsService } from '../../../core/services/tickets.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 export type TicketTabKeys = 'queue' | 'my' | 'all';
 
@@ -22,10 +23,10 @@ export class DashboardTicketService {
   filteredMyTickets$ = this.filterTickets(this.mySource);
   filteredAllTickets$ = this.filterTickets(this.allSource);
 
-  private errors$ = new BehaviorSubject<string | null>(null);
-  readonly ticketError$ = this.errors$.asObservable();
-
-  constructor(private tickets: TicketsService) {}
+  constructor(
+    private tickets: TicketsService,
+    private notificationService: NotificationService
+  ) {}
 
   private filterTickets(stream$: Observable<TicketSummaryDto[]>) {
     return combineLatest([
@@ -54,7 +55,9 @@ export class DashboardTicketService {
           next: (data) => {
             this.queueSource.next(data);
           },
-          error: () => {},
+          error: () => {
+            this.notificationService.error('Failed to load queue');
+          },
         });
         break;
       case 'my':
@@ -62,7 +65,9 @@ export class DashboardTicketService {
           next: (data) => {
             this.mySource.next(data);
           },
-          error: () => {},
+          error: () => {
+            this.notificationService.error('Failed to load tickets');
+          },
         });
         break;
       case 'all':
@@ -70,7 +75,9 @@ export class DashboardTicketService {
           next: (data) => {
             this.allSource.next(data);
           },
-          error: () => {},
+          error: () => {
+            this.notificationService.error('Failed to load tickets');
+          },
         });
         break;
     }

@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { DashboardTeamsService } from './dashboard-teams.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TeamsService } from '../../../core/services/teams.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { TeamDetails, TeamSummary } from '../../../core/api/dtos';
 
 const MOCK_TEAMS: TeamSummary[] = [
@@ -29,12 +30,10 @@ describe('DashboardTeamsService', () => {
       'getAll' | 'getMy' | 'getById' | 'create' | 'addMemberByLogin' | 'removeMember'
     >
   >;
+  let mockNotification: jest.Mocked<Pick<NotificationService, 'error' | 'info'>>;
 
   beforeEach(() => {
-    mockAuth = {
-      getRole: jest.fn(),
-    };
-
+    mockAuth = { getRole: jest.fn() };
     mockTeams = {
       getAll: jest.fn(),
       getMy: jest.fn(),
@@ -43,12 +42,14 @@ describe('DashboardTeamsService', () => {
       addMemberByLogin: jest.fn(),
       removeMember: jest.fn(),
     };
+    mockNotification = { error: jest.fn(), info: jest.fn() };
 
     TestBed.configureTestingModule({
       providers: [
         DashboardTeamsService,
         { provide: AuthService, useValue: mockAuth },
         { provide: TeamsService, useValue: mockTeams },
+        { provide: NotificationService, useValue: mockNotification },
       ],
     });
 
@@ -98,13 +99,13 @@ describe('DashboardTeamsService', () => {
       expect(service.teams$.value).toEqual(MOCK_TEAMS);
     });
 
-    it('should push error into teamError$ on failure', () => {
+    it('should call notificationService.error on failure', () => {
       mockAuth.getRole.mockReturnValue('admin');
       mockTeams.getAll.mockReturnValue(throwError(() => 'Network error'));
 
       service.loadTeams();
 
-      expect(service.teamError$.value).toBe('Network error');
+      expect(mockNotification.error).toHaveBeenCalledWith('Failed to load teams');
     });
 
     it('should reuse cached observable on second call (not fetch again)', () => {

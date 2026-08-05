@@ -51,15 +51,6 @@
         <div class="role">{{ role || 'user' }}</div>
       </div>
       <button class="logout" (click)="logout()">Log Out</button>
-      @if (userError) {
-        <div class="error">{{ userError }}</div>
-      }
-      @if (ticketError) {
-        <div class="error">{{ ticketError }}</div>
-      }
-      @if (logError) {
-        <div class="error">{{ logError }}</div>
-      }
     </div>
   </aside>
   <main class="content">
