@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, finalize, Observable, Subject } from 'rxjs';
 import {
   ActivityLogDto,
   CreateTeamRequest,
@@ -212,11 +212,17 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.authService.logout().subscribe();
-    this.authService.clearCurrentUser();
-    this.teamsService.invalidateTeamsListCache();
-    this.usersService.invalidateUsersListCache();
-    this.router.navigate(['/auth/login']);
+    this.authService
+      .logout()
+      .pipe(
+        finalize(() => {
+          this.authService.clearCurrentUser();
+          this.teamsService.invalidateTeamsListCache();
+          this.usersService.invalidateUsersListCache();
+          this.router.navigate(['/auth/login']);
+        })
+      )
+      .subscribe();
   }
 
   navigateToProfile() {
