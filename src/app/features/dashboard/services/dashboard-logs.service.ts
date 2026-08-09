@@ -10,7 +10,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
 export class DashboardLogsService {
   private page$ = new BehaviorSubject<number>(1);
   private logsPageSize = 10;
-  logs$ = new BehaviorSubject<ActivityLogDto[]>([]);
+  logs$ = new BehaviorSubject<ActivityLogDto[] | null>(null);
   hasNextPage$ = new BehaviorSubject<boolean>(true);
   hasPreviousPage$ = new BehaviorSubject<boolean>(false);
 

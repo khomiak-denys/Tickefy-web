@@ -11,7 +11,7 @@ import { PaginationResponse } from '../../../core/api/dtos/pagination-response.d
   providedIn: 'root',
 })
 export class DashboardTeamsService {
-  teams$ = new BehaviorSubject<TeamSummary[]>([]);
+  teams$ = new BehaviorSubject<TeamSummary[] | null>(null);
 
   page$ = new BehaviorSubject<number>(1);
   hasNextPage$ = new BehaviorSubject<boolean>(true);

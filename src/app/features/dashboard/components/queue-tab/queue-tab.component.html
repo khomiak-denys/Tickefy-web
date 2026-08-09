@@ -46,6 +46,10 @@
       (nextPage)="nextPageClick()"
     ></app-pagination>
   } @else {
-    <p>Loading your tickets…</p>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px">
+      <app-skeleton width="100%" height="106px" borderRadius="12px"></app-skeleton>
+      <app-skeleton width="100%" height="106px" borderRadius="12px"></app-skeleton>
+      <app-skeleton width="100%" height="106px" borderRadius="12px"></app-skeleton>
+    </div>
   }
 </section>

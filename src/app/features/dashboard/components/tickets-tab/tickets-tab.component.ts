@@ -6,6 +6,7 @@ import { TicketSummaryDto } from '../../../../core/api/dtos';
 import { StatusClassPipe } from '../../../../shared/pipes/status-class.pipe';
 import { PriorityClassPipe } from '../../../../shared/pipes/priority-class.pipe';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-tickets-tab',
@@ -18,6 +19,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
     StatusClassPipe,
     PriorityClassPipe,
     PaginationComponent,
+    SkeletonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tickets-tab.component.html',

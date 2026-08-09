@@ -6,6 +6,7 @@ import { AsyncPipe, DatePipe, NgClass, LowerCasePipe } from '@angular/common';
 import { StatusClassPipe } from '../../../../shared/pipes/status-class.pipe';
 import { PriorityClassPipe } from '../../../../shared/pipes/priority-class.pipe';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-queue-tab',
@@ -18,6 +19,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
     StatusClassPipe,
     PriorityClassPipe,
     PaginationComponent,
+    SkeletonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './queue-tab.component.html',

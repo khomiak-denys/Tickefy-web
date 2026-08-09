@@ -94,7 +94,46 @@
         </div>
       </section>
     } @else {
-      <div class="modal-loading">Loading team details…</div>
+      <section class="modal-body team-modal">
+        <div class="team-header">
+          <app-skeleton width="50%" height="32px" borderRadius="8px"></app-skeleton>
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px">
+            <app-skeleton width="85%" height="16px" borderRadius="4px"></app-skeleton>
+            <app-skeleton width="60%" height="16px" borderRadius="4px"></app-skeleton>
+          </div>
+          <div style="margin-top: 16px">
+            <app-skeleton width="110px" height="26px" borderRadius="999px"></app-skeleton>
+          </div>
+        </div>
+
+        <div class="team-section" style="margin-top: 24px">
+          <div style="margin-bottom: 12px">
+            <app-skeleton width="100px" height="18px" borderRadius="4px"></app-skeleton>
+          </div>
+          <app-skeleton width="100%" height="56px" borderRadius="12px"></app-skeleton>
+        </div>
+
+        <div class="team-section members" style="margin-top: 32px">
+          <div
+            class="members-head"
+            style="
+              margin-bottom: 16px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <app-skeleton width="130px" height="18px" borderRadius="4px"></app-skeleton>
+            <app-skeleton width="220px" height="36px" borderRadius="6px"></app-skeleton>
+          </div>
+
+          <div class="members-list" style="display: flex; flex-direction: column; gap: 10px">
+            <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
+            <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
+            <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
+          </div>
+        </div>
+      </section>
     }
   </div>
 }

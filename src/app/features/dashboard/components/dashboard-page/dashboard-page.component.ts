@@ -51,14 +51,14 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
 export class DashboardPageComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
 
-  filteredAllTickets$ = new Observable<TicketSummaryDto[]>();
-  filteredMyTickets$ = new Observable<TicketSummaryDto[]>();
-  filteredQueueTickets$ = new Observable<TicketSummaryDto[]>();
+  filteredAllTickets$ = new Observable<TicketSummaryDto[] | null>();
+  filteredMyTickets$ = new Observable<TicketSummaryDto[] | null>();
+  filteredQueueTickets$ = new Observable<TicketSummaryDto[] | null>();
 
   activeTab: TabKey = 'my';
 
-  filteredUsers$ = new Observable<UserDto[]>();
-  logs$ = new Observable<ActivityLogDto[]>();
+  filteredUsers$ = new Observable<UserDto[] | null>();
+  logs$ = new Observable<ActivityLogDto[] | null>();
 
   hasNextLogs$ = new Observable<boolean>();
   hasPrevLogs$ = new Observable<boolean>();
@@ -78,7 +78,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   hasNextAll$ = new Observable<boolean>();
   hasPrevAll$ = new Observable<boolean>();
 
-  teams$!: Observable<TeamSummary[]>;
+  teams$!: Observable<TeamSummary[] | null>;
 
   currentUserId: string | null = null;
   role: string | null = null;
