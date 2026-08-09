@@ -156,8 +156,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
     this.firstName$ = this.authService.firstName$;
     this.lastName$ = this.authService.lastName$;
-
-    this.subscribeToLogsPagination();
   }
 
   ngOnDestroy(): void {
@@ -167,10 +165,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   private refreshTeams() {
     this.teamsService.loadTeams();
-  }
-
-  private subscribeToLogsPagination() {
-    // We can remove this as we will use async pipes directly
   }
 
   private refreshUsers() {
