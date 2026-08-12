@@ -2,10 +2,11 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { CreateTicketRequest } from '../../../../core/api/dtos';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 
 @Component({
   selector: 'app-create-ticket-modal',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule, ModalShellComponent],
   templateUrl: './create-ticket-modal.component.html',
   styleUrl: './create-ticket-modal.component.scss',
 })
