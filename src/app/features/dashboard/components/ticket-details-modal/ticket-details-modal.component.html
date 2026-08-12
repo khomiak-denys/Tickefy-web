@@ -1,146 +1,139 @@
-@if (open) {
-  <div class="modal-backdrop" (click)="closeDetails()"></div>
-  <div class="modal">
-    <header class="modal-head">
-      <h3>Ticket details</h3>
-      <button class="close" (click)="closeDetails()">×</button>
-    </header>
-    @if (ticketDetails$ | async; as d) {
-      <section class="modal-body">
-        <div class="ticket-head">
-          <h2 class="ticket-title">{{ d.title || 'Ticket #' + (d.id || '') }}</h2>
-          <div class="ticket-actions">
-            @for (action of d.availableActions; track action.key) {
-              @if (getActionConfig(action.key); as config) {
-                <button
-                  class="act {{ config.style }}"
-                  (click)="onActionClick(action.requireReason, config)"
-                  [disabled]="ticketActionLoading"
-                >
-                  <lucide-icon [name]="config.icon" size="16"></lucide-icon>
-                  {{ config.label }}
-                </button>
-              }
+<app-modal-shell [open]="open" title="Ticket details" (closed)="closeDetails()">
+  @if (ticketDetails$ | async; as d) {
+    <div class="ticket-content">
+      <div class="ticket-head">
+        <h2 class="ticket-title">{{ d.title || 'Ticket #' + (d.id || '') }}</h2>
+        <div class="ticket-actions">
+          @for (action of d.availableActions; track action.key) {
+            @if (getActionConfig(action.key); as config) {
+              <button
+                class="act {{ config.style }}"
+                (click)="onActionClick(action.requireReason, config)"
+                [disabled]="ticketActionLoading"
+              >
+                <lucide-icon [name]="config.icon" size="16"></lucide-icon>
+                {{ config.label }}
+              </button>
             }
-          </div>
-          <div class="ticket-tags">
-            <span class="pill status" [ngClass]="statusClass(d.status)"
-              ><lucide-icon name="clock" size="14"></lucide-icon>
-              {{ d.status || 'in progress' }}</span
-            >
-            <span class="pill priority"
-              ><lucide-icon name="alert-circle" size="14"></lucide-icon>
-              {{ d.priority ? d.priority : 'medium' }}</span
-            >
-            <span class="pill type">{{ d.category || d.assignedTeam.category || 'none' }}</span>
-          </div>
-        </div>
-        <div class="ticket-meta-row">
-          <div class="meta-block">
-            <lucide-icon name="user" size="16"></lucide-icon>
-            <div>
-              <div class="meta-label">Created by</div>
-              <div class="meta-value">
-                {{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}
-              </div>
-            </div>
-          </div>
-          <div class="meta-block">
-            <lucide-icon name="clock" size="16"></lucide-icon>
-            <div>
-              <div class="meta-label">Created</div>
-              <div class="meta-value">{{ d.created | date: 'dd/MM/yyyy' }}</div>
-            </div>
-          </div>
-          <div class="meta-block">
-            <lucide-icon name="calendar" size="16"></lucide-icon>
-            <div>
-              <div class="meta-label">Deadline</div>
-              <div class="meta-value">{{ d.deadline | date: 'dd/MM/yyyy' }}</div>
-            </div>
-          </div>
-        </div>
-
-        <h3 class="section-title">Description</h3>
-        <p class="modal-desc">{{ d.description }}</p>
-
-        <h3 class="section-title">Comments ({{ d.comments?.length || 0 }})</h3>
-        <ul class="comments">
-          @for (c of d.comments || []; track c.id) {
-            <li class="comment-item">
-              <div class="comment-head">
-                <div class="avatar small">
-                  {{
-                    (
-                      (c.user?.firstName || '') +
-                        (c.user?.lastName ? ' ' + c.user?.lastName : '') || 'U'
-                    ).slice(0, 1)
-                  }}
-                </div>
-                <div class="who-time">
-                  <div class="who">
-                    {{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}
-                  </div>
-                  <div class="time">
-                    <lucide-icon name="clock" size="14"></lucide-icon>
-                    {{ c.created | date: 'MM/dd/yyyy, hh:mm:ss a' }}
-                  </div>
-                </div>
-              </div>
-              <div class="c-text">{{ c.content }}</div>
-            </li>
-          } @empty {
-            <li class="no-comments">No comments.</li>
           }
-        </ul>
-
-        <div class="comment-input">
-          <input type="text" placeholder="Add a comment..." [(ngModel)]="newCommentText" />
-          <button
-            class="send"
-            (click)="addComment(d.id, newCommentText)"
-            [disabled]="!newCommentText.trim()"
-            aria-label="Send comment"
-          >
-            <lucide-icon name="send" size="18"></lucide-icon>
-          </button>
         </div>
-      </section>
-    } @else {
-      <section class="modal-body">
-        <div class="ticket-head">
-          <app-skeleton width="65%" height="24px" borderRadius="6px"></app-skeleton>
-          <div class="ticket-tags" style="margin-top: 10px; display: flex; gap: 8px">
-            <app-skeleton width="80px" height="24px" borderRadius="999px"></app-skeleton>
-            <app-skeleton width="70px" height="24px" borderRadius="999px"></app-skeleton>
-            <app-skeleton width="90px" height="24px" borderRadius="999px"></app-skeleton>
+        <div class="ticket-tags">
+          <span class="pill status" [ngClass]="statusClass(d.status)"
+            ><lucide-icon name="clock" size="14"></lucide-icon>
+            {{ d.status || 'in progress' }}</span
+          >
+          <span class="pill priority"
+            ><lucide-icon name="alert-circle" size="14"></lucide-icon>
+            {{ d.priority ? d.priority : 'medium' }}</span
+          >
+          <span class="pill type">{{ d.category || d.assignedTeam.category || 'none' }}</span>
+        </div>
+      </div>
+      <div class="ticket-meta-row">
+        <div class="meta-block">
+          <lucide-icon name="user" size="16"></lucide-icon>
+          <div>
+            <div class="meta-label">Created by</div>
+            <div class="meta-value">
+              {{ (d.requester?.firstName || '') + ' ' + (d.requester?.lastName || '') }}
+            </div>
           </div>
         </div>
-        <div class="ticket-meta-row">
-          <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
-          <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
-          <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+        <div class="meta-block">
+          <lucide-icon name="clock" size="16"></lucide-icon>
+          <div>
+            <div class="meta-label">Created</div>
+            <div class="meta-value">{{ d.created | date: 'dd/MM/yyyy' }}</div>
+          </div>
         </div>
+        <div class="meta-block">
+          <lucide-icon name="calendar" size="16"></lucide-icon>
+          <div>
+            <div class="meta-label">Deadline</div>
+            <div class="meta-value">{{ d.deadline | date: 'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+      </div>
 
-        <div style="margin: 18px 0 10px">
-          <app-skeleton width="110px" height="18px" borderRadius="4px"></app-skeleton>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 8px">
-          <app-skeleton width="100%" height="14px" borderRadius="4px"></app-skeleton>
-          <app-skeleton width="85%" height="14px" borderRadius="4px"></app-skeleton>
-        </div>
+      <h3 class="section-title">Description</h3>
+      <p class="modal-desc">{{ d.description }}</p>
 
-        <div style="margin: 22px 0 12px">
-          <app-skeleton width="130px" height="18px" borderRadius="4px"></app-skeleton>
+      <h3 class="section-title">Comments ({{ d.comments?.length || 0 }})</h3>
+      <ul class="comments">
+        @for (c of d.comments || []; track c.id) {
+          <li class="comment-item">
+            <div class="comment-head">
+              <div class="avatar small">
+                {{
+                  (
+                    (c.user?.firstName || '') +
+                      (c.user?.lastName ? ' ' + c.user?.lastName : '') || 'U'
+                  ).slice(0, 1)
+                }}
+              </div>
+              <div class="who-time">
+                <div class="who">
+                  {{ (c.user?.firstName || '') + ' ' + (c.user?.lastName || '') }}
+                </div>
+                <div class="time">
+                  <lucide-icon name="clock" size="14"></lucide-icon>
+                  {{ c.created | date: 'MM/dd/yyyy, hh:mm:ss a' }}
+                </div>
+              </div>
+            </div>
+            <div class="c-text">{{ c.content }}</div>
+          </li>
+        } @empty {
+          <li class="no-comments">No comments.</li>
+        }
+      </ul>
+
+      <div class="comment-input">
+        <input type="text" placeholder="Add a comment..." [(ngModel)]="newCommentText" />
+        <button
+          class="send"
+          (click)="addComment(d.id, newCommentText)"
+          [disabled]="!newCommentText.trim()"
+          aria-label="Send comment"
+        >
+          <lucide-icon name="send" size="18"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="ticket-content">
+      <div class="ticket-head">
+        <app-skeleton width="65%" height="24px" borderRadius="6px"></app-skeleton>
+        <div class="ticket-tags" style="margin-top: 10px; display: flex; gap: 8px">
+          <app-skeleton width="80px" height="24px" borderRadius="999px"></app-skeleton>
+          <app-skeleton width="70px" height="24px" borderRadius="999px"></app-skeleton>
+          <app-skeleton width="90px" height="24px" borderRadius="999px"></app-skeleton>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 12px">
-          <app-skeleton width="100%" height="64px" borderRadius="16px"></app-skeleton>
-          <app-skeleton width="100%" height="64px" borderRadius="16px"></app-skeleton>
-        </div>
-      </section>
-    }
-  </div>
-}
+      </div>
+      <div class="ticket-meta-row">
+        <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+        <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+        <app-skeleton width="100%" height="42px" borderRadius="12px"></app-skeleton>
+      </div>
+
+      <div style="margin: 18px 0 10px">
+        <app-skeleton width="110px" height="18px" borderRadius="4px"></app-skeleton>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <app-skeleton width="100%" height="14px" borderRadius="4px"></app-skeleton>
+        <app-skeleton width="85%" height="14px" borderRadius="4px"></app-skeleton>
+      </div>
+
+      <div style="margin: 22px 0 12px">
+        <app-skeleton width="130px" height="18px" borderRadius="4px"></app-skeleton>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <app-skeleton width="100%" height="64px" borderRadius="16px"></app-skeleton>
+        <app-skeleton width="100%" height="64px" borderRadius="16px"></app-skeleton>
+      </div>
+    </div>
+  }
+</app-modal-shell>
 
 <app-reason-modal
   [open]="reasonModalOpened"
