@@ -44,6 +44,14 @@
   overflow-wrap: anywhere;
 }
 
+.modal-foot {
+  border-top: 1px solid #eceff5;
+  display: flex;
+  gap: 12px;
+  padding: 16px 18px;
+  justify-content: space-between;
+}
+
 .close {
   border: none;
   background: transparent;

@@ -4,7 +4,7 @@ import { ModalShellComponent } from './modal-shell.component';
 
 @Component({
   template: `
-    <app-modal-shell [open]="open" [title]="title" (close)="onClose()">
+    <app-modal-shell [open]="open" [title]="title" (closed)="onClose()">
       <p class="projected-body">Body content</p>
       <div modal-footer class="projected-footer">Footer content</div>
     </app-modal-shell>
