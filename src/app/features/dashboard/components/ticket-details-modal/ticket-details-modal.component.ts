@@ -8,6 +8,7 @@ import { TicketsService } from '../../../../core/services/tickets.service';
 import { ReasonModalComponent } from '../reason-modal/reason-modal.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 
 @Component({
   selector: 'app-ticket-details-modal',
@@ -20,6 +21,7 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
     AsyncPipe,
     ReasonModalComponent,
     SkeletonComponent,
+    ModalShellComponent,
   ],
   templateUrl: './ticket-details-modal.component.html',
   styleUrl: './ticket-details-modal.component.scss',
