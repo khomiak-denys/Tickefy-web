@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 
 @Component({
   selector: 'app-reason-modal',
-  imports: [FormsModule],
+  imports: [FormsModule, ModalShellComponent],
   templateUrl: './reason-modal.component.html',
   styleUrl: './reason-modal.component.scss',
 })
