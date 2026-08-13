@@ -13,6 +13,7 @@ describe('SplitButtonComponent', () => {
 
     fixture = TestBed.createComponent(SplitButtonComponent);
     component = fixture.componentInstance;
+    component.options = [{ value: 'test', title: 'Test', description: 'desc' }];
     fixture.detectChanges();
   });
 
