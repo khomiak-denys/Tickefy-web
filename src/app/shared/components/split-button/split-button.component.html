@@ -1,0 +1,35 @@
+<div class="split-button-wrapper">
+  <div class="split-button-group">
+    <button class="main-action-btn" [disabled]="disabled" (click)="executeAction()">
+      {{ selectedOption.title }}
+    </button>
+
+    <button
+      class="dropdown-toggle-btn"
+      [disabled]="disabled"
+      (click)="toggleMenu($event)"
+      aria-label="More options"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path
+          d="M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 7H4.604a.25.25 0 00-.177.427z"
+        ></path>
+      </svg>
+    </button>
+  </div>
+
+  @if (isOpen) {
+    <div class="dropdown-menu">
+      @for (option of options; track option.value) {
+        <div
+          class="menu-item"
+          [class.selected]="option.value === selectedOption.value"
+          (click)="selectOption(option)"
+        >
+          <strong>{{ option.title }}</strong>
+          <span>{{ option.description }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>
