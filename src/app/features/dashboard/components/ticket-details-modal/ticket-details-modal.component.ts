@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { TicketDetailsDto } from '../../../../core/api/dtos';
+import { TicketDetailsDto, TicketAction } from '../../../../core/api/dtos';
 import { catchError, Observable, of } from 'rxjs';
 import { IconsModule } from '../../../../shared/icons/icons.module';
 import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
@@ -30,6 +30,7 @@ export class TicketDetailsModalComponent implements OnChanges {
   @Input() ticketId: string | null = null;
   @Output() closed = new EventEmitter<void>();
   @Output() updated = new EventEmitter<void>();
+  @Output() editDraft = new EventEmitter<TicketDetailsDto>();
   ticketActionLoading = false;
   newCommentText = '';
   private pendingAction: ActionConfig | null = null;
@@ -293,6 +294,15 @@ export class TicketDetailsModalComponent implements OnChanges {
       },
       complete: () => (this.ticketActionLoading = false),
     });
+  }
+
+  hasPublishAction(actions: TicketAction[] | undefined): boolean {
+    if (!actions) return false;
+    return actions.some((a) => a.key.toLowerCase() === 'publish');
+  }
+
+  publishTicket(ticketId: string, details: TicketDetailsDto) {
+    this.editDraft.emit(details);
   }
 
   onActionClick(requireReason: boolean, action: ActionConfig) {

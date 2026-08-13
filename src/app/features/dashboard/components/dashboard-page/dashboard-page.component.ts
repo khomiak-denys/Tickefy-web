@@ -6,6 +6,7 @@ import {
   CreateTeamRequest,
   CreateTicketRequest,
   TeamSummary,
+  TicketDetailsDto,
   TicketSummaryDto,
   UserDto,
 } from '../../../../core/api/dtos';
@@ -18,6 +19,7 @@ import { UsersTabComponent } from '../users-tab/users-tab.component';
 import { LogsTabComponent } from '../logs-tab/logs-tab.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CreateTicketModalComponent } from '../create-ticket-modal/create-ticket-modal.component';
+import { PublishTicketModalComponent } from '../publish-ticket-modal/publish-ticket-modal.component';
 import { CreateTeamModalComponent } from '../create-team-modal/create-team-modal.component';
 import { TeamDetailsModalComponent } from '../team-details-modal/team-details-modal.component';
 import { DashboardTicketService, TicketTabKeys } from '../../services/dashboard-ticket.service';
@@ -40,6 +42,7 @@ type TabKey = 'my' | 'queue' | 'all' | 'users' | 'teams' | 'logs';
     UsersTabComponent,
     LogsTabComponent,
     CreateTicketModalComponent,
+    PublishTicketModalComponent,
     CreateTeamModalComponent,
     TeamDetailsModalComponent,
     AsyncPipe,
@@ -93,11 +96,13 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   isTicketModalOpen = false;
   selectedTicketId: string | null = null;
+  draftToEdit: TicketDetailsDto | null = null;
 
   isTeamDetailsOpen = false;
   selectedTeamId: string | null = null;
 
   isCreateTicketModalOpen = false;
+  isPublishTicketModalOpen = false;
   isCreateTeamModalOpen = false;
 
   constructor(
@@ -247,14 +252,38 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     return tabKey === 'my' || tabKey === 'queue' || tabKey === 'all';
   }
 
-  createTicket(req: CreateTicketRequest) {
-    this.ticketService.createTicket(req).subscribe({
+  createTicket(payload: { request: CreateTicketRequest; action: string }) {
+    const actionStream =
+      payload.action === 'draft'
+        ? this.ticketService.createDraft(payload.request)
+        : this.ticketService.createTicket(payload.request);
+
+    actionStream.subscribe({
       next: () => {
         this.isCreateTicketModalOpen = false;
-        this.notificationService.info('Ticket created successfully');
+        this.notificationService.info(
+          payload.action === 'draft' ? 'Draft created successfully' : 'Ticket created successfully'
+        );
       },
       error: () => {
-        this.notificationService.error('Failed to create ticket');
+        this.notificationService.error(
+          payload.action === 'draft' ? 'Failed to create draft' : 'Failed to create ticket'
+        );
+      },
+    });
+  }
+
+  publishTicket(payload: { request: CreateTicketRequest }) {
+    if (!this.draftToEdit) return;
+
+    this.ticketService.publish(this.draftToEdit.id, payload.request).subscribe({
+      next: () => {
+        this.isPublishTicketModalOpen = false;
+        this.notificationService.info('Draft published successfully');
+        this.draftToEdit = null;
+      },
+      error: () => {
+        this.notificationService.error('Failed to publish draft');
       },
     });
   }
@@ -282,6 +311,17 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   closeTicketModal() {
     this.isTicketModalOpen = false;
     this.selectedTicketId = null;
+  }
+
+  openEditDraftModal(draft: TicketDetailsDto) {
+    this.draftToEdit = draft;
+    this.isTicketModalOpen = false;
+    this.isPublishTicketModalOpen = true;
+  }
+
+  closePublishTicketModal() {
+    this.isPublishTicketModalOpen = false;
+    this.draftToEdit = null;
   }
 
   setTab(tab: TabKey) {
