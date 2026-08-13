@@ -27,9 +27,12 @@
     </section>
     <footer class="modal-foot">
       <button class="secondary" [disabled]="createSubmitting" (click)="close()">Cancel</button>
-      <button class="primary" [disabled]="createSubmitting" (click)="submit()">
-        {{ createSubmitting ? 'Creating…' : 'Create Ticket' }}
-      </button>
+      <app-split-button
+        [options]="ticketSubmitOptions"
+        [disabled]="createSubmitting"
+        (actionExecuted)="submit($event)"
+      >
+      </app-split-button>
     </footer>
     @if (error) {
       <div class="error">{{ error }}</div>

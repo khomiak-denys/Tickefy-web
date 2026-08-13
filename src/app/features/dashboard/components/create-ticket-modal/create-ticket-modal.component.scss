@@ -50,7 +50,8 @@
   padding: 16px 18px;
   justify-content: space-between;
 }
-.modal-foot button {
+.modal-foot button,
+.modal-foot app-split-button {
   flex: 1 1 0;
 }
 .modal-foot .primary {
