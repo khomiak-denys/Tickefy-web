@@ -1,0 +1,17 @@
+@if (open) {
+  <div class="modal-backdrop" (click)="closeModal()"></div>
+  <div class="modal">
+    <header class="modal-head">
+      <h3>{{ title }}</h3>
+      <button class="close" (click)="closeModal()">×</button>
+    </header>
+
+    <section class="modal-body">
+      <ng-content />
+    </section>
+
+    <footer class="modal-foot">
+      <ng-content select="[modal-footer]" />
+    </footer>
+  </div>
+}

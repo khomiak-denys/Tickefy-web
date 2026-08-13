@@ -1,10 +1,11 @@
 import { Component, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { Category, CreateTeamRequest } from '../../../../core/api/dtos';
 import { FormsModule } from '@angular/forms';
+import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 
 @Component({
   selector: 'app-create-team-modal',
-  imports: [FormsModule],
+  imports: [FormsModule, ModalShellComponent],
   templateUrl: './create-team-modal.component.html',
   styleUrl: './create-team-modal.component.scss',
 })

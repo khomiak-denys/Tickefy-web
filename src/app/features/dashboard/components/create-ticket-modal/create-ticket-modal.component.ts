@@ -6,10 +6,11 @@ import {
   SplitButtonComponent,
   SplitBtnOption,
 } from '../../../../shared/components/split-button/split-button.component';
+import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 
 @Component({
   selector: 'app-create-ticket-modal',
-  imports: [FormsModule, LucideAngularModule, SplitButtonComponent],
+  imports: [FormsModule, LucideAngularModule, SplitButtonComponent, ModalShellComponent],
   templateUrl: './create-ticket-modal.component.html',
   styleUrl: './create-ticket-modal.component.scss',
 })

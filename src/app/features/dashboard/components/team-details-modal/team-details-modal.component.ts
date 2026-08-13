@@ -6,10 +6,11 @@ import { DashboardTeamsService } from '../../services/dashboard-teams.service';
 import { ProblemDetails } from '../../../../core/api/dtos/error.dto';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 
 @Component({
   selector: 'app-team-details-modal',
-  imports: [FormsModule, LucideAngularModule, SkeletonComponent],
+  imports: [FormsModule, LucideAngularModule, SkeletonComponent, ModalShellComponent],
   templateUrl: './team-details-modal.component.html',
   styleUrl: './team-details-modal.component.scss',
 })

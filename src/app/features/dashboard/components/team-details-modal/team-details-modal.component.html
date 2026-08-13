@@ -1,139 +1,131 @@
-@if (open) {
-  <div class="modal-backdrop" (click)="close()"></div>
-  <div class="modal">
-    <header class="modal-head">
-      <h3>Team Details</h3>
-      <button class="close" (click)="close()">×</button>
-    </header>
-    @if (teamDetails) {
-      <section class="modal-body team-modal">
-        <div class="team-header">
-          <h2>{{ teamDetails.name || 'Team' }}</h2>
-          <p class="team-desc">{{ teamDetails.description || 'Team description not provided' }}</p>
-          <div class="pill type">
-            <lucide-icon name="users" size="14"></lucide-icon>
-            {{ teamDetails.category || 'uncategorized' }}
-          </div>
+<app-modal-shell [open]="open" title="Team Details" (closed)="close()">
+  @if (teamDetails) {
+    <div class="team-content">
+      <div class="team-header">
+        <h2>{{ teamDetails.name || 'Team' }}</h2>
+        <p class="team-desc">{{ teamDetails.description || 'Team description not provided' }}</p>
+        <div class="pill type">
+          <lucide-icon name="users" size="14"></lucide-icon>
+          {{ teamDetails.category || 'uncategorized' }}
         </div>
+      </div>
 
-        <div class="team-section">
-          <div class="section-title">Team Leader</div>
-          <div class="person-card">
-            <div class="person-avatar">
+      <div class="team-section">
+        <div class="section-title">Team Leader</div>
+        <div class="person-card">
+          <div class="person-avatar">
+            {{
+              ((teamDetails.manager?.firstName || teamDetails.manager?.lastName || 'U') + '').slice(
+                0,
+                1
+              )
+            }}
+          </div>
+          <div class="person-meta">
+            <div class="person-name">
               {{
-                (
-                  (teamDetails.manager?.firstName || teamDetails.manager?.lastName || 'U') + ''
-                ).slice(0, 1)
+                (teamDetails.manager?.firstName || '') + ' ' + (teamDetails.manager?.lastName || '')
               }}
             </div>
-            <div class="person-meta">
-              <div class="person-name">
-                {{
-                  (teamDetails.manager?.firstName || '') +
-                    ' ' +
-                    (teamDetails.manager?.lastName || '')
-                }}
-              </div>
-              <div class="person-role">Team Leader</div>
-            </div>
+            <div class="person-role">Team Leader</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-section members">
+        <div class="members-head">
+          <div class="section-title">Members ({{ teamDetails.members.length || 0 }})</div>
+          <div class="add-member">
+            <input
+              type="text"
+              placeholder="Member login"
+              [(ngModel)]="newTeamMemberLogin"
+              [disabled]="teamDetailsLoading"
+            />
+            <button
+              class="ghost"
+              type="button"
+              (click)="addTeamMember()"
+              [disabled]="teamDetailsLoading || !newTeamMemberLogin.trim()"
+            >
+              <lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
+            </button>
           </div>
         </div>
 
-        <div class="team-section members">
-          <div class="members-head">
-            <div class="section-title">Members ({{ teamDetails.members.length || 0 }})</div>
-            <div class="add-member">
-              <input
-                type="text"
-                placeholder="Member login"
-                [(ngModel)]="newTeamMemberLogin"
-                [disabled]="teamDetailsLoading"
-              />
-              <button
-                class="ghost"
-                type="button"
-                (click)="addTeamMember()"
-                [disabled]="teamDetailsLoading || !newTeamMemberLogin.trim()"
-              >
-                <lucide-icon name="user-plus" size="16"></lucide-icon> Add Member
-              </button>
-            </div>
-          </div>
-
-          @if (teamDetails.members.length) {
-            <div class="members-list">
-              @for (m of teamDetails.members; track m.id) {
-                <div class="person-card muted">
-                  <div class="person-avatar light">
-                    {{ ((m?.firstName || m?.lastName) + '').slice(0, 1) }}
-                  </div>
-                  <div class="person-meta">
-                    <div class="person-name">
-                      {{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}
-                    </div>
-                  </div>
-                  <button
-                    class="icon danger"
-                    type="button"
-                    aria-label="Remove member"
-                    (click)="removeTeamMember(m)"
-                    [disabled]="teamDetailsLoading"
-                  >
-                    <lucide-icon name="user-minus" size="16"></lucide-icon>
-                  </button>
+        @if (teamDetails.members.length) {
+          <div class="members-list">
+            @for (m of teamDetails.members; track m.id) {
+              <div class="person-card muted">
+                <div class="person-avatar light">
+                  {{ ((m?.firstName || m?.lastName) + '').slice(0, 1) }}
                 </div>
-              }
-            </div>
-          } @else {
-            <div class="empty-panel">
-              <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
-              <div class="empty-title">No members yet</div>
-              <p class="empty-text">Add members by login to populate this team.</p>
-            </div>
-          }
+                <div class="person-meta">
+                  <div class="person-name">
+                    {{ (m?.firstName || '') + ' ' + (m?.lastName || '') }}
+                  </div>
+                </div>
+                <button
+                  class="icon danger"
+                  type="button"
+                  aria-label="Remove member"
+                  (click)="removeTeamMember(m)"
+                  [disabled]="teamDetailsLoading"
+                >
+                  <lucide-icon name="user-minus" size="16"></lucide-icon>
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-panel">
+            <div class="empty-icon"><lucide-icon name="users" size="28"></lucide-icon></div>
+            <div class="empty-title">No members yet</div>
+            <p class="empty-text">Add members by login to populate this team.</p>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="team-content">
+      <div class="team-header">
+        <app-skeleton width="50%" height="32px" borderRadius="8px"></app-skeleton>
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px">
+          <app-skeleton width="85%" height="16px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="60%" height="16px" borderRadius="4px"></app-skeleton>
         </div>
-      </section>
-    } @else {
-      <section class="modal-body team-modal">
-        <div class="team-header">
-          <app-skeleton width="50%" height="32px" borderRadius="8px"></app-skeleton>
-          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px">
-            <app-skeleton width="85%" height="16px" borderRadius="4px"></app-skeleton>
-            <app-skeleton width="60%" height="16px" borderRadius="4px"></app-skeleton>
-          </div>
-          <div style="margin-top: 16px">
-            <app-skeleton width="110px" height="26px" borderRadius="999px"></app-skeleton>
-          </div>
+        <div style="margin-top: 16px">
+          <app-skeleton width="110px" height="26px" borderRadius="999px"></app-skeleton>
+        </div>
+      </div>
+
+      <div class="team-section" style="margin-top: 24px">
+        <div style="margin-bottom: 12px">
+          <app-skeleton width="100px" height="18px" borderRadius="4px"></app-skeleton>
+        </div>
+        <app-skeleton width="100%" height="56px" borderRadius="12px"></app-skeleton>
+      </div>
+
+      <div class="team-section members" style="margin-top: 32px">
+        <div
+          class="members-head"
+          style="
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <app-skeleton width="130px" height="18px" borderRadius="4px"></app-skeleton>
+          <app-skeleton width="220px" height="36px" borderRadius="6px"></app-skeleton>
         </div>
 
-        <div class="team-section" style="margin-top: 24px">
-          <div style="margin-bottom: 12px">
-            <app-skeleton width="100px" height="18px" borderRadius="4px"></app-skeleton>
-          </div>
-          <app-skeleton width="100%" height="56px" borderRadius="12px"></app-skeleton>
+        <div class="members-list" style="display: flex; flex-direction: column; gap: 10px">
+          <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
+          <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
+          <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
         </div>
-
-        <div class="team-section members" style="margin-top: 32px">
-          <div
-            class="members-head"
-            style="
-              margin-bottom: 16px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <app-skeleton width="130px" height="18px" borderRadius="4px"></app-skeleton>
-            <app-skeleton width="220px" height="36px" borderRadius="6px"></app-skeleton>
-          </div>
-
-          <div class="members-list" style="display: flex; flex-direction: column; gap: 10px">
-            <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
-            <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
-            <app-skeleton width="100%" height="52px" borderRadius="12px"></app-skeleton>
-          </div>
-        </div>
-      </section>
-    }
-  </div>
-}
+      </div>
+    </div>
+  }
+</app-modal-shell>
