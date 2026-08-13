@@ -166,6 +166,7 @@
   [ticketId]="selectedTicketId"
   (closed)="closeTicketModal()"
   (updated)="refreshTickets(this.activeTab)"
+  (editDraft)="openEditDraftModal($event)"
 ></app-ticket-details-modal>
 
 <app-create-ticket-modal
@@ -173,6 +174,13 @@
   (closed)="closeTicketCreate()"
   (submitted)="createTicket($event)"
 ></app-create-ticket-modal>
+
+<app-publish-ticket-modal
+  [open]="isPublishTicketModalOpen"
+  [draftData]="draftToEdit"
+  (closed)="closePublishTicketModal()"
+  (published)="publishTicket($event)"
+></app-publish-ticket-modal>
 
 <app-create-team-modal
   [open]="isCreateTeamModalOpen"

@@ -9,6 +9,8 @@ export function statusClass(status: string) {
     cancelled: s.startsWith('canc') || s.includes('cancel'),
     assigned: s.includes('assign'),
     created: s.includes('created'),
+    accepted: s.includes('accepted'),
+    draft: s.includes('draft'),
   };
 }
 

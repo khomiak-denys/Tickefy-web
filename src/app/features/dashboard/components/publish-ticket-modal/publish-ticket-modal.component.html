@@ -1,0 +1,38 @@
+@if (open) {
+  <div class="modal-backdrop" (click)="close()"></div>
+  <div class="modal">
+    <header class="modal-head">
+      <h3>Publish Draft Ticket</h3>
+      <button class="close" (click)="close()" aria-label="Close">
+        <lucide-icon name="x" size="18"></lucide-icon>
+      </button>
+    </header>
+    <section class="modal-body">
+      <label>
+        <span>Title</span>
+        <input type="text" [(ngModel)]="newTitle" placeholder="Brief description of your request" />
+      </label>
+      <label>
+        <span>Description</span>
+        <textarea
+          [(ngModel)]="newDescription"
+          rows="6"
+          placeholder="Detailed description of what you need..."
+        ></textarea>
+      </label>
+      <label>
+        <span>Deadline</span>
+        <input type="date" [(ngModel)]="newDeadline" placeholder="mm/dd/yyyy" />
+      </label>
+    </section>
+    <footer class="modal-foot">
+      <button class="secondary" [disabled]="publishSubmitting" (click)="close()">Cancel</button>
+      <button class="primary" [disabled]="publishSubmitting" (click)="submit()">
+        Publish Ticket
+      </button>
+    </footer>
+    @if (error) {
+      <div class="error" style="padding: 0 16px 16px">{{ error }}</div>
+    }
+  </div>
+}

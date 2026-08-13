@@ -16,6 +16,16 @@
               </button>
             }
           }
+          @if (hasPublishAction(d.availableActions)) {
+            <button
+              class="act success"
+              (click)="publishTicket(d.id, d)"
+              [disabled]="ticketActionLoading"
+            >
+              <lucide-icon name="send" size="16"></lucide-icon>
+              Publish
+            </button>
+          }
         </div>
         <div class="ticket-tags">
           <span class="pill status" [ngClass]="statusClass(d.status)"
@@ -66,8 +76,8 @@
               <div class="avatar small">
                 {{
                   (
-                    (c.user?.firstName || '') +
-                      (c.user?.lastName ? ' ' + c.user?.lastName : '') || 'U'
+                    (c.user?.firstName || '') + (c.user?.lastName ? ' ' + c.user?.lastName : '') ||
+                    'U'
                   ).slice(0, 1)
                 }}
               </div>

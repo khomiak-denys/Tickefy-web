@@ -163,6 +163,14 @@ export class DashboardTicketService {
     return this.tickets.create(req).pipe(tap(() => this.loadTickets('my')));
   }
 
+  createDraft(req: CreateTicketRequest) {
+    return this.tickets.createDraft(req).pipe(tap(() => this.loadTickets('my')));
+  }
+
+  publish(ticketId: string, req: CreateTicketRequest) {
+    return this.tickets.publish(ticketId, req).pipe(tap(() => this.loadTickets('my')));
+  }
+
   taketTicket(id: string) {
     return this.tickets.take(id).pipe(tap(() => this.loadTickets('queue')));
   }

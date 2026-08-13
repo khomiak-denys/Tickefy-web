@@ -22,11 +22,10 @@
           >
           <span class="pill priority" [ngClass]="t.priority | priorityClass"
             ><lucide-icon name="alert-circle" size="14"></lucide-icon>
-            {{ t.priority || 'medium' }}</span
+            {{ t.priority || 'N/A' }}</span
           >
           <span class="pill type"
-            ><lucide-icon name="ticket" size="14"></lucide-icon>
-            {{ t.category || t.assignedTeam.category }}</span
+            ><lucide-icon name="ticket" size="14"></lucide-icon> {{ t.category || 'N/A' }}</span
           >
           <span class="pill deadline"
             ><lucide-icon name="calendar" size="14"></lucide-icon>

@@ -15,17 +15,16 @@
         <div class="person-card">
           <div class="person-avatar">
             {{
-              (
-                (teamDetails.manager?.firstName || teamDetails.manager?.lastName || 'U') + ''
-              ).slice(0, 1)
+              ((teamDetails.manager?.firstName || teamDetails.manager?.lastName || 'U') + '').slice(
+                0,
+                1
+              )
             }}
           </div>
           <div class="person-meta">
             <div class="person-name">
               {{
-                (teamDetails.manager?.firstName || '') +
-                  ' ' +
-                  (teamDetails.manager?.lastName || '')
+                (teamDetails.manager?.firstName || '') + ' ' + (teamDetails.manager?.lastName || '')
               }}
             </div>
             <div class="person-role">Team Leader</div>

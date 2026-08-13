@@ -15,10 +15,6 @@ import { HttpParams } from '@angular/common/http';
 export class TicketsService {
   constructor(private http: HttpClient) {}
 
-  create(body: CreateTicketRequest) {
-    return this.http.post(`${API_BASE_URL}/api/v1/tickets`, body);
-  }
-
   getAll(
     page: number = 1,
     pageSize: number = 10
@@ -52,12 +48,24 @@ export class TicketsService {
     return this.http.get<TicketDetailsDto>(`${API_BASE_URL}/api/v1/tickets/${ticketId}`);
   }
 
+  create(body: CreateTicketRequest) {
+    return this.http.post(`${API_BASE_URL}/api/v1/tickets`, body);
+  }
+
+  createDraft(body: CreateTicketRequest) {
+    return this.http.post(`${API_BASE_URL}/api/v1/tickets/draft`, body);
+  }
+
   postComment(ticketId: string, body: PostCommentRequest) {
     return this.http.post(`${API_BASE_URL}/api/v1/tickets/${ticketId}/comment`, body);
   }
 
   complete(ticketId: string) {
     return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/complete`, {});
+  }
+
+  publish(ticketId: string, body: CreateTicketRequest) {
+    return this.http.put(`${API_BASE_URL}/api/v1/tickets/${ticketId}/publish`, body);
   }
 
   reopen(ticketId: string, reason: string) {
