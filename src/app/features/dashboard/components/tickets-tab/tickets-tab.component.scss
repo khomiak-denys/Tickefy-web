@@ -9,6 +9,7 @@
     transform 0.05s ease,
     box-shadow 0.15s ease;
 }
+
 .ticket-card:hover {
   box-shadow: 0 12px 26px rgba(17, 24, 39, 0.07);
   transform: translateY(-1px);
@@ -20,6 +21,7 @@
   justify-content: space-between;
   gap: 10px;
 }
+
 .card-top h3 {
   margin: 0;
   font-size: 16px;
@@ -35,6 +37,7 @@
   color: #374151;
   font-size: 12px;
 }
+
 .card-meta .dot {
   color: #cbd5e1;
 }
@@ -50,64 +53,89 @@
   background: #f8fafc;
   color: #0f172a;
 }
+
 .pill .lucide-icon {
   vertical-align: middle;
 }
+
 .pill.status.open {
   background: #e8edff;
   color: #3f46ff;
   border-color: #dbe2ff;
 }
+
 .pill.status.progress {
   background: #fff7e7;
   color: #d97706;
   border-color: #fde9c3;
 }
+
 .pill.status.completed {
   background: #e9fbef;
   color: #059669;
   border-color: #c7f0d9;
 }
+
 .pill.status.cancelled {
   background: #ffecec;
   color: #ef4444;
   border-color: #ffd2d2;
 }
+
 .pill.status.failed {
   background: #ffecec;
   color: #b91c1c;
   border-color: #ffd2d2;
 }
+
 .pill.status.assigned {
   background: #e0f2fe;
   color: #1d4ed8;
   border-color: #bae6fd;
 }
+
 .pill.status.created {
   background: #f5f3ff;
   color: #7c3aed;
   border-color: #e9d5ff;
 }
+
+.pill.status.accepted {
+  background: #e9fbef;
+  color: #059669;
+  border-color: #c7f0d9;
+}
+
+.pill.status.draft {
+  background: #e0f2fe;
+  color: #1d4ed8;
+  border-color: #bae6fd;
+}
+
 .pill.priority.low {
   background: #ecfdf5;
   color: #065f46;
   border-color: #d1fae5;
 }
+
 .pill.priority.medium {
   background: #fef3c7;
   color: #92400e;
   border-color: #fde68a;
 }
+
 .pill.priority.high {
   background: #fee2e2;
   color: #991b1b;
   border-color: #fecaca;
 }
+
 .pill.type {
   background: #eef2ff;
   color: #1e3a8a;
   border-color: #e0e7ff;
 }
+
 .pill.deadline {
   background: #f0f9ff;
   color: #0ea5e9;
@@ -160,6 +188,7 @@
   font-weight: 700;
   color: #0f172a;
 }
+
 .empty-text {
   margin: 0;
   color: #6b7280;
