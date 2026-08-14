@@ -34,9 +34,9 @@
           >
           <span class="pill priority"
             ><lucide-icon name="alert-circle" size="14"></lucide-icon>
-            {{ d.priority ? d.priority : 'medium' }}</span
+            {{ d.priority ? d.priority : 'N/A' }}</span
           >
-          <span class="pill type">{{ d.category || d.assignedTeam.category || 'none' }}</span>
+          <span class="pill type">{{ d.category || 'N\A' }}</span>
         </div>
       </div>
       <div class="ticket-meta-row">
