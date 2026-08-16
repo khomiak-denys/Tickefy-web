@@ -64,6 +64,8 @@ export class CreateTicketModalComponent implements OnChanges {
   }
 
   submit(actionValue: string) {
+    this.updateDescriptionValidators(actionValue);
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -83,5 +85,17 @@ export class CreateTicketModalComponent implements OnChanges {
 
   private formatDate(date: string): string {
     return new Date(date).toISOString();
+  }
+
+  private updateDescriptionValidators(actionValue: string) {
+    const descriptionControl = this.form.get('description');
+
+    if (actionValue === 'create') {
+      descriptionControl?.setValidators([Validators.required]);
+    } else {
+      descriptionControl?.setValidators([]);
+    }
+
+    descriptionControl?.updateValueAndValidity();
   }
 }
