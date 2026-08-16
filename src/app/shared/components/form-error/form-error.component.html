@@ -17,9 +17,11 @@
     }
     @if (control?.hasError('min')) {
       <span>Value is too small.</span>
-    } @else if (control?.hasError('max')) {
+    }
+    @if (control?.hasError('max')) {
       <span>Value is too large.</span>
-    } @else if (control?.hasError('futureDeadline')) {
+    }
+    @if (control?.hasError('futureDeadline')) {
       <span>Deadline must be in the future.</span>
     }
   </div>
