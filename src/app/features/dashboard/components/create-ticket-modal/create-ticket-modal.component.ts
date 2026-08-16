@@ -1,16 +1,23 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CreateTicketRequest } from '../../../../core/api/dtos';
-import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   SplitButtonComponent,
   SplitBtnOption,
 } from '../../../../shared/components/split-button/split-button.component';
 import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
+import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
+import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 
 @Component({
   selector: 'app-create-ticket-modal',
-  imports: [FormsModule, LucideAngularModule, SplitButtonComponent, ModalShellComponent],
+  imports: [
+    LucideAngularModule,
+    SplitButtonComponent,
+    ModalShellComponent,
+    ReactiveFormsModule,
+    FormErrorComponent,
+  ],
   templateUrl: './create-ticket-modal.component.html',
   styleUrl: './create-ticket-modal.component.scss',
 })
@@ -20,10 +27,9 @@ export class CreateTicketModalComponent implements OnChanges {
   @Output() submitted = new EventEmitter<{ request: CreateTicketRequest; action: string }>();
 
   createSubmitting = false;
-  newTitle = '';
-  newDescription = '';
-  newDeadline = '';
   error: string | null = null;
+
+  form!: FormGroup;
 
   ticketSubmitOptions: SplitBtnOption[] = [
     {
@@ -38,11 +44,17 @@ export class CreateTicketModalComponent implements OnChanges {
     },
   ];
 
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      title: ['', Validators.required],
+      description: [''],
+      deadline: ['', Validators.required],
+    });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']?.currentValue === false) {
-      this.newTitle = '';
-      this.newDescription = '';
-      this.newDeadline = '';
+      this.form.reset();
       this.createSubmitting = false;
       this.error = null;
     }
@@ -53,16 +65,16 @@ export class CreateTicketModalComponent implements OnChanges {
   }
 
   submit(actionValue: string) {
-    if (!this.newTitle || !this.newDeadline) {
-      this.error = 'Title and deadline are required';
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
-    const isoDeadline = this.formatDate(this.newDeadline);
+    const isoDeadline = this.formatDate(this.form.value.deadline);
 
     const request: CreateTicketRequest = {
-      title: this.newTitle,
-      description: this.newDescription,
+      title: this.form.value.title,
+      description: this.form.value.description,
       deadline: isoDeadline,
     };
     this.createSubmitting = true;

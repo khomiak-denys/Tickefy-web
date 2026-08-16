@@ -1,7 +1,7 @@
-// Стилі форми
 label {
   display: block;
-  margin-bottom: 16px;
+  position: relative;
+  margin-bottom: 24px;
 }
 
 label > span {
@@ -13,8 +13,7 @@ label > span {
 
 input[type='text'],
 input[type='date'],
-textarea,
-select {
+textarea {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -31,43 +30,19 @@ textarea {
 }
 
 input:focus,
-textarea:focus,
-select:focus {
+textarea:focus {
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.error {
-  color: #b91c1c;
-  font-size: 0.85rem;
-  margin-top: 8px;
-}
-
-// Кнопки футера
 [modal-footer] {
   display: flex;
   gap: 12px;
   width: 100%;
 }
 
-.primary,
 .secondary {
   flex: 1 1 0;
-}
-
-.primary {
-  background: #5b53ff;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 20px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(91, 83, 255, 0.25);
-}
-
-.primary:hover {
-  filter: brightness(1.02);
 }
 
 .secondary {
@@ -82,4 +57,14 @@ select:focus {
 
 .secondary:hover {
   background: #f1f5f9;
+}
+
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+
+app-split-button {
+  display: block;
+  flex: 1 1 0;
 }
