@@ -8,6 +8,7 @@ import {
 import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
+import { futureDeadlineValidator } from '../../validators/deadline.validator';
 
 @Component({
   selector: 'app-create-ticket-modal',
@@ -27,7 +28,6 @@ export class CreateTicketModalComponent implements OnChanges {
   @Output() submitted = new EventEmitter<{ request: CreateTicketRequest; action: string }>();
 
   createSubmitting = false;
-  error: string | null = null;
 
   form!: FormGroup;
 
@@ -48,7 +48,7 @@ export class CreateTicketModalComponent implements OnChanges {
     this.form = this.fb.group({
       title: ['', Validators.required],
       description: [''],
-      deadline: ['', Validators.required],
+      deadline: ['', [Validators.required, futureDeadlineValidator()]],
     });
   }
 
@@ -56,7 +56,6 @@ export class CreateTicketModalComponent implements OnChanges {
     if (changes['open']?.currentValue === false) {
       this.form.reset();
       this.createSubmitting = false;
-      this.error = null;
     }
   }
 
