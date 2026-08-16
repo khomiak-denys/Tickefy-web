@@ -2,18 +2,25 @@
   <div class="error">
     @if (control?.hasError('required')) {
       <span>This field is required.</span>
-    } @else if (control?.hasError('minlength')) {
+    }
+    @if (control?.hasError('minlength')) {
       <span>Value is too short.</span>
-    } @else if (control?.hasError('maxlength')) {
+    }
+    @if (control?.hasError('maxlength')) {
       <span>Value is too long.</span>
-    } @else if (control?.hasError('pattern')) {
+    }
+    @if (control?.hasError('pattern')) {
       <span>Value is invalid.</span>
-    } @else if (control?.hasError('email')) {
+    }
+    @if (control?.hasError('email')) {
       <span>Value is invalid.</span>
-    } @else if (control?.hasError('min')) {
+    }
+    @if (control?.hasError('min')) {
       <span>Value is too small.</span>
     } @else if (control?.hasError('max')) {
       <span>Value is too large.</span>
+    } @else if (control?.hasError('futureDeadline')) {
+      <span>Deadline must be in the future.</span>
     }
   </div>
 }
