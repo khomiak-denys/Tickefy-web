@@ -28,6 +28,9 @@ describe('errorInterceptor', () => {
     notificationService = TestBed.inject(NotificationService);
     httpClient = TestBed.inject(HttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);
+
+    jest.spyOn(notificationService, 'error');
+    jest.clearAllMocks();
   });
 
   it('should push all errors from 400 response', () => {
