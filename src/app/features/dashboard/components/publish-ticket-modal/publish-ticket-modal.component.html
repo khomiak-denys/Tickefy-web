@@ -1,6 +1,6 @@
 @if (open) {
   <div class="modal-backdrop" (click)="close()"></div>
-  <div class="modal">
+  <div class="modal" [formGroup]="form">
     <header class="modal-head">
       <h3>Publish Draft Ticket</h3>
       <button class="close" (click)="close()" aria-label="Close">
@@ -10,29 +10,36 @@
     <section class="modal-body">
       <label>
         <span>Title</span>
-        <input type="text" [(ngModel)]="newTitle" placeholder="Brief description of your request" />
+        <input
+          type="text"
+          formControlName="title"
+          placeholder="Brief description of your request"
+        />
+        <app-form-error [control]="form.get('title')"></app-form-error>
       </label>
+
       <label>
         <span>Description</span>
         <textarea
-          [(ngModel)]="newDescription"
+          formControlName="description"
           rows="6"
           placeholder="Detailed description of what you need..."
         ></textarea>
       </label>
+
       <label>
         <span>Deadline</span>
-        <input type="date" [(ngModel)]="newDeadline" placeholder="mm/dd/yyyy" />
+        <input type="date" formControlName="deadline" placeholder="mm/dd/yyyy" />
+        <app-form-error [control]="form.get('deadline')"></app-form-error>
       </label>
     </section>
     <footer class="modal-foot">
-      <button class="secondary" [disabled]="publishSubmitting" (click)="close()">Cancel</button>
-      <button class="primary" [disabled]="publishSubmitting" (click)="submit()">
+      <button type="button" class="secondary" [disabled]="submitting" (click)="close()">
+        Cancel
+      </button>
+      <button type="button" class="primary" [disabled]="submitting" (click)="submit()">
         Publish Ticket
       </button>
     </footer>
-    @if (error) {
-      <div class="error" style="padding: 0 16px 16px">{{ error }}</div>
-    }
   </div>
 }
