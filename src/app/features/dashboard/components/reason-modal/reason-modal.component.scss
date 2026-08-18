@@ -1,6 +1,7 @@
 label {
   display: block;
-  margin-bottom: 16px;
+  position: relative;
+  margin-bottom: 24px;
 }
 
 label > span {
@@ -68,8 +69,6 @@ textarea:focus {
   background: #f1f5f9;
 }
 
-.error {
-  color: #b91c1c;
-  font-size: 0.85rem;
-  margin-top: 8px;
+textarea.ng-invalid.ng-touched {
+  border: 1px solid red;
 }
