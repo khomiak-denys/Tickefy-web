@@ -47,6 +47,18 @@ describe('errorInterceptor', () => {
     expect(notificationService.error).toHaveBeenCalledWith('Last name is too short');
   });
 
+  it('should push detail from 400 response without errors object', () => {
+    httpClient.get('/').subscribe({
+      next: () => {},
+      error: () => {},
+    });
+    const request = httpTestingController.expectOne('/');
+    request.flush({ detail: 'Invalid credentials' }, { status: 400, statusText: 'Bad Request' });
+
+    expect(notificationService.error).toHaveBeenCalledTimes(1);
+    expect(notificationService.error).toHaveBeenCalledWith('Invalid credentials');
+  });
+
   it('should push only one error on other 4xx responses', () => {
     httpClient.get('/').subscribe({
       next: () => {},
