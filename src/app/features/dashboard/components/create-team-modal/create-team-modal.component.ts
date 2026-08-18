@@ -1,24 +1,36 @@
-import { Component, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Output,
+  Input,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Category, CreateTeamRequest } from '../../../../core/api/dtos';
-import { FormsModule } from '@angular/forms';
 import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
+import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 
 @Component({
   selector: 'app-create-team-modal',
-  imports: [FormsModule, ModalShellComponent],
+  imports: [ReactiveFormsModule, ModalShellComponent, FormErrorComponent],
   templateUrl: './create-team-modal.component.html',
   styleUrl: './create-team-modal.component.scss',
 })
 export class CreateTeamModalComponent implements OnChanges {
+  private fb = inject(FormBuilder);
+
   @Input() open = false;
-  @Output() closed = new EventEmitter();
+  @Input() submitting = false;
+  @Output() closed = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<CreateTeamRequest>();
 
-  newTeamName = '';
-  newTeamDescription = '';
-  newTeamCategory = '';
-  error: string | null = null;
-  createTeamSubmitting = false;
+  form = this.fb.group({
+    name: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
+    description: this.fb.control('', { nonNullable: true }),
+    category: this.fb.control<Category | null>(null, { validators: [Validators.required] }),
+  });
 
   categoryOptions = [
     { value: Category.Finance, label: 'Finance' },
@@ -32,12 +44,8 @@ export class CreateTeamModalComponent implements OnChanges {
   ];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['open'].currentValue === false) {
-      this.newTeamName = '';
-      this.newTeamDescription = '';
-      this.newTeamCategory = '';
-      this.error = null;
-      this.createTeamSubmitting = false;
+    if (changes['open']?.currentValue === false) {
+      this.form.reset();
     }
   }
 
@@ -46,20 +54,19 @@ export class CreateTeamModalComponent implements OnChanges {
   }
 
   submit() {
-    if (!this.newTeamName || this.newTeamCategory === '') {
-      this.error = 'The name and category is required';
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
-    const category = Number(this.newTeamCategory);
+    const { name, description, category } = this.form.value;
 
     const request: CreateTeamRequest = {
-      name: this.newTeamName,
-      description: this.newTeamDescription,
-      category: category,
+      name: name!,
+      description: description!,
+      category: category as Category,
     };
 
-    this.createTeamSubmitting = true;
     this.submitted.emit(request);
   }
 }

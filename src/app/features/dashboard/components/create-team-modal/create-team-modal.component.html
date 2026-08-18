@@ -1,34 +1,37 @@
-<app-modal-shell [open]="open" title="Create Team" (closed)="close()">
+<app-modal-shell [open]="open" title="Create Team" (closed)="close()" [formGroup]="form">
   <label>
     <span>Name</span>
-    <input type="text" [(ngModel)]="newTeamName" placeholder="Team name" />
+    <input type="text" formControlName="name" placeholder="Team name" />
+    <app-form-error [control]="form.get('name')"></app-form-error>
   </label>
+
   <label>
     <span>Description</span>
     <textarea
-      [(ngModel)]="newTeamDescription"
+      formControlName="description"
       rows="4"
       placeholder="What does this team do?"
     ></textarea>
+    <app-form-error [control]="form.get('description')"></app-form-error>
   </label>
+
   <label>
     <span>Category</span>
-    <select [(ngModel)]="newTeamCategory">
+    <select formControlName="category">
       <option [ngValue]="null">Select category</option>
       @for (c of categoryOptions; track c.value) {
         <option [ngValue]="c.value">{{ c.label }}</option>
       }
     </select>
+    <app-form-error [control]="form.get('category')"></app-form-error>
   </label>
 
-  @if (error) {
-    <div class="error">{{ error }}</div>
-  }
-
   <div modal-footer>
-    <button class="secondary" [disabled]="createTeamSubmitting" (click)="close()">Cancel</button>
-    <button class="primary" [disabled]="createTeamSubmitting" (click)="submit()">
-      {{ createTeamSubmitting ? 'Creating…' : 'Create Team' }}
+    <button type="button" class="secondary" [disabled]="submitting" (click)="close()">
+      Cancel
+    </button>
+    <button type="button" class="primary" [disabled]="submitting" (click)="submit()">
+      {{ submitting ? 'Creating…' : 'Create Team' }}
     </button>
   </div>
 </app-modal-shell>
