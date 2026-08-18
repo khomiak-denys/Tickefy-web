@@ -24,10 +24,9 @@ import { futureDeadlineValidator } from '../../validators/deadline.validator';
 })
 export class CreateTicketModalComponent implements OnChanges {
   @Input() open = false;
+  @Input() submitting = false;
   @Output() closed = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<{ request: CreateTicketRequest; action: string }>();
-
-  createSubmitting = false;
 
   form!: FormGroup;
 
@@ -55,7 +54,6 @@ export class CreateTicketModalComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']?.currentValue === false) {
       this.form.reset();
-      this.createSubmitting = false;
     }
   }
 
@@ -78,7 +76,6 @@ export class CreateTicketModalComponent implements OnChanges {
       description: this.form.value.description,
       deadline: isoDeadline,
     };
-    this.createSubmitting = true;
 
     this.submitted.emit({ request, action: actionValue });
   }

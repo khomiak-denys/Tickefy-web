@@ -20,10 +20,10 @@
     <app-form-error [control]="form.get('deadline')"></app-form-error>
   </label>
   <div modal-footer>
-    <button class="secondary" [disabled]="createSubmitting" (click)="close()">Cancel</button>
+    <button class="secondary" [disabled]="submitting" (click)="close()">Cancel</button>
     <app-split-button
       [options]="ticketSubmitOptions"
-      [disabled]="createSubmitting"
+      [disabled]="submitting"
       (actionExecuted)="submit($event)"
     >
     </app-split-button>
