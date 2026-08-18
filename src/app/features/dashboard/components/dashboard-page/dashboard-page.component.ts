@@ -102,8 +102,12 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   selectedTeamId: string | null = null;
 
   isCreateTicketModalOpen = false;
+  isCreatingTicket = false;
+
   isPublishTicketModalOpen = false;
+  isPublishTicketSubmitting = false;
   isCreateTeamModalOpen = false;
+  isCreateTeamSubmitting = false;
 
   constructor(
     private usersService: DashboardUserService,
@@ -258,17 +262,18 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
         ? this.ticketService.createDraft(payload.request)
         : this.ticketService.createTicket(payload.request);
 
+    this.isCreatingTicket = true;
+
     actionStream.subscribe({
       next: () => {
-        this.isCreateTicketModalOpen = false;
+        this.isCreatingTicket = false;
+        this.closeTicketCreate();
         this.notificationService.info(
           payload.action === 'draft' ? 'Draft created successfully' : 'Ticket created successfully'
         );
       },
       error: () => {
-        this.notificationService.error(
-          payload.action === 'draft' ? 'Failed to create draft' : 'Failed to create ticket'
-        );
+        this.isCreatingTicket = false;
       },
     });
   }
@@ -276,13 +281,16 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   publishTicket(payload: { request: CreateTicketRequest }) {
     if (!this.draftToEdit) return;
 
+    this.isPublishTicketSubmitting = true;
     this.ticketService.publish(this.draftToEdit.id, payload.request).subscribe({
       next: () => {
+        this.isPublishTicketSubmitting = false;
         this.isPublishTicketModalOpen = false;
         this.notificationService.info('Draft published successfully');
         this.draftToEdit = null;
       },
       error: () => {
+        this.isPublishTicketSubmitting = false;
         this.notificationService.error('Failed to publish draft');
       },
     });
@@ -376,12 +384,15 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   createTeam(req: CreateTeamRequest) {
+    this.isCreateTeamSubmitting = true;
     this.teamsService.createTeam(req).subscribe({
       next: () => {
+        this.isCreateTeamSubmitting = false;
         this.isCreateTeamModalOpen = false;
         this.notificationService.info('Team created successfully');
       },
       error: () => {
+        this.isCreateTeamSubmitting = false;
         this.notificationService.error('Failed to create team');
       },
     });

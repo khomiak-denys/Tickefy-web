@@ -165,7 +165,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to complete ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -189,7 +192,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to reopen ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -213,7 +219,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to cancel ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -232,7 +241,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to take ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -256,7 +268,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to fail ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -275,7 +290,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to accept ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -294,7 +312,10 @@ export class TicketDetailsModalComponent implements OnChanges {
       error: () => {
         this.notificationService.error('Failed to start work on ticket');
       },
-      complete: () => (this.ticketActionLoading = false),
+      complete: () => {
+        this.ticketActionLoading = false;
+        this.reasonModalOpened = false;
+      },
     });
   }
 
@@ -323,7 +344,6 @@ export class TicketDetailsModalComponent implements OnChanges {
   }
 
   onReasonModalSubmit(reason: string | null) {
-    this.reasonModalOpened = false;
     if (this.pendingAction) {
       this.executeAction(reason);
     }

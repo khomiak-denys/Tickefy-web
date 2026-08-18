@@ -1,34 +1,30 @@
-<app-modal-shell [open]="open" title="Create New Ticket" (closed)="close()">
+<app-modal-shell [open]="open" title="Create New Ticket" (closed)="close()" [formGroup]="form">
   <label>
     <span>Title</span>
-    <input type="text" [(ngModel)]="newTitle" placeholder="Brief description of your request" />
+    <input type="text" formControlName="title" placeholder="Brief description of your request" />
+    <app-form-error [control]="form.get('title')"></app-form-error>
   </label>
+
   <label>
     <span>Description</span>
     <textarea
-      [(ngModel)]="newDescription"
+      formControlName="description"
       rows="6"
       placeholder="Detailed description of what you need..."
     ></textarea>
+    <app-form-error [control]="form.get('description')"></app-form-error>
   </label>
   <label>
     <span>Deadline</span>
-    <input type="date" [(ngModel)]="newDeadline" placeholder="mm/dd/yyyy" />
+    <input type="date" formControlName="deadline" placeholder="mm/dd/yyyy" />
+    <app-form-error [control]="form.get('deadline')"></app-form-error>
   </label>
-
-  @if (error) {
-    <div class="error">{{ error }}</div>
-  }
-
-  <div modal-footer style="display: flex; gap: 12px; width: 100%">
-    <button class="secondary" [disabled]="createSubmitting" (click)="close()" style="flex: 1 1 0">
-      Cancel
-    </button>
+  <div modal-footer>
+    <button class="secondary" [disabled]="submitting" (click)="close()">Cancel</button>
     <app-split-button
       [options]="ticketSubmitOptions"
-      [disabled]="createSubmitting"
+      [disabled]="submitting"
       (actionExecuted)="submit($event)"
-      style="flex: 1 1 0; display: block"
     >
     </app-split-button>
   </div>

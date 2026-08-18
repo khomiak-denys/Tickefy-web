@@ -1,6 +1,7 @@
 label {
   display: block;
-  margin-bottom: 16px;
+  position: relative;
+  margin-bottom: 24px;
 }
 
 label > span {
@@ -36,10 +37,10 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.error {
-  color: #b91c1c;
-  font-size: 0.85rem;
-  margin-top: 8px;
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border: 1px solid red;
 }
 
 [modal-footer] {

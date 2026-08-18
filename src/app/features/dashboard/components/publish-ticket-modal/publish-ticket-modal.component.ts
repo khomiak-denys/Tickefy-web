@@ -1,39 +1,56 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { CreateTicketRequest, TicketDetailsDto } from '../../../../core/api/dtos';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { futureDeadlineValidator } from '../../validators/deadline.validator';
+import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 
 @Component({
   selector: 'app-publish-ticket-modal',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule],
+  imports: [ReactiveFormsModule, LucideAngularModule, FormErrorComponent],
   templateUrl: './publish-ticket-modal.component.html',
   styleUrl: './publish-ticket-modal.component.scss',
 })
 export class PublishTicketModalComponent implements OnChanges {
+  private fb = inject(FormBuilder);
+
   @Input() open = false;
+  @Input() submitting = false;
   @Input() draftData: TicketDetailsDto | null = null;
   @Output() closed = new EventEmitter<void>();
-  @Output() published = new EventEmitter<{ request: CreateTicketRequest }>();
+  @Output() submitted = new EventEmitter<{ request: CreateTicketRequest }>();
 
-  publishSubmitting = false;
-  newTitle = '';
-  newDescription = '';
-  newDeadline = '';
-  error: string | null = null;
+  form = this.fb.group({
+    title: this.fb.control('', { nonNullable: true, validators: Validators.required }),
+    description: this.fb.control('', { nonNullable: true, validators: Validators.required }),
+    deadline: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required, futureDeadlineValidator()],
+    }),
+  });
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']?.currentValue === true) {
       if (this.draftData) {
-        this.newTitle = this.draftData.title || '';
-        this.newDescription = this.draftData.description || '';
-        this.newDeadline = this.draftData.deadline ? this.draftData.deadline.substring(0, 10) : '';
+        this.form.patchValue({
+          title: this.draftData.title || '',
+          description: this.draftData.description || '',
+          deadline: this.draftData.deadline
+            ? new Date(this.draftData.deadline).toISOString().substring(0, 10)
+            : '',
+        });
       }
-      this.publishSubmitting = false;
-      this.error = null;
     } else if (changes['open']?.currentValue === false) {
-      this.publishSubmitting = false;
-      this.error = null;
+      this.form.reset();
     }
   }
 
@@ -42,21 +59,20 @@ export class PublishTicketModalComponent implements OnChanges {
   }
 
   submit() {
-    if (!this.newTitle || !this.newDeadline) {
-      this.error = 'Title and deadline are required';
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
-    const isoDeadline = this.formatDate(this.newDeadline);
+    const isoDeadline = new Date(this.form.value.deadline!).toISOString();
 
     const request: CreateTicketRequest = {
-      title: this.newTitle,
-      description: this.newDescription,
+      title: this.form.value.title!,
+      description: this.form.value.description!,
       deadline: isoDeadline,
     };
-    this.publishSubmitting = true;
 
-    this.published.emit({ request });
+    this.submitted.emit({ request });
   }
 
   private formatDate(date: string): string {

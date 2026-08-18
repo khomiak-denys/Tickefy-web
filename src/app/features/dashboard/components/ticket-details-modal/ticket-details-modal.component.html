@@ -147,6 +147,7 @@
 
 <app-reason-modal
   [open]="reasonModalOpened"
+  [submitting]="ticketActionLoading"
   [actionName]="reasonActionName"
   (submitted)="onReasonModalSubmit($event)"
   (cancelled)="onReasonModalClose()"

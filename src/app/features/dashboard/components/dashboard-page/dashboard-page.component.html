@@ -171,19 +171,22 @@
 
 <app-create-ticket-modal
   [open]="isCreateTicketModalOpen"
+  [submitting]="isCreatingTicket"
   (closed)="closeTicketCreate()"
   (submitted)="createTicket($event)"
 ></app-create-ticket-modal>
 
 <app-publish-ticket-modal
   [open]="isPublishTicketModalOpen"
+  [submitting]="isPublishTicketSubmitting"
   [draftData]="draftToEdit"
   (closed)="closePublishTicketModal()"
-  (published)="publishTicket($event)"
+  (submitted)="publishTicket($event)"
 ></app-publish-ticket-modal>
 
 <app-create-team-modal
   [open]="isCreateTeamModalOpen"
+  [submitting]="isCreateTeamSubmitting"
   (closed)="closeCreateTeamModal()"
   (submitted)="createTeam($event)"
 ></app-create-team-modal>

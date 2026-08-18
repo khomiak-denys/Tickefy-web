@@ -1,0 +1,28 @@
+@if (control?.touched && control?.invalid) {
+  <div class="error">
+    @if (control?.hasError('required')) {
+      <span>This field is required.</span>
+    }
+    @if (control?.hasError('minlength')) {
+      <span>Value is too short.</span>
+    }
+    @if (control?.hasError('maxlength')) {
+      <span>Value is too long.</span>
+    }
+    @if (control?.hasError('pattern')) {
+      <span>Value is invalid.</span>
+    }
+    @if (control?.hasError('email')) {
+      <span>Value is invalid.</span>
+    }
+    @if (control?.hasError('min')) {
+      <span>Value is too small.</span>
+    }
+    @if (control?.hasError('max')) {
+      <span>Value is too large.</span>
+    }
+    @if (control?.hasError('futureDeadline')) {
+      <span>Deadline must be in the future.</span>
+    }
+  </div>
+}

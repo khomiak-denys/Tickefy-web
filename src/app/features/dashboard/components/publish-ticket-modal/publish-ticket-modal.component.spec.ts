@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PublishTicketModalComponent } from './publish-ticket-modal.component';
+import { SimpleChange } from '@angular/core';
 
 describe('PublishTicketModalComponent', () => {
   let component: PublishTicketModalComponent;
@@ -24,7 +25,7 @@ describe('PublishTicketModalComponent', () => {
       id: '123',
       title: 'Draft Ticket',
       description: 'Some description',
-      deadline: '2026-10-10T12:00:00Z',
+      deadline: '2050-10-10T12:00:00Z',
       category: 'Bug',
       priority: 'high',
       status: 'draft',
@@ -39,47 +40,74 @@ describe('PublishTicketModalComponent', () => {
 
     // Trigger ngOnChanges
     component.ngOnChanges({
-      open: {
-        currentValue: true,
-        previousValue: false,
-        firstChange: true,
-        isFirstChange: () => true,
-      },
+      open: new SimpleChange(false, true, true),
     });
 
-    expect(component.newTitle).toBe('Draft Ticket');
-    expect(component.newDescription).toBe('Some description');
-    expect(component.newDeadline).toBe('2026-10-10'); // should substring(0, 10)
+    expect(component.form.get('title')?.value).toBe('Draft Ticket');
+    expect(component.form.get('description')?.value).toBe('Some description');
+    expect(component.form.get('deadline')?.value).toBe('2050-10-10');
   });
 
-  it('should emit published event on valid submit', () => {
-    jest.spyOn(component.published, 'emit');
+  it('should emit submitted event on valid submit', () => {
+    const mockDateIso = new Date('2050-10-15').toISOString();
+    jest.spyOn(component.submitted, 'emit');
 
-    component.newTitle = 'Valid Title';
-    component.newDeadline = '2026-10-15';
-    component.newDescription = 'Valid desc';
+    component.form.patchValue({
+      title: 'Draft',
+      description: 'Draft desc',
+      deadline: '2050-10-15',
+    });
 
     component.submit();
 
-    expect(component.error).toBeNull();
-    expect(component.published.emit).toHaveBeenCalledWith({
+    expect(component.submitted.emit).toHaveBeenCalledWith({
       request: {
-        title: 'Valid Title',
-        description: 'Valid desc',
-        deadline: new Date('2026-10-15').toISOString(),
+        title: 'Draft',
+        description: 'Draft desc',
+        deadline: mockDateIso,
       },
     });
   });
 
-  it('should show error if title or deadline is missing', () => {
-    jest.spyOn(component.published, 'emit');
+  it('should format date and emit submitted if valid (no draftData)', () => {
+    jest.spyOn(component.submitted, 'emit');
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 5);
+    const dateStr = futureDate.toISOString().substring(0, 10);
 
-    component.newTitle = '';
-    component.newDeadline = '2026-10-15';
+    component.form.patchValue({
+      title: 'New',
+      description: 'Desc',
+      deadline: dateStr,
+    });
 
     component.submit();
 
-    expect(component.error).toBe('Title and deadline are required');
-    expect(component.published.emit).not.toHaveBeenCalled();
+    expect(component.submitted.emit).toHaveBeenCalled();
+  });
+
+  it('should mark all as touched if invalid submit', () => {
+    jest.spyOn(component.form, 'markAllAsTouched');
+    jest.spyOn(component.submitted, 'emit');
+    component.submit();
+
+    expect(component.form.markAllAsTouched).toHaveBeenCalled();
+    expect(component.submitted.emit).not.toHaveBeenCalled();
+  });
+
+  it('should reset form when closed via ngOnChanges', () => {
+    component.form.patchValue({ title: 'test' });
+
+    component.ngOnChanges({
+      open: new SimpleChange(true, false, false),
+    });
+
+    expect(component.form.get('title')?.value).toBe('');
+  });
+
+  it('should emit closed when close is called', () => {
+    jest.spyOn(component.closed, 'emit');
+    component.close();
+    expect(component.closed.emit).toHaveBeenCalled();
   });
 });

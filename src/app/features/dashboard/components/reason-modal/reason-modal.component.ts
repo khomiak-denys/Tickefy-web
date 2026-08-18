@@ -1,22 +1,40 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalShellComponent } from '../../../../shared/components/modal-shell/modal-shell.component';
+import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 
 @Component({
   selector: 'app-reason-modal',
-  imports: [FormsModule, ModalShellComponent],
+  imports: [ReactiveFormsModule, ModalShellComponent, FormErrorComponent],
   templateUrl: './reason-modal.component.html',
   styleUrl: './reason-modal.component.scss',
 })
-export class ReasonModalComponent {
+export class ReasonModalComponent implements OnChanges {
+  private fb = inject(FormBuilder);
+
   @Input() open: boolean = false;
+  @Input() submitting: boolean = false;
   @Input() actionName: string = '';
   @Output() submitted = new EventEmitter<string>();
   @Output() cancelled = new EventEmitter<void>();
 
-  error: string | null = null;
-  reasonText: string = '';
-  submitting: boolean = false;
+  form = this.fb.nonNullable.group({
+    reasonText: ['', Validators.required],
+  });
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['open']?.currentValue === false) {
+      this.reset();
+    }
+  }
 
   cancel(): void {
     this.cancelled.emit();
@@ -24,17 +42,14 @@ export class ReasonModalComponent {
   }
 
   submit(): void {
-    if (!this.reasonText.trim()) {
-      this.error = 'Reason is required';
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
-    this.submitted.emit(this.reasonText);
-    this.reset();
+    this.submitted.emit(this.form.get('reasonText')?.value);
   }
 
   private reset(): void {
-    this.reasonText = '';
-    this.error = null;
-    this.submitting = false;
+    this.form.reset();
   }
 }
