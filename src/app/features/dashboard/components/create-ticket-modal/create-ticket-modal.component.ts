@@ -45,9 +45,12 @@ export class CreateTicketModalComponent implements OnChanges {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      title: ['', Validators.required],
-      description: [''],
-      deadline: ['', [Validators.required, futureDeadlineValidator()]],
+      title: this.fb.control('', { nonNullable: true, validators: Validators.required }),
+      description: this.fb.control('', { nonNullable: true }),
+      deadline: this.fb.control('', {
+        nonNullable: true,
+        validators: [Validators.required, futureDeadlineValidator()],
+      }),
     });
   }
 
