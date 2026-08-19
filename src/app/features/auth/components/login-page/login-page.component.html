@@ -4,22 +4,18 @@
     <h1>Tickefy</h1>
     <p class="subtitle">Sign in to your account</p>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <label>Login</label>
-      <div class="input" [class.invalid]="submitted && form.get('login')?.invalid">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        <span>Login</span>
         <input formControlName="login" type="text" placeholder="Your login" />
-      </div>
-      @if (submitted && form.get('login')?.invalid) {
-        <div class="field-error">Login is required</div>
-      }
+        <app-form-error [control]="form.get('login')"></app-form-error>
+      </label>
 
-      <label>Password</label>
-      <div class="input" [class.invalid]="submitted && form.get('password')?.invalid">
+      <label>
+        <span>Password</span>
         <input formControlName="password" type="password" placeholder="Enter your password" />
-      </div>
-      @if (submitted && form.get('password')?.invalid) {
-        <div class="field-error">Password is required</div>
-      }
+        <app-form-error [control]="form.get('password')"></app-form-error>
+      </label>
 
       <button class="primary" type="submit" [disabled]="loading">
         {{ loading ? 'Signing in…' : 'Sign In' }}
