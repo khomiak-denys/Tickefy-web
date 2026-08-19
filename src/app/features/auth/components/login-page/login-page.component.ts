@@ -5,11 +5,13 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AuthDto } from '../../../../core/api/dtos/auth.dto';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
+import { LoginUserRequest } from '../../../../core/api/dtos';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule, FormErrorComponent],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.scss',
 })
@@ -28,23 +30,23 @@ export class LoginPageComponent {
     this.form = this.fb.group({
       login: ['', [Validators.required]],
       password: ['', [Validators.required]],
-      remember: [false],
     });
   }
 
   submit() {
     this.submitted = true;
+    this.loading = true;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.loading = false;
       return;
     }
-    this.loading = true;
-    const { login, password } = this.form.value as { login: string; password: string };
-    this.auth.login({ login, password }).subscribe({
+
+    const request = this.form.value as LoginUserRequest;
+
+    this.auth.login(request).subscribe({
       next: (res: AuthDto) => {
-        if (!res) {
-          return;
-        }
         if (res.token) {
           this.auth.saveToken(res.token);
           this.auth.saveUserProfile(res.firstName, res.lastName);
@@ -55,30 +57,7 @@ export class LoginPageComponent {
         }
         this.loading = false;
       },
-      error: (e) => {
-        const body = e?.error;
-        const status = e?.status;
-        const title = body?.title || body?.error || undefined;
-        const detail = body?.detail || body?.message || undefined;
-        const errorsObj = body?.errors;
-
-        let fieldErrors: string | undefined;
-        if (errorsObj && typeof errorsObj === 'object') {
-          const parts: string[] = [];
-          Object.keys(errorsObj).forEach((key) => {
-            const arr = errorsObj[key];
-            if (Array.isArray(arr)) {
-              parts.push(...arr);
-            } else if (arr) {
-              parts.push(String(arr));
-            }
-          });
-          if (parts.length) fieldErrors = parts.join('\n');
-        }
-
-        const base = title || (status ? `HTTP ${status}` : 'Request failed');
-        const msg = [base, detail, fieldErrors].filter(Boolean).join(': ');
-        this.notificationService.error(msg || 'Login failed');
+      error: () => {
         this.loading = false;
       },
     });

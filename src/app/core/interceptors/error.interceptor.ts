@@ -9,14 +9,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isValidation = error.status === 400;
       const problem = error.error as ProblemDetails;
+      const isValidation = error.status === 400 && problem.errors;
       if (isValidation) {
         Object.values(problem.errors!).forEach((messages: string[]) => {
           messages.forEach((message) => notificationService.error(message));
         });
       } else {
-        notificationService.error(problem.detail ?? '');
+        notificationService.error(problem.detail || problem.title || 'An error occurred');
       }
       return throwError(() => error);
     })
